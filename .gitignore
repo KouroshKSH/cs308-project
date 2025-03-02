@@ -4,3 +4,6 @@ venv/
 
 # Ignore Trunk extension files
 .trunk/
+
+# Ignore node_modules directory
+node_modules/
