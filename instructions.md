@@ -62,3 +62,23 @@ If you don't have time to read the whole thing, follow these steps:
         * Run: `npm start`
         * A new browser tab should automatically open, showing the React application.
         * If it doesn't open automatically, manually go to `http://localhost:3000/` in your browser.
+        * If you see the following error:
+          * ```bash
+            Error: error:0308010C:digital envelope routines::unsupported
+            js:59:103 {
+            opensslErrorStack: [
+                'error:03000086:digital envelope routines::initialization error',
+                'error:0308010C:digital envelope routines::unsupported'
+            ],
+            library: 'digital envelope routines',
+            reason: 'unsupported',
+            code: 'ERR_OSSL_EVP_UNSUPPORTED'
+            }
+
+            Node.js v22.14.0
+            ```
+        * Then downgrade node to version 16 by doing this:
+          * In the same terminal, `Ctrl + C` to stop the process.
+          * Then install version 16 by typing `nvm install 16`.
+          * Then switch to it by typing `nvm use 16`.
+          * At last, confirm your node's version by typing `node -v`, which should print `v16.20.2`.
