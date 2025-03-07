@@ -82,3 +82,11 @@ If you don't have time to read the whole thing, follow these steps:
           * Then install version 16 by typing `nvm install 16`.
           * Then switch to it by typing `nvm use 16`.
           * At last, confirm your node's version by typing `node -v`, which should print `v16.20.2`.
+
+## Possible Issue with Version 22
+If you face issues with node v22 always being installed or defaulting to v22 (instead of v16), do the following:
+1. Uninstall node v22: `nvm uninstall 22`
+2. Install node v16 (just to make sure it's properly installed): `nvm install 16`
+3. Set v16 as the default version: `nvm alias default 16`
+4. Use v16: `nvm use 16`
+5. Verify the version: `node -v`
