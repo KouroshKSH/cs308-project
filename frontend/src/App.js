@@ -1,27 +1,29 @@
-// to fix "React must be in scope when using JSX" Error
 import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./Login";
 
-import logo from './logo.svg';
-import './App.css';
+const Dashboard = () => {
+  const handleLogout = () => {
+    document.cookie = "token=; Max-Age=0"; // ✅ Clears cookie-based JWT
+    window.location.href = "/";
+  };
+
+  return (
+    <div>
+      <h2>Welcome to the Dashboard</h2>
+      <button onClick={handleLogout}>Logout</button>
+    </div>
+  );
+};
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
