@@ -15,7 +15,7 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// // why?
+// Why?
 // Creating a new database connection for each request is expensive.
 // Connection pools reuse existing connections, reducing overhead and improving performance.
 
