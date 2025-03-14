@@ -24,7 +24,3 @@ pids
 logs
 *.log
 npm-debug.log*
-
-# Ignore related file
-*.sql
-data/
