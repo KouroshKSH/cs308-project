@@ -1,5 +1,18 @@
 USE fashion_ecommerce;
 
+-- Inserting sizes
+INSERT INTO sizes (name)
+VALUES
+('Small'),  -- size_id: 1
+('Medium'), -- size_id: 2
+('Large');  -- size_id: 3
+
+-- Inserting colors
+INSERT INTO colors (name)
+VALUES
+('Red'),    -- color_id: 1
+('Blue');   -- color_id: 2
+
 -- Inserting products example
 INSERT INTO products (serial_number, name, description, price, category_id, material, image_url, stock_quantity, warranty_status, distributor_info)
 VALUES
