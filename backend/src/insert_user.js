@@ -28,3 +28,17 @@ async function registerUser() {
 }
 
 registerUser();
+
+// some examples for doing CURL and checking per customer
+// example 1:
+// email: `newuser@example.com`
+// password: `password123`
+// the CURL command to run:
+/*
+curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json" -d '{
+  "email": "newuser@example.com",
+  "password": "password123"
+}'
+*/
+// paste everything in between the forward slashes into the terminal
+// change the email and password to the ones you want to test
