@@ -9,6 +9,8 @@ const express = require("express");
 // CORS helps prevent unwanted visitors from interfering
 const cors = require("cors");
 
+const routes = require('./routes');
+
 // ---------------------------------------------------------
 
 // 2. Building the shop (i.e., app)
@@ -21,6 +23,8 @@ app.use(express.json());
 
 // use the security guard "CORS" to control who can talk to it
 app.use(cors());
+
+app.use('/api', routes);
 
 // ---------------------------------------------------------
 

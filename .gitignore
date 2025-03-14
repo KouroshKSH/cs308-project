@@ -13,3 +13,18 @@ node_modules/
 
 # Ignore .env files in all folders
 **/.env
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Ignore all logs
+logs
+*.log
+npm-debug.log*
+
+# Ignore related file
+*.sql
+data/
