@@ -13,11 +13,11 @@ async function registerUser() {
             database: process.env.DB_NAME
         });
 
-        const hashedPassword = await bcrypt.hash('password123', 10);
+        const hashedPassword = await bcrypt.hash('password1234', 10);
 
         const [result] = await connection.execute(
             'INSERT INTO users (username, email, password_hash, role, address, phone_number) VALUES (?, ?, ?, ?, ?, ?)',
-            ['newuser', 'newuser@example.com', hashedPassword, 'customer', '456 New St', '9876543210']
+            ['someotheruser', 'newuser1@example.com', hashedPassword, 'customer', '456 New St', '9876543210']
         );
 
         console.log('User inserted:', result);
