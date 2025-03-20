@@ -16,7 +16,6 @@ import { styled } from "@mui/material/styles";
 import { Google as GoogleIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import zxcvbn from "zxcvbn"; // Strong password validation
 
 const API_URL = process.env.REACT_APP_API_URL; // Load API URL from .env
 
@@ -58,13 +57,6 @@ export default function Login() {
       isValid = false;
     } else {
       setEmailError(false);
-    }
-
-    if (!password || zxcvbn(password).score < 2) {
-      setPasswordError(true);
-      isValid = false;
-    } else {
-      setPasswordError(false);
     }
 
     return isValid;
