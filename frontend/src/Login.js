@@ -46,7 +46,7 @@ export default function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [emailError, setEmailError] = React.useState(false);
-  const [passwordError, setPasswordError] = React.useState(false);
+  // const [passwordError, setPasswordError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const validateInputs = () => {
@@ -62,19 +62,46 @@ export default function Login() {
     return isValid;
   };
 
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   if (!validateInputs()) return;
+
+  //   try {
+  //     await axios.post(
+  //       `${API_URL}/api/auth/login`,
+  //       { email, password },
+  //       { withCredentials: true } // Uses secure cookies
+  //     );
+  //     navigate("/dashboard"); // Redirect after login
+  //   } catch (err) {
+  //     setErrorMessage("Something went wrong. Please try again later.");
+  //   }
+  // };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validateInputs()) return;
-
+  
     try {
-      await axios.post(
+      const response = await axios.post(
         `${API_URL}/api/auth/login`,
         { email, password },
         { withCredentials: true } // Uses secure cookies
       );
-      navigate("/dashboard"); // Redirect after login
+  
+      // Save the token (you can use localStorage or cookies)
+      localStorage.setItem('token', response.data.token);
+  
+      // Redirect to the dashboard
+      navigate('/dashboard');
     } catch (err) {
-      setErrorMessage("Something went wrong. Please try again later.");
+      if (err.response && err.response.status === 404) {
+        setErrorMessage('User not found');
+      } else if (err.response && err.response.status === 401) {
+        setErrorMessage('Invalid password');
+      } else {
+        setErrorMessage('Something went wrong. Please try again later.');
+      }
     }
   };
 
@@ -104,8 +131,8 @@ export default function Login() {
           <FormControl>
             <FormLabel>Password</FormLabel>
             <TextField
-              error={passwordError}
-              helperText={passwordError ? "Password is too weak!" : ""}
+              // error={passwordError}
+              // helperText={passwordError ? "Password is too weak!" : ""}
               type="password"
               name="password"
               placeholder="••••••"
