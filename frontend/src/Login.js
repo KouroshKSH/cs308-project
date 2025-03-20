@@ -16,9 +16,9 @@ import { styled } from "@mui/material/styles";
 import { Google as GoogleIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import zxcvbn from "zxcvbn"; // ✅ Strong password validation
+import zxcvbn from "zxcvbn"; // Strong password validation
 
-const API_URL = process.env.REACT_APP_API_URL; // ✅ Load API URL from .env
+const API_URL = process.env.REACT_APP_API_URL; // Load API URL from .env
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -78,9 +78,9 @@ export default function Login() {
       await axios.post(
         `${API_URL}/api/auth/login`,
         { email, password },
-        { withCredentials: true } // ✅ Uses secure cookies
+        { withCredentials: true } // Uses secure cookies
       );
-      navigate("/dashboard"); // ✅ Redirect after login
+      navigate("/dashboard"); // Redirect after login
     } catch (err) {
       setErrorMessage("Something went wrong. Please try again later.");
     }
@@ -91,7 +91,7 @@ export default function Login() {
       <CssBaseline />
       <Card variant="outlined">
         <Typography component="h1" variant="h4" sx={{ textAlign: "center" }}>
-          Sign in
+          Log In
         </Typography>
         {errorMessage && <Typography color="error">{errorMessage}</Typography>}
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -125,7 +125,7 @@ export default function Login() {
           </FormControl>
           <FormControlLabel control={<Checkbox value="remember" color="primary" />} label="Remember me" />
           <Button type="submit" fullWidth variant="contained">
-            Sign in
+            Log In
           </Button>
           <Link href="#" variant="body2" sx={{ textAlign: "center" }}>
             Forgot your password?
@@ -133,13 +133,13 @@ export default function Login() {
         </Box>
         <Divider>or</Divider>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Button fullWidth variant="outlined" startIcon={<GoogleIcon />} onClick={() => alert("Sign in with Google")}>
-            Sign in with Google
+          <Button fullWidth variant="outlined" startIcon={<GoogleIcon />} onClick={() => alert("Log In with Google")}>
+            Log In with Google
           </Button>
           <Typography sx={{ textAlign: "center" }}>
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Link href="/signup" variant="body2">
-              Sign up
+              Sign Up
             </Link>
           </Typography>
         </Box>

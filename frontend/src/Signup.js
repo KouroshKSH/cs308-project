@@ -108,7 +108,7 @@ export default function SignUp() {
         <Typography sx={{ textAlign: "center" }}>
           Already have an account? {" "}
           <Link href="/" variant="body2">
-            Sign in
+            Log In
           </Link>
         </Typography>
       </Card>

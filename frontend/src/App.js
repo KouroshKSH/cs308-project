@@ -1,11 +1,11 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./login";
-import SignUp from "./signUp"; // ✅ Import the Sign Up page
+import Login from "./Login";
+import SignUp from "./Signup";
 
 const Dashboard = () => {
   const handleLogout = () => {
-    document.cookie = "token=; Max-Age=0"; // ✅ Clears cookie-based JWT
+    document.cookie = "token=; Max-Age=0"; // Clears cookie-based JWT
     window.location.href = "/";
   };
 
