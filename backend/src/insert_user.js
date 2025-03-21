@@ -64,3 +64,5 @@ curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json"
   "password": "=R7Py@Dh?K#Cqd&"
 }'
 */
+
+// for more examples, check out `backend/src/database/testing_login.txt`

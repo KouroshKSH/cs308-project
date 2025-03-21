@@ -92,63 +92,6 @@ export default function Login() {
     }
   };
 
-  // const handleSubmit = async (event) => {
-  //   event.preventDefault();
-  //   if (!validateInputs()) return;
-
-  //   try {
-  //     // const response = await axios.post(
-  //     //   `${API_URL}/api/auth/login`,
-  //     //   { email, password },
-  //     //   { withCredentials: true } // Uses secure cookies
-  //     // );
-
-  //     // BUG ? FIX ?
-  //     const response = await axios.post(
-  //       `${API_URL}/auth/login`, // CORRECT???
-  //       { email, password },
-  //       { withCredentials: true }
-  //     );
-      
-
-  //     // Save the token (you can use localStorage or cookies)
-  //     // localStorage.setItem('token', response.data.token);
-  //     if (response.data.token) {
-  //       localStorage.setItem("token", response.data.token);
-  //       navigate("/dashboard"); // Redirect to dashboard
-  //     } else {
-  //       setErrorMessage("Login failed. No token received.");
-  //     }
-      
-
-  //     // Redirect to the dashboard
-  //     navigate('/dashboard');
-  //   // } catch (err) {
-  //   //   if (err.response && err.response.status === 404) {
-  //   //     setErrorMessage('User not found');
-  //   //   } else if (err.response && err.response.status === 401) {
-  //   //     setErrorMessage('Invalid password');
-  //   //   } else {
-  //   //     setErrorMessage('Something went wrong. Please try again later.');
-  //   //   }
-  //   // }
-  //   } catch (err) {
-  //     console.error("Login Error:", err); // Debugging
-  //     if (err.response) {
-  //       if (err.response.status === 404) {
-  //         setErrorMessage("User not found");
-  //       } else if (err.response.status === 401) {
-  //         setErrorMessage("Invalid password");
-  //       } else {
-  //         setErrorMessage(`Error: ${err.response.data.message || "Unknown error"}`);
-  //       }
-  //     } else {
-  //       setErrorMessage("Network error. Check console.");
-  //     }
-  //   }
-    
-  // };
-
   return (
     <SignInContainer>
       <CssBaseline />
@@ -175,8 +118,6 @@ export default function Login() {
           <FormControl>
             <FormLabel>Password</FormLabel>
             <TextField
-              // error={passwordError}
-              // helperText={passwordError ? "Password is too weak!" : ""}
               type="password"
               name="password"
               placeholder="••••••"
