@@ -8,7 +8,7 @@ const userModel = {
     
     const [result] = await db.execute(
       'INSERT INTO users (username, email, password_hash, role, address, phone_number) VALUES (?, ?, ?, ?, ?, ?)',
-      [username, email, hashedPassword, role, address, phone_number]
+      [username, email, hashedPassword, role, address || null, phone_number || null]
     );
     return result;
   },
