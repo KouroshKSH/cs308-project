@@ -61,6 +61,6 @@ curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json"
 /*
 curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json" -d '{
   "email": "john.doe@example.com",
-  "password": "=R7Py@Dh?"
+  "password": "=R7Py@Dh?K#Cqd&"
 }'
 */
