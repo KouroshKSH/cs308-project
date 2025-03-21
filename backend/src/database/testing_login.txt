@@ -1,0 +1,40 @@
+Format is:
+- email
+- password
+
+example 1:
+newuser@example.com
+password123
+
+the CURL command to run:
+
+curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json" -d '{
+  "email": "newuser@example.com",
+  "password": "password123"
+}'
+
+---
+
+example 2:
+newuser1@example.com
+password1234
+
+the CURL command to run:
+
+curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json" -d '{
+  "email": "newuser1@example.com",
+  "password": "password1234"
+}'
+
+---
+
+example 3:
+john.doe@email.com
+=R7Py@Dh?K#Cqd&
+
+the CURL command to run:
+
+curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json" -d '{
+  "email": "john.doe@example.com",
+  "password": "=R7Py@Dh?K#Cqd&"
+}'
