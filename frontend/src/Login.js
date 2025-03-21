@@ -16,7 +16,6 @@ import { styled } from "@mui/material/styles";
 import { Google as GoogleIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import zxcvbn from "zxcvbn"; // Strong password validation
 
 const API_URL = process.env.REACT_APP_API_URL; // Load API URL from .env
 
@@ -47,7 +46,6 @@ export default function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [emailError, setEmailError] = React.useState(false);
-  const [passwordError, setPasswordError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const validateInputs = () => {
@@ -60,12 +58,7 @@ export default function Login() {
       setEmailError(false);
     }
 
-    if (!password || zxcvbn(password).score < 2) {
-      setPasswordError(true);
-      isValid = false;
-    } else {
-      setPasswordError(false);
-    }
+    // we do not need to check password strong here
 
     return isValid;
   };
@@ -112,8 +105,6 @@ export default function Login() {
           <FormControl>
             <FormLabel>Password</FormLabel>
             <TextField
-              error={passwordError}
-              helperText={passwordError ? "Password is too weak!" : ""}
               type="password"
               name="password"
               placeholder="••••••"
