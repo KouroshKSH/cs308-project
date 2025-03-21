@@ -1,11 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { authController } = require('../controllers/authController'); // Correctly import authController
+const { authController } = require('../controllers/authController'); // Import the auth controller
 
-// Register route
-router.post('/register', authController.register);
-
-// Login route
+// Use a consistent naming convention under /auth
+router.post('/auth/register', authController.register);
 router.post('/auth/login', authController.login);
 
 module.exports = router;
