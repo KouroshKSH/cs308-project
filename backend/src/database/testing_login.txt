@@ -32,7 +32,7 @@ example 3:
 john.doe@email.com
 =R7Py@Dh?K#Cqd&
 
-the CURL command to run:
+the CURL command to runsss:
 
 curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json" -d '{
   "email": "john.doe@example.com",

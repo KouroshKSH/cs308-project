@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
 // All API endpoints are now prefixed with /api
-app.use('/api', routes);
+app.use('/api', routes); // FIX: i guess we should use this
 // app.use('/', routes);
 
 

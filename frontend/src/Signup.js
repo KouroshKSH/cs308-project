@@ -66,13 +66,6 @@ export default function SignUp() {
     setErrorMessage("");
 
     try {
-      // await axios.post(
-      //   `${API_URL}/api/auth/signup`, 
-      //   { name, email, password }, 
-      //   { withCredentials: true }
-      // );
-
-
       await axios.post(
         `${API_URL}/register`, 
         { name, email, password }, 
