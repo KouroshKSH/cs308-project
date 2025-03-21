@@ -58,4 +58,24 @@ const authController = {
     },
 };
 
+exports.loginUser = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+  
+      // Dummy authentication logic
+      if (email === "test@example.com" && password === "password123") {
+        return res.status(200).json({ token: "your-jwt-token" });
+      } else {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+  
+
 module.exports = { authController };

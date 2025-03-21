@@ -9,8 +9,6 @@ const express = require("express");
 // CORS helps prevent unwanted visitors from interfering
 const cors = require("cors");
 
-const routes = require('./routes');
-
 // ---------------------------------------------------------
 
 // 2. Building the shop (i.e., app)
@@ -18,11 +16,13 @@ const routes = require('./routes');
 // create the main structure of the shop using Express
 const app = express();
 
+const routes = require("./routes");
+
 // understand orders that are in JSON format
 app.use(express.json());
 
 // use the security guard "CORS" to control who can talk to it
-app.use(cors());
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
 app.use('/api', routes);
 
@@ -43,7 +43,6 @@ app.get(
 
 // 4. start the shop (i.e., open the server)
 
-// decide which door (i.e., port number) to open for receiving customers
 const PORT = process.env.PORT || 5000; // defaults to 5000 if not specified
 
 // open the door and start receiving customers
