@@ -37,12 +37,13 @@ If you don't have time to read the whole thing, follow these steps:
 3.  **Open the Project in VS Code:**
     * Open VS Code and select "File" -> "Open Folder..." and choose the `cs308-project` directory you just cloned.
 
-4.  **Open Two Terminals in VS Code:**
-    * In VS Code, go to "Terminal" -> "New Terminal."
-    * Open another terminal by going to "Terminal" -> "New Terminal" again.
-    * You should now have two terminal windows within VS Code.
+4.  **Open Two Terminals from Your Machine (NOT VScode):**
+    * Search for your operating system's terminal and open 2 instances of it.
+    * You should now have two terminal windows outside of VS Code.
+    * If you open terminals from VS Code, you _will_ face issues with `sudo` access and other problems such as starting the database.
+    * One terminal will be used for running the bash script (explained later), and the other one is for checking MySQL.
 
-5.  **Install Dependencies (Crucial Step!):**
+5.  **Install Dependencies (Crucial Step):**
     * **Backend Dependencies:**
         * In one of the terminals, navigate to the backend directory: `cd backend`
         * Run the following command to install the required packages: `npm install`
@@ -51,13 +52,37 @@ If you don't have time to read the whole thing, follow these steps:
         * Run the following command to install the required packages: `npm install`
     * **Explanation:** `npm install` reads the `package.json` files in each directory and downloads all the necessary libraries for the backend and frontend to function correctly. Without this step, the application won't run.
 
-6.  **Start the Backend Server:**
+6. **Run the Bash Script:**
+    * In the root directory of the project, there's a file called `script.sh`, which you can run by:
+        * First, make the script executable by running:
+        ```bash
+        chmod +x script.sh
+        ```
+        * Then, run the Script
+        ```bash
+        ./script.sh
+        ```
+        * If done successfully, the frontend and backend should start automatically with no issues, and you browser will redirect you to the website.
+        * In case this does _not_ happen, then follow the next steps and start the frontend and backend manually.
+    * The reason we need 2 terminals is that running the script in one of them will start the MySQL database in the background, but we also want to visibly check the information in the database.
+        * In order to do this, type `sudo mysql` in the other terminal.
+        * Most likely, you will not need to enter a password.
+        * If it asks for a password, enter your computer's password.
+        * Afterwards, you should see an environment like: `mysql> ` where you can enter your SQL commands.
+        * Make sure to immediately type:
+        ```sql
+        USE fashion_ecommerce;
+        SHOW TABLES;
+        ```
+        * Do this to make sure you're using the correct database.
+
+7.  **Start the Backend Server:**
     * In the backend terminal (the one in the `./backend/` folder):
         * Run: `npx nodemon server.js`
         * Open a new browser tab and go to `http://localhost:5000/`.
         * You should see a message like "API is running..." (or whatever your backend returns on the root route).
 
-7.  **Start the Frontend Application:**
+8.  **Start the Frontend Application:**
     * In the frontend terminal (the one in the `./frontend/` folder):
         * Run: `npm start`
         * A new browser tab should automatically open, showing the React application.

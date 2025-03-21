@@ -13,11 +13,11 @@ async function registerUser() {
             database: process.env.DB_NAME
         });
 
-        const hashedPassword = await bcrypt.hash('password1234', 10);
+        const hashedPassword = await bcrypt.hash('pas123', 10);
 
         const [result] = await connection.execute(
             'INSERT INTO users (username, email, password_hash, role, address, phone_number) VALUES (?, ?, ?, ?, ?, ?)',
-            ['someotheruser', 'newuser1@example.com', hashedPassword, 'customer', '456 New St', '9876543210']
+            ['user2', 'user2@email.com', hashedPassword, 'customer', '456 New St', '9876543210']
         );
 
         console.log('User inserted:', result);
@@ -42,3 +42,25 @@ curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json"
 */
 // paste everything in between the forward slashes into the terminal
 // change the email and password to the ones you want to test
+
+// example 2:
+// email: `newuser1@example.com`
+// password: `password1234`
+// the CURL command to run:
+/*
+curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json" -d '{
+  "email": "newuser1@example.com",
+  "password": "password1234"
+}'
+*/
+
+// example 3:
+// email: `john.doe@email.com`
+// password: `=R7Py@Dh?K#Cqd&`
+// the CURL command to run:
+/*
+curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json" -d '{
+  "email": "john.doe@example.com",
+  "password": "=R7Py@Dh?K#Cqd&"
+}'
+*/

@@ -16,7 +16,6 @@ import { styled } from "@mui/material/styles";
 import { Google as GoogleIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import zxcvbn from "zxcvbn"; // Strong password validation
 
 const API_URL = process.env.REACT_APP_API_URL; // Load API URL from .env
 
@@ -47,7 +46,7 @@ export default function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [emailError, setEmailError] = React.useState(false);
-  const [passwordError, setPasswordError] = React.useState(false);
+  // const [passwordError, setPasswordError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const validateInputs = () => {
@@ -60,31 +59,95 @@ export default function Login() {
       setEmailError(false);
     }
 
-    if (!password || zxcvbn(password).score < 2) {
-      setPasswordError(true);
-      isValid = false;
-    } else {
-      setPasswordError(false);
-    }
-
     return isValid;
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validateInputs()) return;
-
+  
     try {
-      await axios.post(
-        `${API_URL}/api/auth/login`,
+      const response = await axios.post(
+        `${API_URL}/auth/login`,
         { email, password },
-        { withCredentials: true } // Uses secure cookies
+        { withCredentials: true }
       );
-      navigate("/dashboard"); // Redirect after login
+  
+      // Check if the response contains a token
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token); // Save the token
+        setErrorMessage(''); // Clear any previous error messages
+        navigate('/dashboard'); // Redirect to the dashboard
+      } else {
+        setErrorMessage('Login failed. No token received.');
+      }
     } catch (err) {
-      setErrorMessage("Something went wrong. Please try again later.");
+      if (err.response && err.response.status === 404) {
+        setErrorMessage('User not found');
+      } else if (err.response && err.response.status === 401) {
+        setErrorMessage('Invalid password');
+      } else {
+        setErrorMessage('Something went wrong. Please try again later.');
+      }
     }
   };
+
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   if (!validateInputs()) return;
+
+  //   try {
+  //     // const response = await axios.post(
+  //     //   `${API_URL}/api/auth/login`,
+  //     //   { email, password },
+  //     //   { withCredentials: true } // Uses secure cookies
+  //     // );
+
+  //     // BUG ? FIX ?
+  //     const response = await axios.post(
+  //       `${API_URL}/auth/login`, // CORRECT???
+  //       { email, password },
+  //       { withCredentials: true }
+  //     );
+      
+
+  //     // Save the token (you can use localStorage or cookies)
+  //     // localStorage.setItem('token', response.data.token);
+  //     if (response.data.token) {
+  //       localStorage.setItem("token", response.data.token);
+  //       navigate("/dashboard"); // Redirect to dashboard
+  //     } else {
+  //       setErrorMessage("Login failed. No token received.");
+  //     }
+      
+
+  //     // Redirect to the dashboard
+  //     navigate('/dashboard');
+  //   // } catch (err) {
+  //   //   if (err.response && err.response.status === 404) {
+  //   //     setErrorMessage('User not found');
+  //   //   } else if (err.response && err.response.status === 401) {
+  //   //     setErrorMessage('Invalid password');
+  //   //   } else {
+  //   //     setErrorMessage('Something went wrong. Please try again later.');
+  //   //   }
+  //   // }
+  //   } catch (err) {
+  //     console.error("Login Error:", err); // Debugging
+  //     if (err.response) {
+  //       if (err.response.status === 404) {
+  //         setErrorMessage("User not found");
+  //       } else if (err.response.status === 401) {
+  //         setErrorMessage("Invalid password");
+  //       } else {
+  //         setErrorMessage(`Error: ${err.response.data.message || "Unknown error"}`);
+  //       }
+  //     } else {
+  //       setErrorMessage("Network error. Check console.");
+  //     }
+  //   }
+    
+  // };
 
   return (
     <SignInContainer>
@@ -112,8 +175,8 @@ export default function Login() {
           <FormControl>
             <FormLabel>Password</FormLabel>
             <TextField
-              error={passwordError}
-              helperText={passwordError ? "Password is too weak!" : ""}
+              // error={passwordError}
+              // helperText={passwordError ? "Password is too weak!" : ""}
               type="password"
               name="password"
               placeholder="••••••"
