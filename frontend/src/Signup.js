@@ -66,7 +66,11 @@ export default function SignUp() {
     setErrorMessage("");
 
     try {
-      await axios.post(`${API_URL}/api/auth/signup`, { name, email, password }, { withCredentials: true });
+      await axios.post(
+        `${API_URL}/register`, 
+        { name, email, password }, 
+        { withCredentials: true }
+      );
       navigate("/dashboard");
     } catch (err) {
       setErrorMessage(err.response?.data?.message || "Registration failed. Try again.");
@@ -107,7 +111,7 @@ export default function SignUp() {
         <Divider>or</Divider>
         <Typography sx={{ textAlign: "center" }}>
           Already have an account? {" "}
-          <Link href="/" variant="body2">
+          <Link href="/login" variant="body2">
             Log In
           </Link>
         </Typography>

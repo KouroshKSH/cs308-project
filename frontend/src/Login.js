@@ -66,16 +66,30 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validateInputs()) return;
-
+  
     try {
-      await axios.post(
-        `${API_URL}/api/auth/login`,
+      const response = await axios.post(
+        `${API_URL}/auth/login`,
         { email, password },
-        { withCredentials: true } // Uses secure cookies
+        { withCredentials: true }
       );
-      navigate("/dashboard"); // Redirect after login
+  
+      // Check if the response contains a token
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token); // Save the token
+        setErrorMessage(''); // Clear any previous error messages
+        navigate('/dashboard'); // Redirect to the dashboard
+      } else {
+        setErrorMessage('Login failed. No token received.');
+      }
     } catch (err) {
-      setErrorMessage("Something went wrong. Please try again later.");
+      if (err.response && err.response.status === 404) {
+        setErrorMessage('User not found');
+      } else if (err.response && err.response.status === 401) {
+        setErrorMessage('Invalid password');
+      } else {
+        setErrorMessage('Something went wrong. Please try again later.');
+      }
     }
   };
 
