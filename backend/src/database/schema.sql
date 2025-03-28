@@ -90,10 +90,10 @@ VALUES
 -- Further subcategories under "Women"
 INSERT INTO categories (name, parent_category_id)
 VALUES
-('T-Shirts', 9), ('Shirts', 9), ('Sweaters', 9), ('Jackets', 9),
-('Jeans', 10), ('Pants', 10), ('Shorts', 10), ('Skirts', 10), 
-('Sneakers', 11), ('Boots', 11), ('Sandals', 11), ('Heels', 11), 
-('Watches', 12), ('Bags', 12), ('Hats', 12), ('Glasses', 12), ('Jewellery', 12);
+('T-Shirts', 23), ('Shirts', 23), ('Sweaters', 23), ('Jackets', 23),
+('Jeans', 24), ('Pants', 24), ('Shorts', 24), ('Skirts', 24),
+('Sneakers', 25), ('Boots', 25), ('Sandals', 25), ('Heels', 25), 
+('Watches', 26), ('Bags', 26), ('Hats', 26), ('Glasses', 26), ('Jewellery', 26);
 
 -- Subcategories under "Kids"
 INSERT INTO categories (name, parent_category_id)
@@ -103,7 +103,7 @@ VALUES
 -- Further subcategories under "Kids"
 INSERT INTO categories (name, parent_category_id)
 VALUES
-('T-Shirts', 14), ('Shirts', 14), ('Sweaters', 14), ('Jackets', 14),
-('Jeans', 15), ('Pants', 15), ('Shorts', 15), ('Skirts', 15), 
-('Sneakers', 16), ('Boots', 16), ('Sandals', 16),
-('Watches', 17), ('Bags', 17), ('Hats', 17), ('Glasses', 17), ('Jewellery', 17);
+('T-Shirts', 44), ('Shirts', 44), ('Sweaters', 44), ('Jackets', 44), 
+('Jeans', 45), ('Pants', 45), ('Shorts', 45), ('Skirts', 45),
+('Sneakers', 46), ('Boots', 46), ('Sandals', 46), 
+('Watches', 47), ('Bags', 47), ('Hats', 47), ('Glasses', 47), ('Jewellery', 47); 
