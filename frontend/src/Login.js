@@ -46,7 +46,6 @@ export default function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [emailError, setEmailError] = React.useState(false);
-  // const [passwordError, setPasswordError] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const validateInputs = () => {
@@ -58,6 +57,8 @@ export default function Login() {
     } else {
       setEmailError(false);
     }
+
+    // we do not need to check password strong here
 
     return isValid;
   };
