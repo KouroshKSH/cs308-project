@@ -111,7 +111,7 @@ export default function SignUp() {
         <Divider>or</Divider>
         <Typography sx={{ textAlign: "center" }}>
           Already have an account? {" "}
-          <Link href="/" variant="body2">
+          <Link href="/login" variant="body2">
             Log In
           </Link>
         </Typography>
