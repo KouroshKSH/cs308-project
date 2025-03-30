@@ -75,6 +75,7 @@ export default function Login() {
       );
   
       // Check if the response contains a token
+      console.log("Token saved to localStorage:", response.data.token); // for logging
       if (response.data.token) {
         localStorage.setItem('token', response.data.token); // Save the token
         setErrorMessage(''); // Clear any previous error messages
