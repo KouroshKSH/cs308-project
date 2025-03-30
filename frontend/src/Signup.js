@@ -79,8 +79,28 @@ export default function SignUp() {
     }
   };
 
+  const handleBackToHome = () => {
+    // Clear inputs and redirect to landing page
+    setName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    navigate("/");
+  };
+
   return (
     <SignUpContainer>
+      {/* Back to Home Button */}
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={handleBackToHome}
+        sx={{ position: "absolute", top: 20, left: 20 }}
+      >
+        Back to Home
+      </Button>
+
+      {/* Sign Up Form */}
       <CssBaseline />
       <Card variant="outlined">
         <Typography component="h1" variant="h4" sx={{ textAlign: "center" }}>

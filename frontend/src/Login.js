@@ -94,8 +94,24 @@ export default function Login() {
     }
   };
 
+  const handleBackToHome = () => {
+    // Clear inputs and redirect to landing page
+    setEmail("");
+    setPassword("");
+    navigate("/");
+  };
+
   return (
     <SignInContainer>
+      {/* Back to Home Button */}
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={handleBackToHome}
+        sx={{ position: "absolute", top: 20, left: 20 }}
+      >
+        Back to Home
+      </Button>
       <CssBaseline />
       <Card variant="outlined">
         <Typography component="h1" variant="h4" sx={{ textAlign: "center" }}>
