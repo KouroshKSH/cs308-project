@@ -8,7 +8,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import "./LandingPage.css";
 
 const LandingPage = () => {
-  const [category, setCategory] = useState("Kadın");
+  const [category, setCategory] = useState("Women");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -37,7 +37,7 @@ const LandingPage = () => {
 
           {/* Center: Category Selector */}
           <Box sx={{ display: "flex", gap: 4, flexGrow: 1, justifyContent: "center" }}>
-            {["Kadın", "Erkek", "Çocuk"].map((item) => (
+            {["Women", "Men", "Kids"].map((item) => (
               <Typography
                 key={item}
                 variant="h6"
@@ -86,8 +86,8 @@ const LandingPage = () => {
 
       {/* Dynamic Content Based on Category */}
       <main className="landing-content">
-        <Typography variant="h2">{category} Koleksiyonu</Typography>
-        <p>Baharın enerjisini yansıtan yeni sezon modelleri</p>
+        <Typography variant="h2">{category} Collection</Typography>
+        <p>New season models reflecting the energy of spring</p>
       </main>
     </div>
   );
