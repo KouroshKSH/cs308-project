@@ -1,6 +1,19 @@
-import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, IconButton, Box, Drawer, List, ListItem, ListItemText } from "@mui/material";
-import { useNavigate } from "react-router-dom"; // React Router navigation
+import React, { useState, useEffect } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Button,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -22,7 +35,12 @@ import product9 from "./assets/images/product9.avif";
 const LandingPage = () => {
   const [category, setCategory] = useState("Women");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [cart, setCart] = useState([]); // Cart state
+  const [cartAnchorEl, setCartAnchorEl] = useState(null); // Anchor for cart dropdown
+
   const navigate = useNavigate();
+
+  // FIX: don't forget to change these to get products dynamically from backend & DB
   const products = [
     { id: 1, name: "Yellow Dress", price: "$49.99", image: product1 },
     { id: 2, name: "Dark Jeans", price: "$29.99", image: product2 },
@@ -35,6 +53,22 @@ const LandingPage = () => {
     { id: 9, name: "Striped Tshirt", price: "$14.99", image: product9 },
   ];
 
+
+  // Check if user is logged in (mock logic for now)
+  // const isLoggedIn = !!localStorage.getItem("token");
+
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+
+  useEffect(() => {
+    const checkLogin = () => {
+      setIsLoggedIn(!!localStorage.getItem("token"));
+    };
+
+    window.addEventListener("storage", checkLogin); // Sync across tabs
+    return () => window.removeEventListener("storage", checkLogin);
+  }, []);
+
+
   // Toggle Drawer Menu
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
@@ -45,7 +79,44 @@ const LandingPage = () => {
   };
 
   const handleProfileClick = () => {
-    navigate("/login"); // Redirect to Login page
+    if (localStorage.getItem("token")) {
+      // user has already logged in, so redirect to profile page
+      navigate("/profile");
+    } else {
+      // user hasn't been authenticated yet, so they have to log in first
+      navigate("/login", { state: { redirectTo: "/profile" } });
+    }
+  };
+
+  // Add product to cart
+  const addToCart = (productId) => {
+    const product = products.find((p) => p.id === productId);
+    if (product) {
+      setCart((prevCart) => [...prevCart, product]);
+      alert("Product added to your cart!");
+    }
+  };
+
+
+  // Open cart dropdown
+  const handleCartClick = (event) => {
+    setCartAnchorEl(event.currentTarget);
+  };
+
+  // Close cart dropdown
+  const handleCartClose = () => {
+    setCartAnchorEl(null);
+  };
+
+  // Handle checkout button
+  const handleCheckout = () => {
+    if (isLoggedIn) {
+      // Redirect to checkout page
+      navigate("/checkout");
+    } else {
+      // Redirect to login page with intent to go to checkout
+      navigate("/login", { state: { redirectTo: "/checkout" } });
+    }
   };
 
   return (
@@ -82,7 +153,7 @@ const LandingPage = () => {
             <IconButton color="inherit">
               <SearchIcon />
             </IconButton>
-            <IconButton color="inherit">
+            <IconButton color="inherit" onClick={handleCartClick}>
               <ShoppingCartIcon />
             </IconButton>
             <IconButton color="inherit" onClick={handleProfileClick}>
@@ -113,6 +184,33 @@ const LandingPage = () => {
         <p>New season models reflecting the energy of spring</p>
       </main>
 
+
+      {/* Cart Dropdown */}
+      <Menu
+        anchorEl={cartAnchorEl}
+        open={Boolean(cartAnchorEl)}
+        onClose={handleCartClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        {cart.length === 0 ? (
+          <MenuItem>Your cart is empty</MenuItem>
+        ) : (
+          cart.map((item, index) => (
+            <MenuItem key={index}>
+              {item.name} - {item.price}
+            </MenuItem>
+          )) // TODO: Add remove from cart functionality
+        )}
+        {cart.length > 0 && (
+          <MenuItem>
+            <Button variant="contained" color="primary" onClick={handleCheckout}>
+              Checkout
+            </Button>
+          </MenuItem>
+        )}
+      </Menu>
+
       {/* Product Grid */}
       <div className="product-grid">
         {products.map((product) => (
@@ -120,6 +218,7 @@ const LandingPage = () => {
             <img src={product.image} alt={product.name} className="product-image" />
             <h3 className="product-name">{product.name}</h3>
             <p className="product-price">{product.price}</p>
+            <button onClick={() => addToCart(product.id)}>Add to Cart</button>
           </div>
         ))}
       </div>

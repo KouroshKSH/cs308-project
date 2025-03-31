@@ -49,3 +49,9 @@ curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json"
   "email": "idontcare@example.com",
   "password": "E>h*2g:M_d&a+3$"
 }'
+
+---
+
+example 5:
+something1@example.com
+"7Ey+#a8!3eu-A@

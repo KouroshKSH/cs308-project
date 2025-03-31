@@ -1,3 +1,5 @@
+import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
+
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -14,7 +16,6 @@ import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
 import { Google as GoogleIcon } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const API_URL = process.env.REACT_APP_API_URL; // Load API URL from .env
@@ -43,6 +44,9 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 
 export default function Login() {
   const navigate = useNavigate();
+  // const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const setIsLoggedIn = React.useState(false)[1]; // Use state setter function
+  const location = useLocation(); // Access the state passed via navigate
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [emailError, setEmailError] = React.useState(false);
@@ -73,13 +77,20 @@ export default function Login() {
         { email, password },
         { withCredentials: true }
       );
-  
+
+      // console.log("Token saved to localStorage:", response.data.token); // for logging
+
       // Check if the response contains a token
-      console.log("Token saved to localStorage:", response.data.token); // for logging
       if (response.data.token) {
         localStorage.setItem('token', response.data.token); // Save the token
+        setIsLoggedIn(true); // Trigger state update
         setErrorMessage(''); // Clear any previous error messages
-        navigate('/dashboard'); // Redirect to the dashboard
+        // OLD: navigate('/dashboard'); // Redirect to the dashboard
+
+        // Redirect to the intended page or default to the profile page
+        const redirectTo = location.state?.redirectTo || "/profile"; // or checkout page
+        console.log("Redirecting to:", redirectTo); // for logging
+        navigate(redirectTo);
       } else {
         setErrorMessage('Login failed. No token received.');
       }
