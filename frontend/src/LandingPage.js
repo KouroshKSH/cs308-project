@@ -35,6 +35,10 @@ const LandingPage = () => {
     { id: 9, name: "Striped Tshirt", price: "$14.99", image: product9 },
   ];
 
+
+  // Check if user is logged in (mock logic for now)
+  const isLoggedIn = !!localStorage.getItem("token");
+
   // Toggle Drawer Menu
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
