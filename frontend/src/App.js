@@ -4,6 +4,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import Login from "./Login";
 import SignUp from "./Signup";
 import LandingPage from "./LandingPage";
+import CheckoutPage from "./CheckoutPage";
 
 const Dashboard = () => {
   const handleLogout = () => {
@@ -34,6 +35,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/checkout" element={<CheckoutPage />} />
       </Routes>
     </BrowserRouter>
   );
