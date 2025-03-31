@@ -35,7 +35,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute>
+              <CheckoutPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

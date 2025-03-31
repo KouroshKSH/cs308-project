@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -70,6 +70,17 @@ const LandingPage = () => {
     navigate("/login"); // Redirect to Login page
   };
 
+  // Load cart from localStorage on component mount
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCart(savedCart);
+  }, []);
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
   // Add product to cart
   const addToCart = (productId) => {
     const product = products.find((p) => p.id === productId);
@@ -78,31 +89,6 @@ const LandingPage = () => {
       alert("Product added to your cart!");
     }
   };
-
-  // old addToCart function
-  // const addToCart = (productId) => {
-  //   if (isLoggedIn) {
-  //     // For logged-in users, update cart in global state (mock logic for now)
-  //     const userCart = JSON.parse(localStorage.getItem("userCart")) || [];
-  //     if (!userCart.includes(productId)) {
-  //       userCart.push(productId);
-  //       localStorage.setItem("userCart", JSON.stringify(userCart));
-  //       alert("Product added to your cart!");
-  //     } else {
-  //       alert("Product is already in your cart!");
-  //     }
-  //   } else {
-  //     // For non-logged-in users, store cart in localStorage
-  //     const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
-  //     if (!guestCart.includes(productId)) {
-  //       guestCart.push(productId);
-  //       localStorage.setItem("guestCart", JSON.stringify(guestCart));
-  //       alert("Product added to your cart!");
-  //     } else {
-  //       alert("Product is already in your cart!");
-  //     }
-  //   }
-  // };
 
 
   // Open cart dropdown
@@ -119,10 +105,10 @@ const LandingPage = () => {
   const handleCheckout = () => {
     if (isLoggedIn) {
       // Redirect to checkout page
-      navigate("/checkout", { state: { cart } });
+      navigate("/checkout");
     } else {
-      // Redirect to login page
-      navigate("/login", { state: { redirectTo: "/checkout", cart } });
+      // Redirect to login page without passing the cart
+      navigate("/login", { state: { redirectTo: "/checkout" } });
     }
   };
 
@@ -207,7 +193,7 @@ const LandingPage = () => {
             <MenuItem key={index}>
               {item.name} - {item.price}
             </MenuItem>
-          ))
+          )) // TODO: Add remove from cart functionality
         )}
         {cart.length > 0 && (
           <MenuItem>
