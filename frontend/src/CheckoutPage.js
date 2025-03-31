@@ -1,9 +1,13 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 
 const CheckoutPage = () => {
-  const location = useLocation();
-  const cart = location.state?.cart || [];
+  const [cart, setCart] = useState([]);
+
+  useEffect(() => {
+    // Load cart from localStorage
+    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCart(savedCart);
+  }, []);
 
   return (
     <div>

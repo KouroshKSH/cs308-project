@@ -107,7 +107,7 @@ const LandingPage = () => {
       // Redirect to checkout page
       navigate("/checkout");
     } else {
-      // Redirect to login page without passing the cart
+      // Redirect to login page with intent to go to checkout
       navigate("/login", { state: { redirectTo: "/checkout" } });
     }
   };
