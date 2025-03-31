@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { Box, Button, CssBaseline, Divider, FormControl, FormLabel, Link, TextField, Typography, Stack, Card as MuiCard } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -32,6 +32,7 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -59,6 +60,7 @@ export default function SignUp() {
     return true;
   };
 
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validateInputs()) return;
@@ -66,18 +68,59 @@ export default function SignUp() {
     setErrorMessage("");
 
     try {
-      await axios.post(
-        `${API_URL}/register`, 
-        { name, email, password }, 
+      // First, register the user
+      const registerResponse = await axios.post(
+        `${API_URL}/register`,
+        { name, email, password },
         { withCredentials: true }
       );
-      navigate("/dashboard");
+
+      // If the registration response includes a token, store it; otherwise, perform login.
+      if (registerResponse.data.token) {
+        localStorage.setItem("token", registerResponse.data.token);
+      } else {
+        // Auto login: call the login endpoint so that you obtain a token.
+        const loginResponse = await axios.post(
+          `${API_URL}/auth/login`,
+          { email, password },
+          { withCredentials: true }
+        );
+        if (loginResponse.data.token) {
+          localStorage.setItem("token", loginResponse.data.token);
+        } else {
+          throw new Error("Token not received on login.");
+        }
+      }
+      // Redirect to intended page or default to profile
+      const redirectTo = location.state?.redirectTo || "/profile";
+      navigate(redirectTo);
     } catch (err) {
       setErrorMessage(err.response?.data?.message || "Registration failed. Try again.");
     } finally {
       setLoading(false);
     }
   };
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   if (!validateInputs()) return;
+  //   setLoading(true);
+  //   setErrorMessage("");
+
+  //   try {
+  //     await axios.post(
+  //       `${API_URL}/register`, 
+  //       { name, email, password }, 
+  //       { withCredentials: true }
+  //     );
+  //     // Redirect to intended page or default to profile
+  //     const redirectTo = location.state?.redirectTo || "/profile";
+  //     navigate(redirectTo);
+  //   } catch (err) {
+  //     setErrorMessage(err.response?.data?.message || "Registration failed. Try again.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleBackToHome = () => {
     // Clear inputs and redirect to landing page

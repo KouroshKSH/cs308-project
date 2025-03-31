@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CheckoutPage = () => {
   const [cart, setCart] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Load cart from localStorage
     const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(savedCart);
   }, []);
+
+  const handleBackToHome = () => {
+    navigate("/");
+  };
 
   return (
     <div>
@@ -23,6 +29,7 @@ const CheckoutPage = () => {
           ))}
         </ul>
       )}
+      <button onClick={handleBackToHome}>Back to Landing Page</button>
     </div>
   );
 };

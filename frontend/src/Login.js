@@ -44,7 +44,8 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 
 export default function Login() {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  // const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const setIsLoggedIn = React.useState(false)[1]; // Use state setter function
   const location = useLocation(); // Access the state passed via navigate
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -86,8 +87,8 @@ export default function Login() {
         setErrorMessage(''); // Clear any previous error messages
         // OLD: navigate('/dashboard'); // Redirect to the dashboard
 
-        // Redirect to the intended page or default to the dashboard
-        const redirectTo = location.state?.redirectTo || "/dashboard";
+        // Redirect to the intended page or default to the profile page
+        const redirectTo = location.state?.redirectTo || "/profile"; // or checkout page
         console.log("Redirecting to:", redirectTo); // for logging
         navigate(redirectTo);
       } else {
