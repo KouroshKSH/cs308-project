@@ -5,6 +5,7 @@ import Login from "./Login";
 import SignUp from "./Signup";
 import LandingPage from "./LandingPage";
 import CheckoutPage from "./CheckoutPage";
+import ProfilePage from "./ProfilePage";
 
 const Dashboard = () => {
   const handleLogout = () => {
@@ -40,6 +41,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CheckoutPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

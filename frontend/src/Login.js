@@ -44,6 +44,7 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 
 export default function Login() {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const location = useLocation(); // Access the state passed via navigate
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -81,6 +82,7 @@ export default function Login() {
       // Check if the response contains a token
       if (response.data.token) {
         localStorage.setItem('token', response.data.token); // Save the token
+        setIsLoggedIn(true); // Trigger state update
         setErrorMessage(''); // Clear any previous error messages
         // OLD: navigate('/dashboard'); // Redirect to the dashboard
 

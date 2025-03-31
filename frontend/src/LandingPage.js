@@ -55,7 +55,19 @@ const LandingPage = () => {
 
 
   // Check if user is logged in (mock logic for now)
-  const isLoggedIn = !!localStorage.getItem("token");
+  // const isLoggedIn = !!localStorage.getItem("token");
+
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+
+  useEffect(() => {
+    const checkLogin = () => {
+      setIsLoggedIn(!!localStorage.getItem("token"));
+    };
+
+    window.addEventListener("storage", checkLogin); // Sync across tabs
+    return () => window.removeEventListener("storage", checkLogin);
+  }, []);
+
 
   // Toggle Drawer Menu
   const toggleDrawer = (open) => () => {
@@ -67,19 +79,28 @@ const LandingPage = () => {
   };
 
   const handleProfileClick = () => {
-    navigate("/login"); // Redirect to Login page
+    if (localStorage.getItem("token")) {
+      // user has already logged in, so redirect to profile page
+      navigate("/profile");
+    } else {
+      // user hasn't been authenticated yet, so they have to log in first
+      navigate("/login", { state: { redirectTo: "/profile" } });
+    }
   };
+  // const handleProfileClick = () => {
+  //   navigate("/login"); // Redirect to Login page
+  // };
 
-  // Load cart from localStorage on component mount
-  useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(savedCart);
-  }, []);
+  // // Load cart from localStorage on component mount
+  // useEffect(() => {
+  //   const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+  //   setCart(savedCart);
+  // }, []);
 
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+  // // Save cart to localStorage whenever it changes
+  // useEffect(() => {
+  //   localStorage.setItem("cart", JSON.stringify(cart));
+  // }, [cart]);
 
   // Add product to cart
   const addToCart = (productId) => {
