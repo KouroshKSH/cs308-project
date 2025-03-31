@@ -52,6 +52,31 @@ const LandingPage = () => {
     navigate("/login"); // Redirect to Login page
   };
 
+  // Add product to cart
+  const addToCart = (productId) => {
+    if (isLoggedIn) {
+      // For logged-in users, update cart in global state (mock logic for now)
+      const userCart = JSON.parse(localStorage.getItem("userCart")) || [];
+      if (!userCart.includes(productId)) {
+        userCart.push(productId);
+        localStorage.setItem("userCart", JSON.stringify(userCart));
+        alert("Product added to your cart!");
+      } else {
+        alert("Product is already in your cart!");
+      }
+    } else {
+      // For non-logged-in users, store cart in localStorage
+      const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+      if (!guestCart.includes(productId)) {
+        guestCart.push(productId);
+        localStorage.setItem("guestCart", JSON.stringify(guestCart));
+        alert("Product added to your cart!");
+      } else {
+        alert("Product is already in your cart!");
+      }
+    }
+  };
+
   return (
     <div className="landing-container">
       {/* Transparent Top Bar */}
