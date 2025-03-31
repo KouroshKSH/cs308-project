@@ -1,6 +1,19 @@
 import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, IconButton, Box, Drawer, List, ListItem, ListItemText } from "@mui/material";
-import { useNavigate } from "react-router-dom"; // React Router navigation
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Button,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -22,7 +35,12 @@ import product9 from "./assets/images/product9.avif";
 const LandingPage = () => {
   const [category, setCategory] = useState("Women");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [cart, setCart] = useState([]); // Cart state
+  const [cartAnchorEl, setCartAnchorEl] = useState(null); // Anchor for cart dropdown
+
   const navigate = useNavigate();
+
+  // FIX: don't forget to change these to get products dynamically from backend & DB
   const products = [
     { id: 1, name: "Yellow Dress", price: "$49.99", image: product1 },
     { id: 2, name: "Dark Jeans", price: "$29.99", image: product2 },
@@ -54,26 +72,57 @@ const LandingPage = () => {
 
   // Add product to cart
   const addToCart = (productId) => {
+    const product = products.find((p) => p.id === productId);
+    if (product) {
+      setCart((prevCart) => [...prevCart, product]);
+      alert("Product added to your cart!");
+    }
+  };
+
+  // old addToCart function
+  // const addToCart = (productId) => {
+  //   if (isLoggedIn) {
+  //     // For logged-in users, update cart in global state (mock logic for now)
+  //     const userCart = JSON.parse(localStorage.getItem("userCart")) || [];
+  //     if (!userCart.includes(productId)) {
+  //       userCart.push(productId);
+  //       localStorage.setItem("userCart", JSON.stringify(userCart));
+  //       alert("Product added to your cart!");
+  //     } else {
+  //       alert("Product is already in your cart!");
+  //     }
+  //   } else {
+  //     // For non-logged-in users, store cart in localStorage
+  //     const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
+  //     if (!guestCart.includes(productId)) {
+  //       guestCart.push(productId);
+  //       localStorage.setItem("guestCart", JSON.stringify(guestCart));
+  //       alert("Product added to your cart!");
+  //     } else {
+  //       alert("Product is already in your cart!");
+  //     }
+  //   }
+  // };
+
+
+  // Open cart dropdown
+  const handleCartClick = (event) => {
+    setCartAnchorEl(event.currentTarget);
+  };
+
+  // Close cart dropdown
+  const handleCartClose = () => {
+    setCartAnchorEl(null);
+  };
+
+  // Handle checkout button
+  const handleCheckout = () => {
     if (isLoggedIn) {
-      // For logged-in users, update cart in global state (mock logic for now)
-      const userCart = JSON.parse(localStorage.getItem("userCart")) || [];
-      if (!userCart.includes(productId)) {
-        userCart.push(productId);
-        localStorage.setItem("userCart", JSON.stringify(userCart));
-        alert("Product added to your cart!");
-      } else {
-        alert("Product is already in your cart!");
-      }
+      // Redirect to checkout page
+      navigate("/checkout", { state: { cart } });
     } else {
-      // For non-logged-in users, store cart in localStorage
-      const guestCart = JSON.parse(localStorage.getItem("guestCart")) || [];
-      if (!guestCart.includes(productId)) {
-        guestCart.push(productId);
-        localStorage.setItem("guestCart", JSON.stringify(guestCart));
-        alert("Product added to your cart!");
-      } else {
-        alert("Product is already in your cart!");
-      }
+      // Redirect to login page
+      navigate("/login", { state: { redirectTo: "/checkout", cart } });
     }
   };
 
@@ -111,7 +160,7 @@ const LandingPage = () => {
             <IconButton color="inherit">
               <SearchIcon />
             </IconButton>
-            <IconButton color="inherit">
+            <IconButton color="inherit" onClick={handleCartClick}>
               <ShoppingCartIcon />
             </IconButton>
             <IconButton color="inherit" onClick={handleProfileClick}>
@@ -141,6 +190,33 @@ const LandingPage = () => {
         <Typography variant="h2">{category} Collection</Typography>
         <p>New season models reflecting the energy of spring</p>
       </main>
+
+
+      {/* Cart Dropdown */}
+      <Menu
+        anchorEl={cartAnchorEl}
+        open={Boolean(cartAnchorEl)}
+        onClose={handleCartClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        {cart.length === 0 ? (
+          <MenuItem>Your cart is empty</MenuItem>
+        ) : (
+          cart.map((item, index) => (
+            <MenuItem key={index}>
+              {item.name} - {item.price}
+            </MenuItem>
+          ))
+        )}
+        {cart.length > 0 && (
+          <MenuItem>
+            <Button variant="contained" color="primary" onClick={handleCheckout}>
+              Checkout
+            </Button>
+          </MenuItem>
+        )}
+      </Menu>
 
       {/* Product Grid */}
       <div className="product-grid">
