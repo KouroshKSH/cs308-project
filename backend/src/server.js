@@ -1,12 +1,14 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser"); // to parse cookies from incoming requests (e.g., dynamic user info)
 const routes = require("./routes");
 const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser()); // Use cookie-parser middleware
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
 // All API endpoints are now prefixed with /api
