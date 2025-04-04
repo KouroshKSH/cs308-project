@@ -7,13 +7,17 @@ const router = express.Router();
 // Middleware to authenticate user via token
 const authenticateUser = (req, res, next) => {
   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "Unauthorized" });
-
+  if (!token) {
+    console.log("Token is missing");
+    return res.status(401).json({ message: "Unauthorized" });
+  }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded token:", decoded);
     req.user = decoded; // Attach user info to the request
     next();
   } catch (err) {
+    console.log("Invalid token:", err.message);
     return res.status(401).json({ message: "Invalid token" });
   }
 };

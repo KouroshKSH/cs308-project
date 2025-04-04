@@ -4,6 +4,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser"); // to parse cookies from incoming requests (e.g., dynamic user info)
 const routes = require("./routes");
 const userRoutes = require("./routes/userRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use('/api', routes); // FIX: i guess we should use this
 // app.use('/', routes);
 app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes); // Register the auth routes under /api/auth
 
 // Simple health-check route
 app.get("/", (req, res) => res.send("API is running..."));
