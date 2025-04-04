@@ -29,12 +29,26 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/users/profile", { withCredentials: true });
+        const response = await axios.get("http://localhost:5000/api/users/profile", {
+          withCredentials: true, // Ensure cookies are sent
+        });
+        // print the response data
+        console.log("User Info:", response.data);
         setUserInfo(response.data);
       } catch (err) {
+        // print the error response
+        console.error("Error fetching user info:", err.response?.data);
         setError(err.response?.data?.message || "Failed to fetch user info");
       }
     };
+    // const fetchUserInfo = async () => {
+    //   try {
+    //     const response = await axios.get("http://localhost:5000/api/users/profile", { withCredentials: true });
+    //     setUserInfo(response.data);
+    //   } catch (err) {
+    //     setError(err.response?.data?.message || "Failed to fetch user info");
+    //   }
+    // };
 
     fetchUserInfo();
   }, []);

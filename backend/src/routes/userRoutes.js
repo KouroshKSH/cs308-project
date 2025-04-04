@@ -6,21 +6,44 @@ const router = express.Router();
 
 // Middleware to authenticate user via token
 const authenticateUser = (req, res, next) => {
-  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    console.log("Token is missing");
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded token:", decoded);
-    req.user = decoded; // Attach user info to the request
-    next();
-  } catch (err) {
-    console.log("Invalid token:", err.message);
-    return res.status(401).json({ message: "Invalid token" });
-  }
-};
+    const token = req.cookies.token; // Ensure token comes from cookies
+    console.log("Cookies:", req.cookies); // Debugging
+
+    if (!token) {
+      console.log("Token is missing");
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log("Decoded token:", decoded);
+      req.user = decoded;
+      next();
+    } catch (err) {
+      console.log("Invalid token:", err.message);
+      return res.status(401).json({ message: "Invalid token" });
+    }
+  };
+
+// const authenticateUser = (req, res, next) => {
+//   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+//   console.log("Cookies:", req.cookies); // Log cookies
+//   console.log("Token:", token); // Log the token
+
+//   if (!token) {
+//     console.log("Token is missing");
+//     return res.status(401).json({ message: "Unauthorized" });
+//   }
+//   try {
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     console.log("Decoded token:", decoded);
+//     req.user = decoded; // Attach user info to the request
+//     next();
+//   } catch (err) {
+//     console.log("Invalid token:", err.message);
+//     return res.status(401).json({ message: "Invalid token" });
+//   }
+// };
 
 // Route to get user info
 router.get("/profile", authenticateUser, async (req, res) => {
