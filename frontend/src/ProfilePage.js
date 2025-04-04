@@ -1,6 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import {
+  Button,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Box
+} from "@mui/material";
+import axios from "axios";
 
 const mockOrders = [
   { id: 1, name: "Yellow Dress", price: "$49.99", time: "2025-03-29 10:30", status: "Delivered" },
@@ -10,17 +22,37 @@ const mockOrders = [
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const [userInfo, setUserInfo] = useState(null); // State to store user info
+  const [error, setError] = useState("");
 
+  // Fetch user info on component mount
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/users/profile", { withCredentials: true });
+        setUserInfo(response.data);
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to fetch user info");
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
+
+  // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
 
+  // Handle navigation to home
   const handleBackToHome = () => {
     navigate("/");
   };
 
+  // Handle navigation to checkout
   const handleGoToCheckout = () => {
+    // TODO: checkout should show the actual content of cart, this is static
     navigate("/checkout");
   };
 
@@ -29,15 +61,23 @@ const ProfilePage = () => {
       <Typography variant="h4" gutterBottom>
         Profile
       </Typography>
+
+
       <Button variant="outlined" color="primary" onClick={handleBackToHome}>
         Back to Home
       </Button>
+
+
       <Button variant="contained" color="secondary" onClick={handleLogout} style={{ marginLeft: "10px" }}>
         Logout
       </Button>
+
+
       <Button variant="contained" color="primary" onClick={handleGoToCheckout} style={{ marginLeft: "10px" }}>
         Go to Checkout Screen
       </Button>
+
+      {/* Order History Section (Static for now) */}
       <Typography variant="h6" style={{ marginTop: "20px" }}>
         Order History
       </Typography>
@@ -63,6 +103,23 @@ const ProfilePage = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* User Info Section (should fetch from backend per user)*/}
+      <Box style={{ marginTop: "20px", padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }}>
+        <Typography variant="h6">User Information</Typography>
+        {error ? (
+          <Typography color="error">{error}</Typography>
+        ) : userInfo ? (
+          <div>
+            <Typography><strong>Username:</strong> {userInfo.username}</Typography>
+            <Typography><strong>Email:</strong> {userInfo.email}</Typography>
+            <Typography><strong>Address:</strong> {userInfo.address}</Typography>
+            <Typography><strong>Phone Number:</strong> {userInfo.phone_number}</Typography>
+          </div>
+        ) : (
+          <Typography>Loading...</Typography>
+        )}
+      </Box>
     </div>
   );
 };
