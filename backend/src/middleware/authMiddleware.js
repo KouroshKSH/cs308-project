@@ -1,30 +1,29 @@
 const jwt = require("jsonwebtoken");
 
+//  Middleware to verify JWT and extract user info
 const authMiddleware = (req, res, next) => {
-  // Retrieve the Authorization header from the request
+  // Get token from Authorization header: "Bearer <token>"
   const authHeader = req.headers["authorization"];
+  if (!authHeader) {
+    return res.status(401).json({ error: "Authorization token missing" });
+  }
 
-  // If no token is provided, return 401 Unauthorized
-  if (!authHeader) return res.status(401).json({ error: "No token" }); // "Token missing"
-
-  // Extract the token from the "Bearer <token>" format
-  const token = authHeader.split(" ")[1];
-
-  // If token is not present or malformed, return 401 Unauthorized
-  if (!token) return res.status(401).json({ error: "Invalid token" }); // "Invalid token"
+  const token = authHeader.split(" ")[1]; // Extract actual token
+  if (!token) {
+    return res.status(401).json({ error: "Invalid token format" });
+  }
 
   try {
-    // Verify the token using the secret key
+    // Verify the token using your secret key
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Attach the decoded user data to the request object
+    // Save user data from token into request object
     req.user = decoded;
 
-    // Proceed to the next middleware or route handler
+    // Continue to the next middleware or route handler
     next();
   } catch (err) {
-    // If verification fails, return 403 Forbidden
-    res.status(403).json({ error: "Token couldn't verified" }); // "Token could not be verified"
+    return res.status(403).json({ error: "Token verification failed" });
   }
 };
 

@@ -1,79 +1,54 @@
-// backend/src/controllers/cartController.js
-const Cart = require("../models/cart");
+const Cart = require("../models/cart"); // Import the Cart model (uses MySQL)
 
+// GET /api/cart → Get all items in the authenticated user's cart
 exports.getCart = async (req, res) => {
   try {
-    // Get the authenticated user's ID from the decoded token
-    const userId = req.user.userId;
-
-    // Retrieve the cart items for the user from the database
-    const cart = await Cart.getCartByUserId(userId);
-
-    // Return the cart contents
-    res.status(200).json(cart);
+    const userId = req.user.userId; // Get userId from decoded JWT token
+    const cart = await Cart.getCartByUserId(userId); // Fetch cart items from DB
+    res.status(200).json(cart); // Return the cart items as JSON
   } catch (err) {
-    // Handle unexpected errors
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message }); // Server error
   }
 };
 
+// POST /api/cart/add → Add a product to the cart
 exports.addToCart = async (req, res) => {
   try {
-    // Log the decoded user info (optional for debugging)
-    console.log("👤 decoded user:", req.user);
+    const userId = req.user.userId; // Extract user ID from JWT
+    const { productId, quantity } = req.body; // Get product and quantity from request body
 
-    // Extract userId from the JWT payload
-    const userId = req.user.userId;
-    console.log("userId:", userId);
+    await Cart.addOrUpdateCartItem(userId, productId, quantity); // Insert or update cart item
 
-    // Extract productId and quantity from the request body
-    const { productId, quantity } = req.body;
-
-    // Add the product to the user's cart, or update quantity if it already exists
-    await Cart.addOrUpdateCartItem(userId, productId, quantity);
-
-    // Send success response
-    res.status(200).json({ message: "Product added to cart." });
+    res.status(200).json({ message: "Product added to cart." }); // Success response
   } catch (err) {
-    // Handle validation or logical errors
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: err.message }); // Handle errors (e.g., stock error)
   }
 };
 
+// PUT /api/cart/update → Update the quantity of a product in the cart
 exports.updateCartItem = async (req, res) => {
   try {
-    // Get the authenticated user's ID
     const userId = req.user.userId;
-
-    // Get productId and the new quantity from the request body
     const { productId, quantity } = req.body;
 
-    // Update the quantity of the specific product in the cart
-    await Cart.updateCartItem(userId, productId, quantity);
+    await Cart.updateCartItem(userId, productId, quantity); // Run UPDATE SQL query
 
-    // Send success message
     res.status(200).json({ message: "Cart item updated successfully." });
   } catch (err) {
-    // Handle unexpected errors
     res.status(500).json({ error: err.message });
   }
 };
 
+// DELETE /api/cart/remove → Remove a product from the cart
 exports.removeFromCart = async (req, res) => {
   try {
-    // Get the authenticated user's ID
     const userId = req.user.userId;
-
-    // Get the productId to be removed from the cart
     const { productId } = req.body;
 
-    // Remove the product from the user's cart
-    await Cart.removeCartItem(userId, productId);
+    await Cart.removeCartItem(userId, productId); // Run DELETE SQL query
 
-    // Send success response
     res.status(200).json({ message: "Product removed from cart." });
   } catch (err) {
-    // Handle unexpected errors
     res.status(500).json({ error: err.message });
   }
 };

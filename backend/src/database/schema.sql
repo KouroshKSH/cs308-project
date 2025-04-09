@@ -79,7 +79,7 @@ INSERT INTO products (
   product_id, name, stock_quantity, price, serial_number, category_id
 )
 VALUES (
-  61, 'tsforması', 10, 199.99, 'SN-TRABZON-61', 1
+  61, 'tsformasi', 10, 199.99, 'SN-TRABZON-61', 1
 );
 
 
