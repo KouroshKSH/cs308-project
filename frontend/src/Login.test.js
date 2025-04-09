@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import Login from './login';
+import Login from './Login';
 
 test('renders login form', () => {
   render(<Login />);
