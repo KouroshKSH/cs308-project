@@ -1,3 +1,5 @@
+// src/components/Header.js
+
 import React, { useState, useEffect } from "react";
 import {
   AppBar,
@@ -13,76 +15,28 @@ import {
   MenuItem,
   Button,
 } from "@mui/material";
-import { useNavigate, Link } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import "./LandingPage.css";
+import { useNavigate } from "react-router-dom";
 
-// Import images
-import product1 from "./assets/images/product1.avif";
-import product2 from "./assets/images/product2.avif";
-import product3 from "./assets/images/product3.avif";
-import product4 from "./assets/images/product4.avif";
-import product5 from "./assets/images/product5.avif";
-import product6 from "./assets/images/product6.avif";
-import product7 from "./assets/images/product7.avif";
-import product8 from "./assets/images/product8.avif";
-import product9 from "./assets/images/product9.avif";
-
-const LandingPage = () => {
-  const [category, setCategory] = useState("Women");
+const Header = ({ category, setCategory, cart = [], onCheckout }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [cart, setCart] = useState([]);
   const [cartAnchorEl, setCartAnchorEl] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
-
   const navigate = useNavigate();
-
-  const products = [
-    { id: 1, name: "Yellow Dress", price: "$49.99", image: product1 },
-    { id: 2, name: "Dark Jeans", price: "$29.99", image: product2 },
-    { id: 3, name: "Light Jeans", price: "$79.99", image: product3 },
-    { id: 4, name: "Gray Tanktop", price: "$59.99", image: product4 },
-    { id: 5, name: "White Tanktop", price: "$19.99", image: product5 },
-    { id: 6, name: "Light Tshirt", price: "$24.99", image: product6 },
-    { id: 7, name: "Blue Tshirt", price: "$39.99", image: product7 },
-    { id: 8, name: "Gray Tshirt", price: "$89.99", image: product8 },
-    { id: 9, name: "Striped Tshirt", price: "$14.99", image: product9 },
-  ];
 
   useEffect(() => {
     const checkLogin = () => {
       setIsLoggedIn(!!localStorage.getItem("token"));
     };
-
     window.addEventListener("storage", checkLogin);
     return () => window.removeEventListener("storage", checkLogin);
   }, []);
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
-  };
-
-  const handleCategoryChange = (newCategory) => {
-    setCategory(newCategory);
-  };
-
-  const handleProfileClick = () => {
-    if (isLoggedIn) {
-      navigate("/profile");
-    } else {
-      navigate("/login", { state: { redirectTo: "/profile" } });
-    }
-  };
-
-  const addToCart = (productId) => {
-    const product = products.find((p) => p.id === productId);
-    if (product) {
-      setCart((prevCart) => [...prevCart, product]);
-      alert("Product added to your cart!");
-    }
   };
 
   const handleCartClick = (event) => {
@@ -93,17 +47,17 @@ const LandingPage = () => {
     setCartAnchorEl(null);
   };
 
-  const handleCheckout = () => {
+  const handleProfileClick = () => {
     if (isLoggedIn) {
-      navigate("/checkout");
+      navigate("/profile");
     } else {
-      navigate("/login", { state: { redirectTo: "/checkout" } });
+      navigate("/login", { state: { redirectTo: "/profile" } });
     }
   };
 
   return (
-    <div className="landing-container">
-      <AppBar position="absolute" color="transparent" elevation={0}>
+    <>
+      <AppBar position="sticky" color="transparent" elevation={0}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <IconButton edge="start" color="inherit" onClick={toggleDrawer(true)}>
             <MenuIcon />
@@ -114,8 +68,7 @@ const LandingPage = () => {
               <Typography
                 key={item}
                 variant="h6"
-                className={`category-item ${category === item ? "active" : ""}`}
-                onClick={() => handleCategoryChange(item)}
+                onClick={() => setCategory && setCategory(item)}
                 sx={{
                   cursor: "pointer",
                   fontWeight: "bold",
@@ -155,11 +108,6 @@ const LandingPage = () => {
         </List>
       </Drawer>
 
-      <main className="landing-content">
-        <Typography variant="h2">{category} Collection</Typography>
-        <p>New season models reflecting the energy of spring</p>
-      </main>
-
       <Menu
         anchorEl={cartAnchorEl}
         open={Boolean(cartAnchorEl)}
@@ -178,28 +126,14 @@ const LandingPage = () => {
         )}
         {cart.length > 0 && (
           <MenuItem>
-            <Button variant="contained" color="primary" onClick={handleCheckout}>
+            <Button variant="contained" color="primary" onClick={onCheckout}>
               Checkout
             </Button>
           </MenuItem>
         )}
       </Menu>
-
-      {/* Product Grid with Product Detail Link */}
-      <div className="product-grid">
-        {products.map((product) => (
-          <div key={product.id} className="product-card">
-            <Link to={`/product/${product.id}`}>
-              <img src={product.image} alt={product.name} className="product-image" />
-            </Link>
-            <h3 className="product-name">{product.name}</h3>
-            <p className="product-price">{product.price}</p>
-            <button onClick={() => addToCart(product.id)}>Add to Cart</button>
-          </div>
-        ))}
-      </div>
-    </div>
+    </>
   );
 };
 
-export default LandingPage;
+export default Header;
