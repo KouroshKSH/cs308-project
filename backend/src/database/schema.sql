@@ -21,19 +21,23 @@ CREATE TABLE IF NOT EXISTS categories (
     FOREIGN KEY (parent_category_id) REFERENCES categories(category_id) ON DELETE CASCADE
 );
 
+
 -- products table
 CREATE TABLE IF NOT EXISTS products (
     product_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     serial_number VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
-    description TEXT NULL,
+    description TEXT,
     price DECIMAL(10,2) NOT NULL,
+    department_id BIGINT UNSIGNED NOT NULL,
     category_id BIGINT UNSIGNED NOT NULL,
-    material VARCHAR(255) NULL,
-    image_url VARCHAR(500) NULL,
+    material VARCHAR(255),
+    image_url VARCHAR(500),
     stock_quantity INT UNSIGNED DEFAULT 0,
     warranty_status ENUM('No Warranty', '6 Months', '1 Year', '2 Years', 'Lifetime') NOT NULL,
-    distributor_info VARCHAR(255) NULL,
+    distributor_info VARCHAR(255),
+    popularity_score DECIMAL(6,3),
+    FOREIGN KEY (department_id) REFERENCES departments(department_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE CASCADE
 );
 
@@ -63,47 +67,43 @@ CREATE TABLE IF NOT EXISTS product_variations (
 );
 
 -- Inserting Main Categories
-INSERT INTO categories (name)
-VALUES
-('Men'),   -- category_id: 1
-('Women'), -- category_id: 2
-('Kids');  -- category_id: 3
+INSERT INTO departments (name) VALUES
+('Men'),      -- department_id: 1
+('Women'),    -- department_id: 2
+('Kids');     -- department_id: 3
 
--- Inserting subcategories under "Men"
-INSERT INTO categories (name, parent_category_id)
-VALUES
-('Tops', 1), ('Bottoms', 1), ('Shoes', 1), ('Accessories', 1);
+-- Main clothing categories
+INSERT INTO categories (name) VALUES
+('Tops'),          -- id: 1
+('Bottoms'),       -- id: 2
+('Shoes'),         -- id: 3
+('Accessories');   -- id: 4
 
--- Further subcategories under "Men"
-INSERT INTO categories (name, parent_category_id)
-VALUES
-('T-Shirts', 4), ('Shirts', 4), ('Sweaters', 4), ('Jackets', 4),
-('Jeans', 5), ('Pants', 5), ('Shorts', 5), 
-('Sneakers', 6), ('Boots', 6), ('Sandals', 6),
-('Watches', 7), ('Bags', 7), ('Hats', 7), ('Glasses', 7), ('Jewellery', 7);
+-- Tops subcategories
+INSERT INTO categories (name, parent_category_id) VALUES
+('T-Shirts', 1),
+('Shirts', 1),
+('Sweaters', 1),
+('Jackets', 1);
 
--- Subcategories under "Women"
-INSERT INTO categories (name, parent_category_id)
-VALUES
-('Tops', 2), ('Bottoms', 2), ('Shoes', 2), ('Accessories', 2);
+-- Bottoms subcategories
+INSERT INTO categories (name, parent_category_id) VALUES
+('Jeans', 2),
+('Pants', 2),
+('Shorts', 2),
+('Skirts', 2); 
 
--- Further subcategories under "Women"
-INSERT INTO categories (name, parent_category_id)
-VALUES
-('T-Shirts', 23), ('Shirts', 23), ('Sweaters', 23), ('Jackets', 23),
-('Jeans', 24), ('Pants', 24), ('Shorts', 24), ('Skirts', 24),
-('Sneakers', 25), ('Boots', 25), ('Sandals', 25), ('Heels', 25), 
-('Watches', 26), ('Bags', 26), ('Hats', 26), ('Glasses', 26), ('Jewellery', 26);
+-- Shoes subcategories
+INSERT INTO categories (name, parent_category_id) VALUES
+('Sneakers', 3),
+('Boots', 3),
+('Sandals', 3),
+('Heels', 3); 
 
--- Subcategories under "Kids"
-INSERT INTO categories (name, parent_category_id)
-VALUES
-('Tops', 3), ('Bottoms', 3), ('Shoes', 3), ('Accessories', 3);
-
--- Further subcategories under "Kids"
-INSERT INTO categories (name, parent_category_id)
-VALUES
-('T-Shirts', 44), ('Shirts', 44), ('Sweaters', 44), ('Jackets', 44), 
-('Jeans', 45), ('Pants', 45), ('Shorts', 45), ('Skirts', 45),
-('Sneakers', 46), ('Boots', 46), ('Sandals', 46), 
-('Watches', 47), ('Bags', 47), ('Hats', 47), ('Glasses', 47), ('Jewellery', 47); 
+-- Accessories subcategories
+INSERT INTO categories (name, parent_category_id) VALUES
+('Watches', 4),
+('Bags', 4),
+('Hats', 4),
+('Glasses', 4),
+('Jewellery', 4);
