@@ -1,26 +1,36 @@
-# Ignore virtual environment directories
+# Virtual environments
 .venv/
 venv/
 
-# Ignore Trunk extension files
+# Trunk extension files
 .trunk/
 
-# Ignore node_modules directory
+# Node.js dependencies
 node_modules/
 
-# Ignore .DS_Store files
+# macOS system files
 .DS_Store
 
-# Ignore .env files in all folders
+# Environment variables
+.env
 **/.env
 
-# Runtime data
+# Runtime and seed files
+*.seed
 pids
 *.pid
-*.seed
 *.pid.lock
 
-# Ignore all logs
-logs
+# Log files
+logs/
 *.log
 npm-debug.log*
+
+# Temporary and bundle files
+temp-cart/
+*.bundle
+
+# IDE/editor config
+.vscode/
+.idea/
+*.iml

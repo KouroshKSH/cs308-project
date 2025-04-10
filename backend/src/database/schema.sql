@@ -62,6 +62,39 @@ CREATE TABLE IF NOT EXISTS product_variations (
     FOREIGN KEY (color_id) REFERENCES colors(color_id)
 );
 
+-- cart table 
+CREATE TABLE cart (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  userId INT NOT NULL,
+  productId BIGINT UNSIGNED NOT NULL,
+  quantity INT UNSIGNED NOT NULL,
+  UNIQUE KEY unique_cart_item (userId, productId),
+  FOREIGN KEY (userId) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (productId) REFERENCES products(product_id) ON DELETE CASCADE
+);
+
+
+--for testing postman
+INSERT INTO products (
+  product_id, name, stock_quantity, price, serial_number, category_id
+)
+VALUES (
+  61, 'tsformasi', 10, 199.99, 'SN-TRABZON-61', 1
+);
+
+
+
+
+INSERT INTO cart (userId, productId, quantity)
+VALUES (1, 2, 3);
+
+INSERT INTO cart (userId, productId, quantity)
+VALUES (1, 4, 1);
+
+
+INSERT INTO cart (userId, productId, quantity)
+VALUES (2, 2, 2);
+
 -- Inserting Main Categories
 INSERT INTO categories (name)
 VALUES

@@ -1,10 +1,15 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { authController } = require('../controllers/authController'); // Import the auth controller
 
-// Use a consistent naming convention under /auth
-// router.post('/auth/register', authController.register);
-router.post('/register', authController.register); // TODO: why can't we use /auth/register here?
-router.post('/auth/login', authController.login);
+// Import route modules
+const authRoutes = require("./authRoutes");
+const cartRoutes = require("./cartRoutes");
 
+// Mount authentication-related routes under /auth
+router.use("/auth", authRoutes);
+
+// Mount cart-related routes under /cart
+router.use("/cart", cartRoutes);
+
+// Export the combined routes to be used in the main server file
 module.exports = router;
