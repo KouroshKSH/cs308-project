@@ -6,8 +6,8 @@ import SignUp from "./Signup";
 import LandingPage from "./LandingPage";
 import CheckoutPage from "./CheckoutPage";
 import ProfilePage from "./ProfilePage";
-import ProductPage  from "./ProductPage";
-
+import ProductPage from "./ProductPage";
+import OrderStatusPage from "./OrderStatusPage";
 
 function App() {
   return (
@@ -17,6 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/product/:productId" element={<ProductPage />} />
+        <Route path="/order/:orderId" element={<OrderStatusPage />} /> 
         <Route
           path="/checkout"
           element={
@@ -28,9 +29,9 @@ function App() {
         <Route
           path="/profile"
           element={
-       
+            <ProtectedRoute>
               <ProfilePage />
-     
+            </ProtectedRoute>
           }
         />
       </Routes>
