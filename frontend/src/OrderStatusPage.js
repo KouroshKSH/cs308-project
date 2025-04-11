@@ -15,7 +15,7 @@ import {
 
 const mockOrderData = {
   '12345': {
-    orderId: '12345',
+    orderId: '12345', // type `http://localhost:3000/order/12345` in URL bar to visit
     orderDate: '2025-04-01',
     totalAmount: '$150.00',
     status: 'Shipped',

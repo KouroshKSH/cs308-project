@@ -17,7 +17,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/product/:productId" element={<ProductPage />} />
-        <Route path="/order/:orderId" element={<OrderStatusPage />} /> 
+        <Route path="/order/:orderId" element={<OrderStatusPage />}
+        // type `http://localhost:3000/order/12345` in URL bar to visit
+        />
         <Route
           path="/checkout"
           element={
