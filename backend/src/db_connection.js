@@ -34,22 +34,21 @@ function displayProducts(products) {
 }
 
 //Function for getting products by category (Men, Women, Kids)
-// NOTE: why???!! we don't have departments!
-// function getProductsByDepartment(departmentId, callback) {
-//     const query = `
-//         SELECT p.name, p.price, p.category_id, p.department_id
-//         FROM products p
-//         WHERE p.department_id = ?;
-//     `;
+function getProductsByDepartment(departmentId, callback) {
+    const query = `
+        SELECT p.name, p.price, p.category_id, p.department_id
+        FROM products p
+        WHERE p.department_id = ?;
+    `;
 
-//     connection.query(query, [departmentId], (err, results) => {
-//         if (err) {
-//             console.error("Error fetching products by department:", err.message);
-//             return;
-//         }
-//         callback(results);
-//     });
-// }
+    connection.query(query, [departmentId], (err, results) => {
+        if (err) {
+            console.error("Error fetching products by department:", err.message);
+            return;
+        }
+        callback(results);
+    });
+}
 
 //Function for sorting products by price (high to low)
 function sortByPriceHighToLow(callback) {
