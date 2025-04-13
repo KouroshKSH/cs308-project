@@ -30,15 +30,31 @@ async function initDatabase() {
             queueLimit: 0
         });
 
-        // Read and execute the schema.sql file
-        const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
-        const statements = schema.split(';').filter(stmt => stmt.trim());
+        // Read the `create_db_run_schema.sql` file
+        const initSchemaPath = path.join(__dirname, 'create_db_run_schema.sql');
+        const initSchemaContent = fs.readFileSync(initSchemaPath, 'utf8');
 
-        for (let statement of statements) {
-            if (statement.trim()) {
-                await pool.query(statement);
+        // Extract file paths from SOURCE commands
+        const sourceFiles = initSchemaContent
+            .split('\n')
+            .filter(line => line.trim().toUpperCase().startsWith('SOURCE'))
+            .map(line => line.split(' ')[1].trim().replace(';', ''));
+
+        // Execute each referenced schema file
+        for (const file of sourceFiles) {
+            const filePath = path.join(__dirname, file);
+            if (fs.existsSync(filePath)) {
+                const sqlContent = fs.readFileSync(filePath, 'utf8');
+                const statements = sqlContent.split(';').filter(stmt => stmt.trim());
+                for (const statement of statements) {
+                    await pool.query(statement);
+                }
+                console.log(`Executed schema file: ${file}`);
+            } else {
+                console.warn(`Schema file not found: ${file}`);
             }
         }
+
         console.log('Database initialized successfully');
     } catch (error) {
         console.error('Database initialization failed:', error);

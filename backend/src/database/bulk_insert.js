@@ -1,0 +1,48 @@
+const fs = require('fs');
+const path = require('path');
+const mysql = require('mysql2/promise');
+require('dotenv').config();
+
+async function bulkInsert() {
+    try {
+        const pool = mysql.createPool({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
+            waitForConnections: true,
+            connectionLimit: 10,
+            queueLimit: 0
+        });
+
+        // const seedFiles = ['seed_categories.sql', 'insert_products.sql'];
+        
+        const bulkInsertFiles = [
+            'insert_bulk_categories.sql',
+            'insert_bulk_colors.sql',
+            'insert_bulk_sizes.sql',
+            'insert_bulk_products.sql',
+            `insert_bulk_product_variations.sql`
+        ];
+        for (const file of bulkInsertFiles) {
+            const filePath = path.join(__dirname, file);
+            if (fs.existsSync(filePath)) {
+                const sqlContent = fs.readFileSync(filePath, 'utf8');
+                const statements = sqlContent.split(';').filter(stmt => stmt.trim());
+                for (const statement of statements) {
+                    await pool.query(statement);
+                }
+                console.log(`Executed seed file: ${file}`);
+            } else {
+                console.warn(`Seed file not found: ${file}`);
+            }
+        }
+
+        console.log('Database seeded successfully');
+    } catch (error) {
+        console.error('Database seeding failed:', error);
+    }
+}
+
+// seedDatabase();
+bulkInsert();
