@@ -32,15 +32,15 @@ async function bulkInsert() {
                 for (const statement of statements) {
                     await pool.query(statement);
                 }
-                console.log(`Executed seed file: ${file}`);
+                console.log(`Executed bulk insertion for ${file}`);
             } else {
-                console.warn(`Seed file not found: ${file}`);
+                console.warn(`Insertion file not found: ${file}`);
             }
         }
 
-        console.log('Database seeded successfully');
+        console.log('Bulk insertion into database done successfully');
     } catch (error) {
-        console.error('Database seeding failed:', error);
+        console.error('Bulk insertion into database failed:', error);
     }
 }
 
