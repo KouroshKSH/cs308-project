@@ -88,7 +88,7 @@ const LandingPage = () => {
         const departmentId = departmentMap[department];
 
         const response = await axios.get(
-          `http://localhost:5000/products/department/${departmentId}`
+          `http://localhost:5000/api/products/department/${departmentId}`
         );
         setProducts(response.data);
       } catch (error) {
