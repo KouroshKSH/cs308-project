@@ -15,8 +15,7 @@ async function bulkInsert() {
             queueLimit: 0
         });
 
-        // const seedFiles = ['seed_categories.sql', 'insert_products.sql'];
-        
+        // does bulk insertion for all tables besides the `users` table
         const bulkInsertFiles = [
             'insert_bulk_categories.sql',
             'insert_bulk_colors.sql',
@@ -44,5 +43,4 @@ async function bulkInsert() {
     }
 }
 
-// seedDatabase();
 bulkInsert();
