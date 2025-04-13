@@ -5,6 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "init-db": "node src/database/init.js",
+    "bulk-insert": "node src/database/bulk_insert.js",
     "start": "node src/server.js"
   },
   "keywords": [],
@@ -19,7 +20,6 @@
     "express": "^4.21.2",
     "inquirer": "^12.5.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.13.2",
     "mysql2": "^3.13.0",
     "nodemon": "^3.1.9"
   }
