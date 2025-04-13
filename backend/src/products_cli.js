@@ -51,7 +51,7 @@ function handleSelection(selection) {
 
         case '4':
             connectToDatabase((connection) => {
-                getProductsByDepartment(1, (results) => {
+                getProductsByDepartment(1, (results) => { // doesn't make sense
                     displayProducts(results);
                     promptUser(); 
                 });
