@@ -17,6 +17,7 @@ async function bulkInsert() {
 
         // does bulk insertion for all tables besides the `users` table
         const bulkInsertFiles = [
+            'insert_bulk_departments.sql',
             'insert_bulk_categories.sql',
             'insert_bulk_colors.sql',
             'insert_bulk_sizes.sql',
