@@ -153,13 +153,6 @@ const LandingPage = () => {
             ))}
           </Box>;
 
-          { /* sort the products from low to high price */}
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Button variant="contained" color="primary" onClick={handleSortByPrice}>
-              Sort by Price (Low to High)
-            </Button>
-          </Box>
-
           <Box sx={{ display: "flex", gap: 2 }}>
             <IconButton color="inherit">
               <SearchIcon />
@@ -192,6 +185,13 @@ const LandingPage = () => {
         <Typography variant="h2">{department} Collection</Typography>
         <p>New season models reflecting the energy of spring</p>
       </main>
+
+      { /* sort the products from low to high price */}
+      <Box sx={{ display: "flex", gap: 2 }}>
+        <Button variant="contained" color="primary" onClick={handleSortByPrice}>
+          Sort by Price (Low to High)
+        </Button>
+      </Box>
 
       <Menu
         anchorEl={cartAnchorEl}
