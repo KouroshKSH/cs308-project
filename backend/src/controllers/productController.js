@@ -22,17 +22,17 @@ const productController = {
     }
   },
 
-  // Fetch and sort products by price for a given category
-  getProductsByCategorySortedByPrice: async (req, res) => {
+  // Fetch and sort products by price for a given department
+  getProductsByDepartmentSortedByPrice: async (req, res) => {
     try {
-      const { categoryId } = req.params;
+      const { departmentId } = req.params;
 
-      if (!categoryId) {
-        return res.status(400).json({ message: "Category ID is required" });
+      if (!departmentId) {
+        return res.status(400).json({ message: "Department ID is required" });
       }
 
       // Fetch and sort products using the Product model
-      const products = await Product.getProductsByCategorySortedByPrice(categoryId);
+      const products = await Product.getProductsByDepartmentSortedByPrice(departmentId);
 
       return res.status(200).json(products);
     } catch (error) {
