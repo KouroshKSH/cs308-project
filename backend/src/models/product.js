@@ -13,6 +13,18 @@ const Product = {
     const [rows] = await pool.query(query, [departmentId]);
     return rows;
   },
+
+  // Fetch and sort products by price for a given department
+  async getProductsByDepartmentSortedByPrice(departmentId) {
+    const query = `
+      SELECT product_id, name, description, price, stock_quantity, warranty_status, popularity_score
+      FROM products
+      WHERE department_id = ?
+      ORDER BY price ASC;
+    `;
+    const [rows] = await pool.query(query, [departmentId]);
+    return rows;
+  },
 };
 
 module.exports = Product;

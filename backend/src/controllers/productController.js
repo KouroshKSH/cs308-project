@@ -21,6 +21,25 @@ const productController = {
       return res.status(500).json({ message: "Failed to fetch products" });
     }
   },
+
+  // Fetch and sort products by price for a given department
+  getProductsByDepartmentSortedByPrice: async (req, res) => {
+    try {
+      const { departmentId } = req.params;
+
+      if (!departmentId) {
+        return res.status(400).json({ message: "Department ID is required" });
+      }
+
+      // Fetch and sort products using the Product model
+      const products = await Product.getProductsByDepartmentSortedByPrice(departmentId);
+
+      return res.status(200).json(products);
+    } catch (error) {
+      console.error("Error fetching sorted products:", error);
+      return res.status(500).json({ message: "Failed to fetch sorted products" });
+    }
+  },
 };
 
 module.exports = productController;

@@ -6,4 +6,7 @@ const productController = require("../controllers/productController");
 // NOTE: "Women" is 2, "Men" is 1, "Kids" is 3
 router.get("/department/:departmentId", productController.getProductsByDepartment);
 
+// Route to fetch and sort products by price for a given department
+router.get("/department/:departmentId/sort/price", productController.getProductsByDepartmentSortedByPrice);
+
 module.exports = router;
