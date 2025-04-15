@@ -9,4 +9,7 @@ router.get("/department/:departmentId", productController.getProductsByDepartmen
 // Route to fetch and sort products by price for a given department
 router.get("/department/:departmentId/sort/price", productController.getProductsByDepartmentSortedByPrice);
 
+// Route to fetch and sort products by popularity for a given department
+router.get("/department/:departmentId/sort/popularity", productController.getProductsByDepartmentSortedByPopularity);
+
 module.exports = router;
