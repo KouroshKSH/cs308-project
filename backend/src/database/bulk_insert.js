@@ -24,6 +24,7 @@ async function bulkInsert() {
             'insert_bulk_products.sql',
             `insert_bulk_product_variations.sql`,
             `insert_bulk_users.sql`,
+            `insert_bulk_product_reviews.sql`,
         ];
         for (const file of bulkInsertFiles) {
             const filePath = path.join(__dirname, file);

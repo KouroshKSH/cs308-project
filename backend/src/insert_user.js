@@ -17,7 +17,7 @@ async function registerUser() {
 
         const [result] = await connection.execute(
             'INSERT INTO users (username, email, password_hash, role, address, phone_number) VALUES (?, ?, ?, ?, ?, ?)',
-            ['user2', 'user2@email.com', hashedPassword, 'customer', '456 New St', '9876543210']
+            ['Arif', 'arif@email.com', hashedPassword, 'customer', 'Istanbul, Turkey', '9876543210']
         );
 
         console.log('User inserted:', result);
