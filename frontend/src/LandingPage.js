@@ -89,6 +89,21 @@ const LandingPage = () => {
     }
   };
 
+
+  // 5. Handle sorting by popularity (High to Low)
+  const handleSortByPopularity = async () => {
+    try {
+      const departmentId = departmentMap[department];
+
+      const response = await axios.get(
+        `http://localhost:5000/api/products/department/${departmentId}/sort/popularity`
+      );
+      setProducts(response.data); // Update products with sorted data
+    } catch (error) {
+      console.error("Error sorting products by popularity:", error);
+    }
+  };
+
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
   };
@@ -186,10 +201,15 @@ const LandingPage = () => {
         <p>New season models reflecting the energy of spring</p>
       </main>
 
-      { /* sort the products from low to high price */}
-      <Box sx={{ display: "flex", gap: 2 }}>
+      {/* Buttons for sorting */}
+      <Box sx={{ display: "flex", gap: 2, marginTop: 2 }}>
+        { /* sort the products from low to high price */}
         <Button variant="contained" color="primary" onClick={handleSortByPrice}>
           Sort by Price (Low to High)
+        </Button>
+        { /* sort the products from high to low popularity */}
+        <Button variant="contained" color="secondary" onClick={handleSortByPopularity}>
+          Sort by Popularity (High to Low)
         </Button>
       </Box>
 
@@ -224,6 +244,7 @@ const LandingPage = () => {
           <div key={product.product_id} className="product-card">
             <h3 className="product-name">{product.name}</h3>
             <p className="product-price">${product.price}</p>
+            <p className="product-popularity">Popularity: {product.popularity_score}</p>
             <button onClick={() => addToCart(product.product_id)}>Add to Cart</button>
           </div>
         ))}
