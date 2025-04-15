@@ -6,9 +6,11 @@ USE fashion_ecommerce;
 -- do NOT include any files regarding insertion
 -- that should be handled separately
 SOURCE users_schema.sql;
+SOURCE users_schema.sql;
 SOURCE departments_schema.sql;
 SOURCE categories_schema.sql;
 SOURCE products_schema.sql;
 SOURCE sizes_schema.sql;
 SOURCE colors_schema.sql;
 SOURCE product_variations_schema.sql;
+SOURCE product_reviews_schema.sql;

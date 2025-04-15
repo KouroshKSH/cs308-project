@@ -1,5 +1,6 @@
 // const { Product } = require("../models/product");
 const Product = require("../models/product");
+const Review = require("../models/reviews");
 
 const productController = {
   // Fetch products by department
@@ -57,6 +58,28 @@ const productController = {
     } catch (error) {
       console.error("Error fetching sorted products by popularity:", error);
       return res.status(500).json({ message: "Failed to fetch sorted products by popularity" });
+    }
+  },
+
+  // Get reviews by productId
+  getProductReviews: async (req, res) => {
+    try {
+      const { productId } = req.params;
+
+      if (!productId) {
+        return res.status(400).json({ message: "Product ID is required" });
+      }
+
+      const reviews = await Review.getReviewsByProductId(productId);
+      return res.status(200).json(reviews);
+
+      // this will not care if there are NO reviews (0 comments and 0 ratings)
+      // it'll still be 200 OK since some products might not have any reviews
+      // do NOT change the logic here by saying `if (reviews.length === 0) return res.status(404).json({ message: "No reviews found" })`
+
+    } catch (error) {
+      console.error("Error fetching product reviews:", error);
+      return res.status(500).json({ message: "Failed to fetch reviews" });
     }
   },
 };
