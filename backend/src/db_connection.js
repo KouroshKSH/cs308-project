@@ -1,6 +1,7 @@
-require('dotenv').config({ path: '../../.env' });
-const mysql = require('mysql2');
+require("dotenv").config({ path: "../.env" });
+const mysql = require("mysql2");
 
+// Create a persistent single connection
 const connection = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -8,81 +9,75 @@ const connection = mysql.createConnection({
     database: process.env.DB_NAME
 });
 
-//Connection to database
-function connectToDatabase(callback) {
-    connection.connect((err) => {
-        if (err) {
-            console.error("Database connection failed:", err.message);
-            process.exit(1); 
-        }
-        console.log("Successfully connected to the database:", process.env.DB_NAME);
-        callback(connection); 
-    });
-}
+// Connect to the database 
+connection.connect((err) => {
+    if (err) {
+        console.error("Database connection failed:", err.message);
+        process.exit(1);
+    }
+});
 
-//Function to display products
+// Display products 
 function displayProducts(products) {
-    console.log("\nProduct List:");
+    console.log("\n Product List:");
     if (products.length === 0) {
         console.log("No products found.");
     } else {
         products.forEach((prod, index) => {
-            console.log(`${index + 1}. ${prod.name} | Department: ${prod.department_id} | Category: ${prod.category_id} | Price: $${prod.price}`);
+            console.log(
+                `${index + 1}. ${prod.name} | Department: ${prod.department_id} | Category: ${prod.category_id} | Price: $${prod.price}`
+            );
         });
     }
     console.log("\n");
 }
 
-//Function for getting products by category (Men, Women, Kids)
+// Get products by department (Men=1, Women=2, Kids=3)
 function getProductsByDepartment(departmentId, callback) {
     const query = `
-        SELECT p.name, p.price, p.category_id, p.department_id
-        FROM products p
-        WHERE p.department_id = ?;
+        SELECT product_id, name, price, category_id, department_id
+        FROM products
+        WHERE department_id = ?;
     `;
-
     connection.query(query, [departmentId], (err, results) => {
         if (err) {
-            console.error("Error fetching products by department:", err.message);
+            console.error("Error fetching department products:", err.message);
             return;
         }
         callback(results);
     });
 }
 
-//Function for sorting products by price (high to low)
+// Sort products: High to Low price
 function sortByPriceHighToLow(callback) {
     const query = `
-        SELECT p.name, p.price, p.category_id
-        FROM products p
-        ORDER BY p.price DESC;
+        SELECT product_id, name, price, category_id
+        FROM products
+        ORDER BY price DESC;
     `;
-    
     connection.query(query, (err, results) => {
         if (err) {
-            console.error("Error sorting products by price:", err.message);
+            console.error("Error sorting products (high to low):", err.message);
             return;
         }
         callback(results);
     });
 }
 
-//Function for sorting products by price (low to high)
+// Sort products: Low to High price
 function sortByPriceLowToHigh(callback) {
     const query = `
-        SELECT p.name, p.price, p.category_id
-        FROM products p
-        ORDER BY p.price ASC;
+        SELECT product_id, name, price, category_id
+        FROM products
+        ORDER BY price ASC;
     `;
-    
     connection.query(query, (err, results) => {
         if (err) {
-            console.error("Error sorting products by price:", err.message);
+            console.error("Error sorting products (low to high):", err.message);
             return;
         }
         callback(results);
     });
 }
 
-module.exports = { connection, connectToDatabase, displayProducts, getProductsByDepartment, sortByPriceHighToLow, sortByPriceLowToHigh };
-
+module.exports = {connection, displayProducts, getProductsByDepartment, sortByPriceHighToLow, sortByPriceLowToHigh};
