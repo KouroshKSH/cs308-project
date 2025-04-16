@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import { Typography, Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import "./ContactPage.css";
 import DrawerMenu from "./components/DrawerMenu";
 
@@ -20,6 +19,7 @@ const ContactPage = () => {
       </Box>
     </Box>
     );
+    // maybe @reyhanturhan can provide the email address once she makes it
 };
 
 export default ContactPage;

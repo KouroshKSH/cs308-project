@@ -1,4 +1,3 @@
-// filepath: /home/kourosh/Documents/Sabanci/classes/cs308/cs308-project/frontend/src/components/DrawerMenu.js
 import React, { useState } from "react";
 import { Drawer, List, ListItem, ListItemText, IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -34,6 +33,8 @@ const DrawerMenu = () => {
             button
             sx={{ cursor: "pointer" }}
             onClick={() => {
+              // I chose our project's GitHub link as the "About" page
+              // because we don't have a dedicated About page yet.
               window.open("https://github.com/KouroshKSH/cs308-project", "_blank");
               setDrawerOpen(false); // Close the drawer
             }}
@@ -44,6 +45,7 @@ const DrawerMenu = () => {
             button
             sx={{ cursor: "pointer" }}
             onClick={() => {
+              // goes to a basic contact page, nothing special
               navigate("/contact");
               setDrawerOpen(false); // Close the drawer
             }}

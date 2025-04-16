@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios"; // we'll need it for API calls
-import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircle from "@mui/icons-material/AccountCircle";
@@ -142,7 +141,7 @@ const LandingPage = () => {
     <div className="landing-container">
       <AppBar position="absolute" color="transparent" elevation={0}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          {/* Use DrawerMenu here */}
+          {/* the custom drawer component */}
           <DrawerMenu />
 
           { /*  changes the department based on what you click  */}
