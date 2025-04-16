@@ -184,13 +184,34 @@ const LandingPage = () => {
 
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
         <List sx={{ width: 250 }}>
-          <ListItem button onClick={() => navigate("/")}>
+          <ListItem
+            button
+            sx={{ cursor: "pointer" }}
+            onClick={() => {
+              navigate("/");
+              setDrawerOpen(false); // Close the drawer
+            }}
+          >
             <ListItemText primary="Home" />
           </ListItem>
-          <ListItem button onClick={() => (window.location.href = "https://github.com/KouroshKSH/cs308-project")}>
+          <ListItem
+            button
+            sx={{ cursor: "pointer" }}
+            onClick={() => {
+              window.open("https://github.com/KouroshKSH/cs308-project", "_blank");
+              setDrawerOpen(false); // Close the drawer
+            }}
+          >
             <ListItemText primary="About" />
           </ListItem>
-          <ListItem button onClick={() => navigate("/contact")}>
+          <ListItem
+            button
+            sx={{ cursor: "pointer" }}
+            onClick={() => {
+              navigate("/contact");
+              setDrawerOpen(false); // Close the drawer
+            }}
+          >
             <ListItemText primary="Contact" />
           </ListItem>
         </List>
