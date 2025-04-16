@@ -184,10 +184,10 @@ const LandingPage = () => {
 
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
         <List sx={{ width: 250 }}>
-          <ListItem button>
+          <ListItem button onClick={() => navigate("/")}>
             <ListItemText primary="Home" />
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => (window.location.href = "https://github.com/KouroshKSH/cs308-project")}>
             <ListItemText primary="About" />
           </ListItem>
           <ListItem button>
