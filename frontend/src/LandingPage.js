@@ -190,7 +190,7 @@ const LandingPage = () => {
           <ListItem button onClick={() => (window.location.href = "https://github.com/KouroshKSH/cs308-project")}>
             <ListItemText primary="About" />
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => navigate("/contact")}>
             <ListItemText primary="Contact" />
           </ListItem>
         </List>

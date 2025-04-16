@@ -8,6 +8,7 @@ import CheckoutPage from "./CheckoutPage";
 import ProfilePage from "./ProfilePage";
 import ProductPage from "./ProductPage";
 import OrderStatusPage from "./OrderStatusPage";
+import ContactPage from "./ContactPage";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/contact" element={<ContactPage />} />
       </Routes>
     </BrowserRouter>
   );
