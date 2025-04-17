@@ -37,6 +37,19 @@ const Product = {
     const [rows] = await pool.query(query, [departmentId]);
     return rows;
   },
+
+  async searchProducts(query, departmentId) {
+    const searchTerm = `%${query}%`;
+    const sql = `
+      SELECT product_id, name, description, price, stock_quantity, warranty_status, popularity_score
+      FROM products
+      WHERE department_id = ?
+        AND (name LIKE ? OR description LIKE ?)
+      LIMIT 5;
+    `;
+    const [rows] = await pool.query(sql, [departmentId, searchTerm, searchTerm]);
+    return rows;
+  }
 };
 
 module.exports = Product;
