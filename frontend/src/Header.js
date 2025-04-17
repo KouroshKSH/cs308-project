@@ -1,6 +1,4 @@
-// src/components/Header.js
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -11,8 +9,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Menu,
-  MenuItem,
   Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -21,38 +17,16 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import { useNavigate } from "react-router-dom";
 
-const Header = ({ category, setCategory, cart = [], onCheckout }) => {
+const Header = ({ category, setCategory }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [cartAnchorEl, setCartAnchorEl] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const checkLogin = () => {
-      setIsLoggedIn(!!localStorage.getItem("token"));
-    };
-    window.addEventListener("storage", checkLogin);
-    return () => window.removeEventListener("storage", checkLogin);
-  }, []);
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
   };
 
-  const handleCartClick = (event) => {
-    setCartAnchorEl(event.currentTarget);
-  };
-
-  const handleCartClose = () => {
-    setCartAnchorEl(null);
-  };
-
-  const handleProfileClick = () => {
-    if (isLoggedIn) {
-      navigate("/profile");
-    } else {
-      navigate("/login", { state: { redirectTo: "/profile" } });
-    }
+  const handleCartClick = () => {
+    navigate("/cart");
   };
 
   return (
@@ -87,7 +61,7 @@ const Header = ({ category, setCategory, cart = [], onCheckout }) => {
             <IconButton color="inherit" onClick={handleCartClick}>
               <ShoppingCartIcon />
             </IconButton>
-            <IconButton color="inherit" onClick={handleProfileClick}>
+            <IconButton color="inherit">
               <AccountCircle />
             </IconButton>
           </Box>
@@ -107,31 +81,6 @@ const Header = ({ category, setCategory, cart = [], onCheckout }) => {
           </ListItem>
         </List>
       </Drawer>
-
-      <Menu
-        anchorEl={cartAnchorEl}
-        open={Boolean(cartAnchorEl)}
-        onClose={handleCartClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        {cart.length === 0 ? (
-          <MenuItem>Your cart is empty</MenuItem>
-        ) : (
-          cart.map((item, index) => (
-            <MenuItem key={index}>
-              {item.name} - {item.price}
-            </MenuItem>
-          ))
-        )}
-        {cart.length > 0 && (
-          <MenuItem>
-            <Button variant="contained" color="primary" onClick={onCheckout}>
-              Checkout
-            </Button>
-          </MenuItem>
-        )}
-      </Menu>
     </>
   );
 };

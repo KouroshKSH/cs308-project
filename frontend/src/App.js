@@ -8,6 +8,7 @@ import CheckoutPage from "./CheckoutPage";
 import ProfilePage from "./ProfilePage";
 import ProductPage from "./ProductPage";
 import OrderStatusPage from "./OrderStatusPage";
+import Cart from "./Cart";
 
 function App() {
   return (
@@ -17,9 +18,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/product/:productId" element={<ProductPage />} />
-        <Route path="/order/:orderId" element={<OrderStatusPage />}
-        // type `http://localhost:3000/order/12345` in URL bar to visit
-        />
+        <Route path="/order/:orderId" element={<OrderStatusPage />} />
         <Route
           path="/checkout"
           element={
@@ -36,6 +35,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/cart" element={<Cart />} /> {/* Sepet sayfası */}
       </Routes>
     </BrowserRouter>
   );
