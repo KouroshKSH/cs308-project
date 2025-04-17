@@ -82,6 +82,23 @@ const productController = {
       return res.status(500).json({ message: "Failed to fetch reviews" });
     }
   },
+
+  searchProducts: async (req, res) => {
+    const { departmentId } = req.params;
+    const query = req.query.q;
+
+    if (!query) {
+      return res.status(400).json({ error: "Search query is required" });
+    }
+
+    try {
+      const results = await Product.searchProducts(query, departmentId);
+      res.status(200).json(results);
+    } catch (err) {
+      console.error("Search error:", err.message);
+      res.status(500).json({ error: "Search failed" });
+    }
+  },
 };
 
 module.exports = productController;

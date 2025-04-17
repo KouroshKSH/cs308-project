@@ -15,4 +15,6 @@ router.get("/department/:departmentId/sort/popularity", productController.getPro
 // Route to fetch reviews for a specific product
 router.get("/:productId/reviews", productController.getProductReviews);
 
+// Route to search by department
+router.get("/department/:departmentId/search", productController.searchProducts);
 module.exports = router;
