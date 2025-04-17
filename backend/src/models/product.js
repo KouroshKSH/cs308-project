@@ -38,6 +38,7 @@ const Product = {
     return rows;
   },
 
+  // Search products by department
   async searchProducts(query, departmentId) {
     const searchTerm = `%${query}%`;
     const sql = `
@@ -50,6 +51,13 @@ const Product = {
     const [rows] = await pool.query(sql, [departmentId, searchTerm, searchTerm]);
     return rows;
   },
+
+  // Get product variation stock status
+  async getPvStock() {
+    const query = `SELECT * FROM variation_stock_view;`;
+    const [rows] = await pool.query(query);
+    return rows;
+  }
 };
 
 module.exports = Product;

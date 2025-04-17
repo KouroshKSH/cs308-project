@@ -99,6 +99,17 @@ const productController = {
       res.status(500).json({ error: "Search failed" });
     }
   },
+
+  // Fetch product variation stock status from 'variation_stock_view'
+  getPvStock: async (req, res) => {
+    try {
+      const stockData = await Product.getPvStock();
+      res.status(200).json(stockData);
+    } catch (error) {
+      console.error("Error fetching stock data:", error);
+      return res.status(500).json({ message: "Failed to fetch product variation stock data" });
+    }
+  },
 };
 
 module.exports = productController;
