@@ -14,7 +14,7 @@ const ContactPage = () => {
       <Box className="contact-content">
         <Typography variant="h4">Contact Us</Typography>
         <Typography variant="body1" sx={{ marginTop: "20px" }}>
-          You can send an email to <strong>we don't have an email yet :)</strong> for any inquiries.
+          You can send an email to <strong>cs308team9@gmail.com</strong> for any inquiries.
         </Typography>
       </Box>
     </Box>
