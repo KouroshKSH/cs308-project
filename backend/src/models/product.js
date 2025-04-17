@@ -38,6 +38,7 @@ const Product = {
     return rows;
   },
 
+
   // Search products by department
   async searchProducts(query, departmentId) {
     const searchTerm = `%${query}%`;

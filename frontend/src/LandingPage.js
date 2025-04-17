@@ -5,21 +5,18 @@ import {
   Typography,
   IconButton,
   Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemText,
   Menu,
   MenuItem,
   Button,
 } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios"; // we'll need it for API calls
-import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import "./LandingPage.css";
+import DrawerMenu from "./components/DrawerMenu";
+
 
 // Import images
 // import product1 from "./assets/images/product1.avif"; // and so on
@@ -144,10 +141,8 @@ const LandingPage = () => {
     <div className="landing-container">
       <AppBar position="absolute" color="transparent" elevation={0}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <IconButton edge="start" color="inherit" onClick={toggleDrawer(true)}>
-            <MenuIcon />
-          </IconButton>
-
+          {/* the custom drawer component */}
+          <DrawerMenu />
 
           { /*  changes the department based on what you click  */}
           <Box sx={{ display: "flex", gap: 4, flexGrow: 1, justifyContent: "center" }}>
@@ -181,20 +176,6 @@ const LandingPage = () => {
           </Box>
         </Toolbar>
       </AppBar>
-
-      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
-        <List sx={{ width: 250 }}>
-          <ListItem button>
-            <ListItemText primary="Home" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="About" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="Contact" />
-          </ListItem>
-        </List>
-      </Drawer>
 
       <main className="landing-content">
         <Typography variant="h2">{department} Collection</Typography>
