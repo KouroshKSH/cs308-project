@@ -48,7 +48,7 @@ const Product = {
         AND (name LIKE ? OR description LIKE ? OR material LIKE ?)
       LIMIT 5;
     `;
-    const [rows] = await pool.query(sql, [departmentId, searchTerm, searchTerm]);
+    const [rows] = await pool.query(sql, [departmentId, searchTerm, searchTerm, searchTerm]);
     return rows;
     // we can show up to 5 results to avoid showing too many results
     // the user's search term will be tried to match to `name`, `description`, or `material`
