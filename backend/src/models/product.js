@@ -38,19 +38,20 @@ const Product = {
     return rows;
   },
 
-
-  // Search products by department
+  // Fetch products by department for searching
   async searchProducts(query, departmentId) {
     const searchTerm = `%${query}%`;
     const sql = `
-      SELECT product_id, name, description, price, stock_quantity, warranty_status, popularity_score
+      SELECT product_id, name, description, price, material, stock_quantity, warranty_status, popularity_score
       FROM products
       WHERE department_id = ?
-        AND (name LIKE ? OR description LIKE ?)
+        AND (name LIKE ? OR description LIKE ? OR material LIKE ?)
       LIMIT 5;
     `;
     const [rows] = await pool.query(sql, [departmentId, searchTerm, searchTerm]);
     return rows;
+    // we can show up to 5 results to avoid showing too many results
+    // the user's search term will be tried to match to `name`, `description`, or `material`
   },
 
   // Get product variation stock status
@@ -58,7 +59,7 @@ const Product = {
     const query = `SELECT * FROM variation_stock_view;`;
     const [rows] = await pool.query(query);
     return rows;
-  }
+  },
 };
 
 module.exports = Product;
