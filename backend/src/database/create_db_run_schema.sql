@@ -14,3 +14,4 @@ SOURCE sizes_schema.sql;
 SOURCE colors_schema.sql;
 SOURCE product_variations_schema.sql;
 SOURCE product_reviews_schema.sql;
+SOURCE stock_status.sql;

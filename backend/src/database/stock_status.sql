@@ -1,5 +1,3 @@
-USE fashion_ecommerce;
-
 CREATE OR REPLACE VIEW variation_stock_view AS
 SELECT
   pv.product_id,
