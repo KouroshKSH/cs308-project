@@ -19,7 +19,6 @@ const ContactPage = () => {
       </Box>
     </Box>
     );
-    // maybe @reyhanturhan can provide the email address once she makes it
 };
 
 export default ContactPage;
