@@ -33,7 +33,7 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 export default function SignUp() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -41,8 +41,8 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false);
 
   const validateInputs = () => {
-    if (!name || name.length < 3) {
-      setErrorMessage("Name must be at least 3 characters long.");
+    if (!username || username.length < 3) {
+      setErrorMessage("Your username must be at least 3 characters long.");
       return false;
     }
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
@@ -71,7 +71,7 @@ export default function SignUp() {
       // First, register the user
       const registerResponse = await axios.post(
         `${API_URL}/register`,
-        { name, email, password },
+        { username, email, password },
         { withCredentials: true }
       );
 
@@ -124,7 +124,7 @@ export default function SignUp() {
 
   const handleBackToHome = () => {
     // Clear inputs and redirect to landing page
-    setName("");
+    setUsername("");
     setEmail("");
     setPassword("");
     setConfirmPassword("");
@@ -152,8 +152,8 @@ export default function SignUp() {
         {errorMessage && <Typography color="error">{errorMessage}</Typography>}
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <FormControl>
-            <FormLabel>Name</FormLabel>
-            <TextField type="text" required fullWidth value={name} onChange={(e) => setName(e.target.value)} />
+            <FormLabel>Userame</FormLabel>
+            <TextField type="text" required fullWidth value={username} onChange={(e) => setUsername(e.target.value)} />
           </FormControl>
           <FormControl>
             <FormLabel>Email</FormLabel>

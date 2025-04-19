@@ -6,10 +6,11 @@ const authController = {
   // Handles user registration
   register: async (req, res) => {
     try {
-      const { email, password, address, phone_number } = req.body;
+      // for now, we'll pass name (or username), email and password
+      const { name, email, password } = req.body;
 
-      if (!email || !password) {
-        return res.status(400).json({ message: "Missing required fields" });
+      if (!name || !email || !password) {
+        return res.status(400).json({ message: "Name, email, and password are required"  });
       }
 
       // Check if the user already exists
