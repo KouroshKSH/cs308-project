@@ -6,10 +6,11 @@ const authController = {
   // Handles user registration
   register: async (req, res) => {
     try {
-      const { email, password, address, phone_number } = req.body;
+      // for now, we'll pass username, email and password
+      const { username, email, password } = req.body;
 
-      if (!email || !password) {
-        return res.status(400).json({ message: "Missing required fields" });
+      if (!username || !email || !password) {
+        return res.status(400).json({ message: "Username, email, and password are required"  });
       }
 
       // Check if the user already exists
@@ -18,18 +19,11 @@ const authController = {
         return res.status(409).json({ message: "User already exists" });
       }
 
-      // Generate a unique username using email prefix and random number
-      const emailPrefix = email.split("@")[0];
-      const randomSix = Math.floor(100000 + Math.random() * 900000);
-      const username = `${emailPrefix}_${randomSix}`;
-
       // Create user (password will be hashed inside userModel)
       const result = await userModel.create({
         username,
         email,
         password,
-        address,
-        phone_number,
       });
 
       return res.status(201).json({

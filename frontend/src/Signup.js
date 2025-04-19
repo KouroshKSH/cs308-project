@@ -6,7 +6,7 @@ import { Box, Button, CssBaseline, Divider, FormControl, FormLabel, Link, TextFi
 import { styled } from "@mui/material/styles";
 import zxcvbn from "zxcvbn";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -33,7 +33,7 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 export default function SignUp() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -41,8 +41,8 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false);
 
   const validateInputs = () => {
-    if (!name || name.length < 3) {
-      setErrorMessage("Name must be at least 3 characters long.");
+    if (!username || username.length < 3) {
+      setErrorMessage("Your username must be at least 3 characters long.");
       return false;
     }
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
@@ -70,8 +70,8 @@ export default function SignUp() {
     try {
       // First, register the user
       const registerResponse = await axios.post(
-        `${API_URL}/register`,
-        { name, email, password },
+        `${API_URL}/auth/register`,
+        { username, email, password },
         { withCredentials: true }
       );
 
@@ -100,31 +100,10 @@ export default function SignUp() {
       setLoading(false);
     }
   };
-  // const handleSubmit = async (event) => {
-  //   event.preventDefault();
-  //   if (!validateInputs()) return;
-  //   setLoading(true);
-  //   setErrorMessage("");
-
-  //   try {
-  //     await axios.post(
-  //       `${API_URL}/register`, 
-  //       { name, email, password }, 
-  //       { withCredentials: true }
-  //     );
-  //     // Redirect to intended page or default to profile
-  //     const redirectTo = location.state?.redirectTo || "/profile";
-  //     navigate(redirectTo);
-  //   } catch (err) {
-  //     setErrorMessage(err.response?.data?.message || "Registration failed. Try again.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleBackToHome = () => {
     // Clear inputs and redirect to landing page
-    setName("");
+    setUsername("");
     setEmail("");
     setPassword("");
     setConfirmPassword("");
@@ -152,8 +131,8 @@ export default function SignUp() {
         {errorMessage && <Typography color="error">{errorMessage}</Typography>}
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <FormControl>
-            <FormLabel>Name</FormLabel>
-            <TextField type="text" required fullWidth value={name} onChange={(e) => setName(e.target.value)} />
+            <FormLabel>Userame</FormLabel>
+            <TextField type="text" required fullWidth value={username} onChange={(e) => setUsername(e.target.value)} />
           </FormControl>
           <FormControl>
             <FormLabel>Email</FormLabel>
