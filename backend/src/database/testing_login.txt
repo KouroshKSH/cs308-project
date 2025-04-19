@@ -55,3 +55,9 @@ curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json"
 example 5:
 something1@example.com
 "7Ey+#a8!3eu-A@
+
+---
+
+example 6:
+pleasework@gmail.com
+%_6KTHvJ?f9YhC:
