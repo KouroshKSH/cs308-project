@@ -8,9 +8,7 @@ const userModel = {
       username,
       email,
       password,
-      role = "customer",
-      address,
-      phone_number,
+      role = "customer", // we'll have a separate admin panel, so anyone who registers will be a customer
     } = userData;
 
     // Hash the user's password before storing
@@ -25,8 +23,8 @@ const userModel = {
         email,
         hashedPassword,
         role,
-        address || null,
-        phone_number || null,
+        null,
+        null,
       ]
     );
 

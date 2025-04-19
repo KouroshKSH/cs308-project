@@ -6,7 +6,7 @@ import { Box, Button, CssBaseline, Divider, FormControl, FormLabel, Link, TextFi
 import { styled } from "@mui/material/styles";
 import zxcvbn from "zxcvbn";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -70,7 +70,7 @@ export default function SignUp() {
     try {
       // First, register the user
       const registerResponse = await axios.post(
-        `${API_URL}/register`,
+        `${API_URL}/auth/register`,
         { username, email, password },
         { withCredentials: true }
       );
@@ -100,27 +100,6 @@ export default function SignUp() {
       setLoading(false);
     }
   };
-  // const handleSubmit = async (event) => {
-  //   event.preventDefault();
-  //   if (!validateInputs()) return;
-  //   setLoading(true);
-  //   setErrorMessage("");
-
-  //   try {
-  //     await axios.post(
-  //       `${API_URL}/register`, 
-  //       { name, email, password }, 
-  //       { withCredentials: true }
-  //     );
-  //     // Redirect to intended page or default to profile
-  //     const redirectTo = location.state?.redirectTo || "/profile";
-  //     navigate(redirectTo);
-  //   } catch (err) {
-  //     setErrorMessage(err.response?.data?.message || "Registration failed. Try again.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleBackToHome = () => {
     // Clear inputs and redirect to landing page
