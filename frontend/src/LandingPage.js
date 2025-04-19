@@ -19,7 +19,7 @@ import DrawerMenu from "./components/DrawerMenu";
 
 // do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.)
 // this is the base URL for the API and it's important to have it here
-const BASE_URL = process.env.REACT_APP_API_URL || "${BASE_URL}";
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 // Import images
 // import product1 from "./assets/images/product1.avif"; // and so on
