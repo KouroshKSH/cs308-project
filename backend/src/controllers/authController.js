@@ -19,12 +19,6 @@ const authController = {
         return res.status(409).json({ message: "User already exists" });
       }
 
-      // [OLD] Generate a unique username using email prefix and random number
-      // we don't need this anymore because the person will enter their username
-      // const emailPrefix = email.split("@")[0];
-      // const randomSix = Math.floor(100000 + Math.random() * 900000);
-      // const username = `${emailPrefix}_${randomSix}`;
-
       // Create user (password will be hashed inside userModel)
       const result = await userModel.create({
         username,
