@@ -1,8 +1,22 @@
 USE fashion_ecommerce;
 
 -- Bulk insert of 20 unique users
-INSERT IGNORE INTO users (username, email, password_hash, role, address, phone_number) VALUES
-('john.doe', 'john.doe@email.com', '$2b$10$ul6lIoQFrGLHtbkGXwvxxedT/1nqFFKQUOqy7gQPngWpqfDNGt3KS', 'customer', '123 Main St, Anytown, USA', '123-456-7890'),
+INSERT INTO users (username, email, password_hash, role, address, phone_number)
+VALUES
+('testuser', 'testuser@example.com', '$2b$10$ul6lIoQFrGLHtbkGXwvxxedT/1nqFFKQUOqy7gQPngWpqfDNGt3KS', 'customer', '123 Test St', '1234567890'),
+('newuser', 'newuser@example.com', '$2b$10$r5bBW5xLIKY04uE3FqYQjusv1AN80RgrGMxlm/q4WpMWGk1Nas0Wu', 'customer', '456 New St', '9876543210'),
+('someotheruser', 'newuser1@example.com', '$2b$10$gQQW1JDiWvHkJ/qwE3hHmetnKoyMKPwB17mk/UuqhE5NYl8CuK1lq', 'customer', '456 New St', '9876543210'),
+('user2', 'user2@email.com', '$2b$10$038zPI3qF5S2eoPYOlbDDelYGTmsbaIUg60gv0MeC/ozp64Sn5xYu', 'customer', '456 New St', '9876543210'),
+('john.doe_541712', 'john.doe@email.com', '$2b$10$6xoso3.mvIqeR0Zm44jmJuH57hf6DMC1qUPbP2siM3qUiRgQJbEC2', 'customer', NULL, NULL),
+('idontcare_242986', 'idontcare@example.com', '$2b$10$y9SnIbezrzXCTNP7SKIvEuc4uvG2S2ia6MDnSkPWdHbmrMFwPmuhO', 'customer', NULL, NULL),
+('asd_547250', 'asd@asd.com', '$2b$10$5amst0ineX76Ug5PdPgT3.w0AtHPtSGkgaWaZ38lyaswsrztS.jBS', 'customer', NULL, NULL),
+('somethingweird_632814', 'somethingweird@gmail.com', '$2b$10$muHJq8K.H.cAyh3sTm15Qeko0lZQ.6/PMKXczKx3zyCZuEVTf2Hm6', 'customer', NULL, NULL),
+('asdfasd_202798', 'asdfasd@gasfds.com', '$2b$10$.WtFL5MmtuGmtK52FY42w.f1uHJJyAURFvkSWHwNa5mXTaTAfEDYC', 'customer', NULL, NULL),
+('something1_399495', 'something1@example.com', '$2b$10$jTGFmf02H2Yn5rZjYLBRBO/8xHOj0apxGWl3I.ldtlx1DW6Q/.u0q', 'customer', NULL, NULL),
+('something2_905353', 'something2@example.com', '$2b$10$SaQ8ur0kL/2SY8xvKh8MYOKTzHUOlYEuyMzr5nEi7d0hlyYTye0ti', 'customer', NULL, NULL),
+('person5_150515', 'person5@gm.com', '$2b$10$XqHWbFwyZHby76qJVigYAeAr8e5cCdbw6TYU5UZknhCQ6KN4V3nDy', 'customer', NULL, NULL),
+('person6_524040', 'person6@gm.com', '$2b$10$YmyF4hgEk4FAsUJBLaIUEuaLYu/MzjQ9zGNqO12EEQQf342pJebhq', 'customer', NULL, NULL),
+('arya_940271', 'arya@gmail.com', '$2b$10$f86BbAP9QLcwghHyiPEucucreMO878xGXZUNox3EszGcuRiS4lIV2', 'customer', NULL, NULL),
 ('jane_smith', 'jane.smith@email.com', '$2b$10$ul6lIoQFrGLHtbkGXwvxxedT/1nqFFKQUOqy7gQPngWpqfDNGt3KS', 'customer', '456 Oak Ave, Somecity, Canada', '987-654-3210'),
 ('michael_brown', 'michael.brown@email.com', '$2b$10$ul6lIoQFrGLHtbkGXwvxxedT/1nqFFKQUOqy7gQPngWpqfDNGt3KS', 'customer', '789 Pine Ln, Otherville, UK', '+44 20 1234 5678'),
 ('emily_wilson', 'emily.wilson@email.com', '$2b$10$ul6lIoQFrGLHtbkGXwvxxedT/1nqFFKQUOqy7gQPngWpqfDNGt3KS', 'customer', '101 Elm Rd, Faraway, Australia', '+61 2 9876 5432'),
@@ -21,4 +35,7 @@ INSERT IGNORE INTO users (username, email, password_hash, role, address, phone_n
 ('daniel_clark', 'daniel.clark@email.com', '$2b$10$ul6lIoQFrGLHtbkGXwvxxedT/1nqFFKQUOqy7gQPngWpqfDNGt3KS', 'customer', '333 Park Ave, Uptown, Germany', '+49 176 12345678'),
 ('mia_lewis', 'mia.lewis@email.com', '$2b$10$ul6lIoQFrGLHtbkGXwvxxedT/1nqFFKQUOqy7gQPngWpqfDNGt3KS', 'customer', '444 Garden Ln, Downtown, France', '+33 6 12 34 56 78'),
 ('ethan_young', 'ethan.young@email.com', '$2b$10$ul6lIoQFrGLHtbkGXwvxxedT/1nqFFKQUOqy7gQPngWpqfDNGt3KS', 'customer', '555 Main Rd, Eastside, Italy', '+39 333 1234567'),
-('ava_king', 'ava.king@email.com', '$2b$10$ul6lIoQFrGLHtbkGXwvxxedT/1nqFFKQUOqy7gQPngWpqfDNGt3KS', 'customer', '666 High St, Westend, Spain', '+34 600 123 45 67');
+('ava_king', 'ava.king@email.com', '$2b$10$ul6lIoQFrGLHtbkGXwvxxedT/1nqFFKQUOqy7gQPngWpqfDNGt3KS', 'customer', '666 High St, Westend, Spain', '+34 600 123 45 67'),
+('james_king', 'james.king@email.com', '$2b$10$ul6lIoQFrGLHtbkGXwvxxedT/1nqFFKQUOqy7gQPngWpqfDNGt3KS', 'customer', '777 High St, Westend, Spain', '+34 600 123 45 68');
+
+-- for users table, Kourosh's DB will look a bit different because of user 4 being missing
