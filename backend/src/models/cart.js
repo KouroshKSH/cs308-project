@@ -27,10 +27,6 @@ const Cart = {
       [product_id]
     );
 
-    // if (!productRows.length || productRows[0].stock_quantity < quantity) {
-    //   console.log("Insufficient stock quantity:", productRows[0].stock_quantity);
-    //   throw new Error("Insufficient stock or product not found");
-    // }
     if (!productRows.length) {
       console.log("Product not found");
       throw new Error("Product not found");

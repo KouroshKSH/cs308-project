@@ -14,18 +14,13 @@ app.use(cors({
 app.use((req, res, next) => {
     console.log("METHOD:", req.method);
     console.log("PATH:", req.path);
-    console.log("BODY:", req.body); // <-- confirm JSON is parsed
+    console.log("BODY:", req.body); // to onfirm JSON is parsed
     next();
 });
 
 app.use("/api", routes); // All routes use /api prefix
 
 app.get("/", (req, res) => res.send("API is running..."));
-
-app.post("/test-body", (req, res) => {
-    console.log("TEST BODY:", req.body);
-    res.json({ received: req.body });
-});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
