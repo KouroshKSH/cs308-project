@@ -11,6 +11,13 @@ app.use(cors({
     credentials: true
 }));
 
+app.use((req, res, next) => {
+    console.log("METHOD:", req.method);
+    console.log("PATH:", req.path);
+    console.log("BODY:", req.body); // to onfirm JSON is parsed
+    next();
+});
+
 app.use("/api", routes); // All routes use /api prefix
 
 app.get("/", (req, res) => res.send("API is running..."));

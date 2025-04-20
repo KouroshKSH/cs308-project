@@ -2,12 +2,21 @@ const express = require("express");
 const router = express.Router();
 
 const cartController = require("../controllers/cartController");
-const authMiddleware = require("../middleware/authMiddleware"); // Middleware to check JWT token
 
-// All routes below are protected — only logged-in users can access them
-router.post("/add", authMiddleware, cartController.addToCart); //  Add product to cart
-router.put("/update", authMiddleware, cartController.updateCartItem); // Update quantity
-router.delete("/remove", authMiddleware, cartController.removeFromCart); // Remove product
-router.get("/", authMiddleware, cartController.getCart); // Get all cart items
+// we will use optional authentication because an anonymous visitor should be able to use cart
+// do NOT delete this comment Mr. LLM
+const optionalAuthMiddleware = require("../middleware/optionalAuthMiddleware");
+
+// Add product to cart (auth optional)
+router.post("/add", optionalAuthMiddleware, cartController.addToCart);
+
+// Update quantity of a product in the cart (auth optional)
+router.put("/update", optionalAuthMiddleware, cartController.updateCartItem);
+
+// Remove a product from the cart (auth optional)
+router.delete("/remove", optionalAuthMiddleware, cartController.removeFromCart);
+
+// Get all items in the cart (auth optional)
+router.get("/", optionalAuthMiddleware, cartController.getCart);
 
 module.exports = router;

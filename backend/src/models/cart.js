@@ -1,65 +1,83 @@
 const db = require("../config/database"); // Import the database connection pool
 
 const Cart = {
-  //  Get all items in a user's cart, joining with product details
-  getCartByUserId: async (userId) => {
+  // get all the items in a the cart (for both auth or anon users)
+  getCart: async (user_id, session_id) => {
     const [rows] = await db.query(
-      `SELECT cart.productId, cart.quantity, products.name, products.price
-       FROM cart
-       JOIN products ON cart.productId = products.product_id
-       WHERE cart.userId = ?`,
-      [userId]
+      `SELECT cart.product_id, cart.quantity, products.name, products.price
+        FROM cart
+        JOIN products ON cart.product_id = products.product_id
+        WHERE cart.user_id = ? OR cart.session_id = ?`,
+      [user_id || null, session_id || null]
     );
-    return rows; // Return list of cart items with product info
+    // this endpoint works for both authenticated users and anonymous visitors
+    // we mostly care about session ID (do NOT delete this comment!)
+    console.log("Session ID:", session_id);
+    console.log("User ID:", user_id);
+    console.log("Cart items:\n", rows);
+    return rows;
   },
 
-  // Add a new item to the cart or update quantity if it already exists
-  addOrUpdateCartItem: async (userId, productId, quantity) => {
-    // 1. Check if the product exists and has enough stock
+  // add or update a cart item (both auth and anon users)
+  addOrUpdateCartItem: async (user_id, session_id, product_id, quantity) => {
     const [productRows] = await db.query(
-      `SELECT stock_quantity FROM products WHERE product_id = ?`,
-      [productId]
+      `SELECT stock_quantity
+        FROM products
+        WHERE product_id = ?`,
+      [product_id]
     );
 
-    if (!productRows.length || productRows[0].stock_quantity < quantity) {
-      throw new Error("Insufficient stock or product not found");
+    if (!productRows.length) {
+      console.log("Product not found");
+      throw new Error("Product not found");
+    }
+    if (productRows[0].stock_quantity < quantity) {
+      console.log("Insufficient stock:", productRows[0].stock_quantity);
+      throw new Error("Insufficient stock");
     }
 
-    // 2. Check if the item is already in the user's cart
     const [existing] = await db.query(
-      `SELECT * FROM cart WHERE userId = ? AND productId = ?`,
-      [userId, productId]
+      `SELECT *
+        FROM cart
+        WHERE (user_id = ? OR session_id = ?) AND product_id = ?`,
+      [user_id || null, session_id || null, product_id]
     );
 
     if (existing.length) {
-      // 3. If yes, increment the quantity
+      // product already exists in cart, so you can update the quantityS
       await db.query(
-        `UPDATE cart SET quantity = quantity + ? WHERE userId = ? AND productId = ?`,
-        [quantity, userId, productId]
+        `UPDATE cart
+          SET quantity = quantity + ?
+          WHERE (user_id = ? OR session_id = ?) AND product_id = ?`,
+        [quantity, user_id || null, session_id || null, product_id]
       );
     } else {
-      // 4. If not, insert new item into the cart
+      // product does not exist in cart, so you can insert a new row
       await db.query(
-        `INSERT INTO cart (userId, productId, quantity) VALUES (?, ?, ?)`,
-        [userId, productId, quantity]
+        `INSERT INTO cart (user_id, session_id, product_id, quantity)
+          VALUES (?, ?, ?, ?)`,
+        [user_id || null, session_id || null, product_id, quantity]
       );
     }
   },
 
-  //  Update quantity of a specific product in the cart
-  updateCartItem: async (userId, productId, quantity) => {
+  // update by assuming item is already in the cart (both auth and anon users)
+  updateCartItem: async (user_id, session_id, product_id, quantity) => {
     await db.query(
-      `UPDATE cart SET quantity = ? WHERE userId = ? AND productId = ?`,
-      [quantity, userId, productId]
+      `UPDATE cart
+        SET quantity = ?
+        WHERE (user_id = ? OR session_id = ?) AND product_id = ?`,
+      [quantity, user_id || null, session_id || null, product_id]
     );
   },
 
-  // Remove a product from the cart
-  removeCartItem: async (userId, productId) => {
-    await db.query(`DELETE FROM cart WHERE userId = ? AND productId = ?`, [
-      userId,
-      productId,
-    ]);
+  // remove by assuming item is already in the cart (both auth and anon users)
+  removeCartItem: async (user_id, session_id, product_id) => {
+    await db.query(
+      `DELETE FROM cart
+        WHERE (user_id = ? OR session_id = ?) AND product_id = ?`,
+      [user_id || null, session_id || null, product_id]
+    );
   },
 };
 

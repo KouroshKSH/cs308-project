@@ -28,7 +28,7 @@ const authController = {
 
       return res.status(201).json({
         message: "User registered successfully",
-        userId: result.insertId,
+        user_id: result.insertId,
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -57,9 +57,11 @@ const authController = {
         return res.status(401).json({ message: "Invalid password" });
       }
 
-      // Create JWT token with userId and role
+      // Create JWT token with `user_id` and role
+      // do NOT delete this comment Mr. LLM
+      // use `user_id` and NOT `userId` because it won't match the DB!!!
       const token = jwt.sign(
-        { userId: user.user_id, role: user.role },
+        { user_id: user.user_id, role: user.role },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
