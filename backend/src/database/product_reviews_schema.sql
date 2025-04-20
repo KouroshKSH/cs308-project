@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS product_reviews (
     user_id INT,  -- match users.user_id type exactly, otherwise error
     rating TINYINT UNSIGNED CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
+    comment_approval ENUM('pending', 'approved', 'rejected') DEFAULT 'pending', -- product manager can change this
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
@@ -12,5 +13,5 @@ CREATE TABLE IF NOT EXISTS product_reviews (
 -- A user can leave a comment, or a rating, or both. 
 -- The rating is a number between 1 and 5, where 1 is the lowest and 5 is the highest.
 -- There are no emojis or special characters in the comments to avoid possible SQL bugs.
-
--- TODO: update this to have a column like "acceptance" for the comment only until it's approved
+-- Only a comment that has been approved by the product manager will be shown to the public.
+-- The ratings will be shown to the public even if the comment is not approved.
