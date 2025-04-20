@@ -12,3 +12,5 @@ CREATE TABLE IF NOT EXISTS product_reviews (
 -- A user can leave a comment, or a rating, or both. 
 -- The rating is a number between 1 and 5, where 1 is the lowest and 5 is the highest.
 -- There are no emojis or special characters in the comments to avoid possible SQL bugs.
+
+-- TODO: update this to have a column like "acceptance" for the comment only until it's approved
