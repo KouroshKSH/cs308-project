@@ -114,14 +114,14 @@ const productController = {
   // Fetch all the product info for product page given product ID
   getProductInfo: async (req, res) => {
     try {
-      const {product_id} = req.params;
-      const product = await Product.getProductById(product_id);
+      const {productId} = req.params;
+      const product = await Product.getProductById(productId);
 
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      console.log("Found product with ID ", product_id);
+      console.log("Found product with ID ", productId);
       console.log("Product Info\n", product);
       res.status(200).json(product);
     } catch (error) {
