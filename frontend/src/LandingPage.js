@@ -10,7 +10,7 @@ import {
   Button,
   TextField,
 } from "@mui/material";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios"; // we'll need it for API calls
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -18,8 +18,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import "./LandingPage.css";
 import DrawerMenu from "./components/DrawerMenu";
 
-// do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.)
-// this is the base URL for the API and it's important to have it here
+// Base URL for the API
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 const LandingPage = () => {
@@ -106,6 +105,17 @@ const LandingPage = () => {
     setSearchQuery(searchTerm);
     setSearchTerm("");
     setSearchBoxVisible(false);
+
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/products/search/${searchTerm}`
+      );
+      // Assuming the API returns the products related to the search term
+      setProducts(response.data);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+
     navigate(`/product/search/${searchTerm}`); // Navigate to product search page with the search term
   };
 
