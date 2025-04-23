@@ -5,6 +5,7 @@ import axios from "axios";
 const TempProductPage = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
+  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -16,8 +17,22 @@ const TempProductPage = () => {
       }
     };
 
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/products/${productId}/reviews`);
+        setReviews(response.data);
+      } catch (error) {
+        console.error("Error fetching product reviews:", error);
+      }
+    };
+
     fetchProduct();
+    fetchReviews();
   }, [productId]);
+
+  if (!product) {
+    return <div>Loading...</div>;
+  }
 
   if (!product) {
     return <div>Loading...</div>;
@@ -42,6 +57,21 @@ const TempProductPage = () => {
         <p><strong>Warranty Status:</strong> {product.warranty_status}</p>
         <p><strong>Distributor Info:</strong> {product.distributor_info}</p>
         <p><strong>Popularity Score:</strong> {product.popularity_score}</p>
+
+        <h2>Product Reviews</h2>
+        {reviews.length === 0 ? (
+            <p>No reviews available for this product.</p>
+        ) : (
+            reviews.map((review) => (
+            <div key={review.review_id} style={{ border: "1px solid #ccc", padding: "10px", margin: "10px 0" }}>
+                <p><strong>Username:</strong> {review.username}</p>
+                <p><strong>Rating:</strong> {review.rating ? `${review.rating} number of stars` : "0 number of stars"}</p>
+                <p><strong>Comment:</strong> {review.comment || "No comment posted"}</p>
+                <p><strong>Date:</strong> {new Date(review.created_at).toISOString().split("T")[0]}</p>
+            </div>
+            ))
+        )}
+
     </div>
   );
 };

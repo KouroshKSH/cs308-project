@@ -14,7 +14,9 @@ const Review = {
         u.username
       FROM product_reviews pr
       JOIN users u ON pr.user_id = u.user_id
-      WHERE pr.product_id = ?
+      WHERE 1=1
+        AND pr.product_id = ?
+        AND pr.comment_approval = 'approved'
       ORDER BY pr.created_at DESC;
     `;
     const [rows] = await pool.query(query, [productId]);
