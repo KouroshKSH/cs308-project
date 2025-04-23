@@ -140,6 +140,11 @@ const LandingPage = () => {
     }
   };
 
+  // once the user clicks on a product, it will take them to the product page
+  const handleProductClick = (productId) => {
+    navigate(`/tempProductPage/${productId}`);
+  };
+
   return (
     <div className="landing-container">
       <AppBar position="absolute" color="transparent" elevation={0}>
@@ -225,11 +230,17 @@ const LandingPage = () => {
       {/* Product Grid with Product Detail Link of fetched products */}
       <div className="product-grid">
         {products.map((product) => (
-          <div key={product.product_id} className="product-card">
+          <div
+            key={product.product_id}
+            className="product-item"
+            onClick={() => handleProductClick(product.product_id)}
+            style={{ cursor: "pointer", border: "1px solid #ccc", padding: "10px", margin: "10px" }}
+          >
             <h3 className="product-name">{product.name}</h3>
             <p className="product-price">${product.price}</p>
             <p className="product-popularity">Popularity: {product.popularity_score}</p>
             <button onClick={() => addToCart(product.product_id)}>Add to Cart</button>
+            {/* TODO: i will remove the add to cart from landing page for each product because it doesn't make sense */}
           </div>
         ))}
       </div>;

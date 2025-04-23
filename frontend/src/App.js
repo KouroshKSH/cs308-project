@@ -9,12 +9,14 @@ import ProfilePage from "./ProfilePage";
 import ProductPage from "./ProductPage";
 import OrderStatusPage from "./OrderStatusPage";
 import ContactPage from "./ContactPage";
+import TempProductPage from "./tempProductPage"; // we'll change this later @ArifSari-maker
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/tempProductPage/:productId" element={<TempProductPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/product/:productId" element={<ProductPage />} />

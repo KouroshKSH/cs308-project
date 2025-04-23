@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
+  AppBar,
+  Toolbar,
   Box,
   Typography,
   Rating,
@@ -17,6 +19,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
 import Header from "./Header";
+// import DrawerMenu from "./components/DrawerMenu";
 import placeholderImage from "./assets/images/product1.avif";
 
 // Mock products (simulating a backend response)
@@ -152,6 +155,7 @@ const ProductPage = () => {
               ))}
             </Box>
           </Box>
+
 
           <Box sx={{ flex: 1 }}>
             <Typography variant="h5" fontWeight="bold">{product.name}</Typography>

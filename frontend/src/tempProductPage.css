@@ -1,0 +1,17 @@
+/* .contact-container {
+    text-align: center;
+    padding: 20px;
+} */
+
+.drawer-icon {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.content {
+    margin-top: 50px;
+    font-size: 18px;
+    /* left: 20px; */
+    padding: 20px;
+}

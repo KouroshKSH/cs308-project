@@ -60,6 +60,17 @@ const Product = {
     const [rows] = await pool.query(query);
     return rows;
   },
+
+  // Get product info given its ID
+  async getProductById(productId) {
+    const sql = `
+      SELECT *
+      FROM products
+      WHERE product_id = ?;
+    `;
+    const [rows] = await pool.query(sql, [productId]);
+    return rows[0];
+  },
 };
 
 module.exports = Product;

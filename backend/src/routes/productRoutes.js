@@ -21,4 +21,7 @@ router.get("/department/:departmentId/search", productController.searchProducts)
 // Route to fetch product variation stock status
 router.get("/pv-stock", productController.getPvStock);
 
+// Route to get all the info of a product based on its ID
+router.get("/:productId", productController.getProductInfo);
+
 module.exports = router;
