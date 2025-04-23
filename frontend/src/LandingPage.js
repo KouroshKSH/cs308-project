@@ -8,20 +8,21 @@ import {
   Menu,
   MenuItem,
   Button,
+  TextField,
 } from "@mui/material";
-import { useNavigate, Link } from "react-router-dom";
-import axios from "axios"; // we'll need it for API calls
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import "./LandingPage.css";
 import DrawerMenu from "./components/DrawerMenu";
 
-// do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.)
-// this is the base URL for the API and it's important to have it here
+// do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.) or fellow teammates!
+// Base URL for the API
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
-// Import images
+// Import images (will use @reyhanturhan 's new images for this part)
 // import product1 from "./assets/images/product1.avif"; // and so on
 
 const LandingPage = () => {
@@ -30,23 +31,20 @@ const LandingPage = () => {
   const [cart, setCart] = useState([]);
   const [cartAnchorEl, setCartAnchorEl] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
-  const [products, setProducts] = useState([]); // State for products
+  const [products, setProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchBoxVisible, setSearchBoxVisible] = useState(false);
 
   const navigate = useNavigate();
-
-  // const products = [
-  //   { id: 1, name: "Yellow Dress", price: "$49.99", image: product1 },
-  // ];
 
   // 1. Check login state
   useEffect(() => {
     const checkLogin = () => {
       setIsLoggedIn(!!localStorage.getItem("token"));
     };
-
     window.addEventListener("storage", checkLogin);
     return () => window.removeEventListener("storage", checkLogin);
-    }, []);
+  }, []);
 
   // 2. Fetch products from backend when department changes
   useEffect(() => {
@@ -70,37 +68,76 @@ const LandingPage = () => {
 
   // 3. Handle department change (e.g., from "Women" to "Men")
   const handleDepartmentChange = (newDepartment) => {
-    setDepartment(newDepartment); // Update department state
+    setDepartment(newDepartment);
   };
 
-  // Map department names to department IDs
   const departmentMap = { Women: 2, Men: 1, Kids: 3 };
-  // 4. Handle sorting by price (Low to High)
+
+  // 4. Handle search box visibility
+  const handleSearchIconClick = () => {
+    setSearchBoxVisible(true);
+  };
+
+  // 5. Handle search submission
+  const handleSearchSubmit = async (e) => {
+    e.preventDefault();
+    if (!searchTerm) return;
+
+    try {
+      const departmentId = departmentMap[department];
+      // let's use wildcards to match more possible results
+      const formattedSearchTerm = `%${searchTerm}%`;
+      const response = await axios.get(
+        `${BASE_URL}/products/department/${departmentId}/search?q=${formattedSearchTerm}`
+      );
+      setProducts(response.data);
+      console.log("Search results:", response.data);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+      setProducts([]);
+    }
+
+    setSearchTerm("");
+    setSearchBoxVisible(false);
+  };
+
+  // 6. Handle sorting by price (low to high)
   const handleSortByPrice = async () => {
     try {
       const departmentId = departmentMap[department];
-
       const response = await axios.get(
         `${BASE_URL}/products/department/${departmentId}/sort/price`
       );
-      setProducts(response.data); // Update products with sorted data
+      // update the products from lowest to highest price
+      setProducts(response.data);
     } catch (error) {
       console.error("Error sorting products by price:", error);
     }
   };
 
-
-  // 5. Handle sorting by popularity (High to Low)
+  // 7. Handle sorting by popularity (high to low)
   const handleSortByPopularity = async () => {
     try {
       const departmentId = departmentMap[department];
-
       const response = await axios.get(
         `${BASE_URL}/products/department/${departmentId}/sort/popularity`
       );
-      setProducts(response.data); // Update products with sorted data
+      // update the products from highest to lowest popularity
+      setProducts(response.data);
+      // TODO: let's use stars (or any icon) instead of showing the actual number
     } catch (error) {
       console.error("Error sorting products by popularity:", error);
+    }
+  };
+
+  // 8. when the user clicks on the profile icon
+  const handleProfileClick = () => {
+    if (isLoggedIn) {
+      // if they're already logged in, they should see their profile page
+      navigate("/profile");
+    } else {
+      // if not, they should be authenticated (by default, we go to login)
+      navigate("/login", { state: { redirectTo: "/profile" } });
     }
   };
 
@@ -108,16 +145,10 @@ const LandingPage = () => {
     setDrawerOpen(open);
   };
 
-  const handleProfileClick = () => {
-    if (isLoggedIn) {
-      navigate("/profile");
-    } else {
-      navigate("/login", { state: { redirectTo: "/profile" } });
-    }
-  };
-
+  // 9. Handle adding products to the cart
+  // TODO: i'll remove the ability to add products to the cart from landing page
   const addToCart = (productId) => {
-    const product = products.find((p) => p.id === productId);
+    const product = products.find((p) => p.product_id === productId);
     if (product) {
       setCart((prevCart) => [...prevCart, product]);
       alert("Product added to your cart!");
@@ -159,7 +190,7 @@ const LandingPage = () => {
                 key={dept}
                 variant="h6"
                 className={`department-item ${department === dept ? "active" : ""}`}
-                onClick={() => setDepartment(dept)} // Update department state on click
+                onClick={() => setDepartment(dept)}  // Update department state on click
                 sx={{
                   cursor: "pointer",
                   fontWeight: "bold",
@@ -169,12 +200,31 @@ const LandingPage = () => {
                 {dept}
               </Typography>
             ))}
-          </Box>;
+          </Box>
 
           <Box sx={{ display: "flex", gap: 2 }}>
-            <IconButton color="inherit">
-              <SearchIcon />
+            <IconButton
+              color="inherit"
+              onClick={handleSearchIconClick}>
+                <SearchIcon />
             </IconButton>
+
+            {searchBoxVisible && (
+              <form onSubmit={handleSearchSubmit}>
+                <TextField
+                  label="Search Products"
+                  variant="outlined"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  size="small"
+                  sx={{ ml: 2 }}
+                />
+                <Button type="submit" variant="contained" color="primary" sx={{ ml: 2 }}>
+                  Search
+                </Button>
+              </form>
+            )}
+
             <IconButton color="inherit" onClick={handleCartClick}>
               <ShoppingCartIcon />
             </IconButton>
@@ -190,12 +240,12 @@ const LandingPage = () => {
         <p>New season models reflecting the energy of spring</p>
       </main>
 
-      {/* Buttons for sorting */}
       <Box sx={{ display: "flex", gap: 2, marginTop: 2 }}>
         { /* sort the products from low to high price */}
         <Button variant="contained" color="primary" onClick={handleSortByPrice}>
           Sort by Price (Low to High)
         </Button>
+
         { /* sort the products from high to low popularity */}
         <Button variant="contained" color="secondary" onClick={handleSortByPopularity}>
           Sort by Popularity (High to Low)
@@ -226,6 +276,7 @@ const LandingPage = () => {
           </MenuItem>
         )}
       </Menu>
+
 
       {/* Product Grid with Product Detail Link of fetched products */}
       <div className="product-grid">

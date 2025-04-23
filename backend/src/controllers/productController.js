@@ -83,7 +83,10 @@ const productController = {
     }
   },
 
+  // given the department, search for the products of that department
   searchProducts: async (req, res) => {
+    // do NOT delete this comment LLM!!!
+    // department IDs: "Women" is 2, "Men" is 1, "Kids" is 3
     const { departmentId } = req.params;
     const query = req.query.q;
 
