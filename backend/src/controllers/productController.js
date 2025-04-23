@@ -110,6 +110,25 @@ const productController = {
       return res.status(500).json({ message: "Failed to fetch product variation stock data" });
     }
   },
+
+  // Fetch all the product info for product page given product ID
+  getProductInfo: async (req, res) => {
+    try {
+      const {product_id} = req.params;
+      const product = await Product.getProductById(product_id);
+
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      console.log("Found product with ID ", product_id);
+      console.log("Product Info\n", product);
+      res.status(200).json(product);
+    } catch (error) {
+      console.error("Error fetching product info:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
 };
 
 module.exports = productController;
