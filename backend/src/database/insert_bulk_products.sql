@@ -2,7 +2,7 @@ USE fashion_ecommerce;
 
 -- inserting products
 -- Men (department_id = 1)
-INSERT IGNORE INTO products (serial_number, name, description, price, department_id, category_id, material, image_url, stock_quantity, warranty_status, distributor_info, popularity_score) VALUES
+INSERT INTO products (serial_number, name, description, price, department_id, category_id, material, image_url, stock_quantity, warranty_status, distributor_info, popularity_score) VALUES
 ('SN10', 'Cotton T-Shirt', 'Premium cotton t-shirt', 19.99, 1, 5, 'Cotton', 'url_SN10', 300, '1 Year', 'Dist1', RAND() * 10), -- category_id: 5 (T-Shirts)
 ('SN11', 'Cargo Pants', 'Multi-functional neutral cargo pants', 45.00, 1, 9, 'Cotton', 'url_SN11', 220, '1 Year', 'Dist3', RAND() * 10), -- category_id: 9 (Jeans)
 ('SN12', 'Leather Boots', 'High quality leather boots', 75.00, 1, 14, 'Leather', 'url_SN12', 300, 'Lifetime', 'DistL', RAND() * 10), -- category_id: 14 (Boots)
@@ -10,7 +10,7 @@ INSERT IGNORE INTO products (serial_number, name, description, price, department
 ('SN14', 'Steel Ring Set', '5 piece stainless steel ring set', 54.99, 1, 21, 'Steel', 'url_SN14', 100, 'Lifetime', 'DistJ', RAND() * 10); -- category_id: 21 (Jewellery)
 
 -- Women (department_id = 2)
-INSERT IGNORE INTO products (serial_number, name, description, price, department_id, category_id, material, image_url, stock_quantity, warranty_status, distributor_info, popularity_score) VALUES
+INSERT INTO products (serial_number, name, description, price, department_id, category_id, material, image_url, stock_quantity, warranty_status, distributor_info, popularity_score) VALUES
 ('SN20', 'Floral Shirt', 'Floral patterned short sleeve shirt', 24.99, 2, 6, 'Viscose', 'url_SN20', 125, '6 Months', 'Dist2', RAND() * 10), -- category_id: 6 (Shirts)
 ('SN21', 'Fitted Jacket', 'Fitted jacket with pocket detailed lining', 44.99, 2, 8, 'Polyester', 'url_SN21', 175, '6 Months', 'Dist5', RAND() * 10), -- category_id: 8 (Jackets)
 ('SN22', 'Maxi Skirt', 'Maxi skirt with polka dot pattern', 39.99, 2, 12, 'Cotton', 'url_SN22', 200, '1 Year', 'DistP', RAND() * 10), -- category_id: 12 (Skirts)
@@ -18,7 +18,7 @@ INSERT IGNORE INTO products (serial_number, name, description, price, department
 ('SN24', 'Metallic High Heels', 'High Heels with a reflective coating', 65.00, 2, 16, 'Faux Leather', 'url_SN24', 200, '1 Year', 'DistS', RAND() * 10); -- category_id: 16 (Heels)
 
 -- Kids (department_id = 3)
-INSERT IGNORE INTO products (serial_number, name, description, price, department_id, category_id, material, image_url, stock_quantity, warranty_status, distributor_info, popularity_score) VALUES
+INSERT INTO products (serial_number, name, description, price, department_id, category_id, material, image_url, stock_quantity, warranty_status, distributor_info, popularity_score) VALUES
 ('SN30', 'Tie-Dye Cotton T-Shirt', 'Premium cotton t-shirt with tie dye effect', 21.00, 3, 5, 'Cotton', 'url_SN30', 125, '1 Year', 'DistK', RAND() * 10), -- category_id: 5 (T-Shirts)
 ('SN31', 'Denim Shorts', 'Denim shorts with patches', 34.99, 3, 11, 'Denim', 'url_SN31', 125, '6 Months', 'DistD', RAND() * 10), -- category_id: 11 (Shorts)
 ('SN32', 'Wool Sweater', 'Premium wool sweater', 40.00, 3, 7, 'Wool', 'url_SN32', 225, '1 Year', 'DistT', RAND() * 10), -- category_id: 7 (Sweaters)
