@@ -15,3 +15,7 @@ SOURCE product_variations_schema.sql;
 SOURCE product_reviews_schema.sql;
 SOURCE stock_status.sql;
 SOURCE carts_schema.sql;
+SOURCE deliveries_schema.sql;
+SOURCE orders_schema.sql;
+SOURCE order_items_schema.sql;
+SOURCE returns_schema.sql;
