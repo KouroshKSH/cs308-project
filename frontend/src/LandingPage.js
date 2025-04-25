@@ -294,8 +294,10 @@ const LandingPage = () => {
           >
             {/* to display the product image given the format `url_SNxy.jpg` */}
             <img
-              src={require(`./assets/images/${product.image_url}.jpg`)}
+              src={`${process.env.PUBLIC_URL}/assets/images/${product.image_url}.jpg`}
               alt={product.name}
+              onError={(e) =>
+                (e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`)}
               style={{
                 width: "100%",
                 height: "auto"
