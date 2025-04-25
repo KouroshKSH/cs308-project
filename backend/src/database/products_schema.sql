@@ -1,21 +1,4 @@
 CREATE TABLE IF NOT EXISTS products (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  serial_number VARCHAR(50),
-  name VARCHAR(255),
-  description TEXT,
-  price DECIMAL(10, 2),
-  department_id INT,
-  category_id INT,
-  material VARCHAR(100),
-  image_url VARCHAR(255),
-  stock_quantity INT,
-  warranty_status VARCHAR(100),
-  distributor_info VARCHAR(100),
-  popularity_score FLOAT,
-  FOREIGN KEY (department_id) REFERENCES departments(id)
-);
-
-CREATE TABLE IF NOT EXISTS products (
     product_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     serial_number VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
