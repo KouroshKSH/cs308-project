@@ -42,7 +42,7 @@ exports.createOrder = async (req, res) => {
       // Creating the order item
       await OrderItem.create({ order_id: orderId, product_id, variation_id, quantity, price_at_purchase });
 
-      // 3. Decrementing stock
+      // Decrementing stock
       const newStock = variation.stock_quantity - quantity;
       await pool.query(
         `UPDATE product_variations SET stock_quantity = ? WHERE variation_id = ?`,
