@@ -86,15 +86,6 @@ const CheckoutPage = () => {
                 required
               />
               <TextField
-                label="Email Address"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-              />
-              <TextField
                 label="Delivery Address"
                 name="address"
                 value={formData.address}
