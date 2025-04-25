@@ -11,6 +11,13 @@ const OrderItem = {
     const [rows] = await db.execute('SELECT * FROM order_items WHERE order_id = ?', [orderId]);
     return rows;
   },
+  getById: async (orderItemId) => {
+    const [rows] = await db.execute(
+      'SELECT * FROM order_items WHERE order_item_id = ?',
+      [orderItemId]
+    );
+    return rows[0];
+  },
   update: async (id, { quantity, price_at_purchase }) => {
     await db.execute(
       'UPDATE order_items SET quantity = ?, price_at_purchase = ? WHERE order_item_id = ?',
