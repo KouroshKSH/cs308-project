@@ -12,10 +12,10 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Create the order
+    // Creating order
     const orderId = await Order.create({ user_id, delivery_address, total_price });
 
-    // Loop through the order items to create them and update stock
+    // Going through order items to create them and to update stock
     await Promise.all(items.map(async item => {
       const { product_id, variation_id, quantity, price_at_purchase } = item;
 
@@ -23,7 +23,7 @@ exports.createOrder = async (req, res) => {
         throw new Error("Each order item must have product_id, quantity, and price_at_purchase");
       }
 
-      // 1. Check stock quantity for the selected variation
+      // Checking stock quantity for the selected variation
       const [variationRows] = await pool.query(
         `SELECT variation_id, stock_quantity FROM product_variations WHERE variation_id = ?`,
         [variation_id]
@@ -39,10 +39,10 @@ exports.createOrder = async (req, res) => {
         throw new Error(`Not enough stock for variation ${variation_id}`);
       }
 
-      // 2. Create the order item
+      // Creating the order item
       await OrderItem.create({ order_id: orderId, product_id, variation_id, quantity, price_at_purchase });
 
-      // 3. Decrement stock
+      // 3. Decrementing stock
       const newStock = variation.stock_quantity - quantity;
       await pool.query(
         `UPDATE product_variations SET stock_quantity = ? WHERE variation_id = ?`,
@@ -65,7 +65,7 @@ exports.getOrdersByUser = async (req, res) => {
     }
 
     const userId = req.user.user_id;
-    console.log("🔒 Fetching orders for user_id:", userId);
+    console.log("Fetching orders for user_id:", userId);
 
     const orders = await Order.getByUserId(userId);
 
