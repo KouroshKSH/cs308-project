@@ -14,6 +14,7 @@ app.use(cors({
 app.use((req, res, next) => {
     console.log("METHOD:", req.method);
     console.log("PATH:", req.path);
+    console.log("HEADERS:", req.headers);
     console.log("BODY:", req.body); // to onfirm JSON is parsed
     next();
 });

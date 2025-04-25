@@ -38,6 +38,15 @@ const userModel = {
     ]);
     return rows[0];
   },
+
+  // Finds a user by their ID
+  findById: async (userId) => {
+    const [rows] = await db.execute(
+      "SELECT username, email, address, phone_number FROM users WHERE user_id = ?",
+      [userId]
+    );
+    return rows[0];
+  },
 };
 
 module.exports = { userModel };

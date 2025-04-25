@@ -20,6 +20,9 @@ const authMiddleware = (req, res, next) => {
     // Save user data from token into request object
     req.user = decoded;
 
+    // for logging purposes
+    console.log("req.user in authMiddleware:", req.user);
+
     // Continue to the next middleware or route handler
     next();
   } catch (err) {
