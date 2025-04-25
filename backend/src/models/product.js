@@ -6,7 +6,7 @@ const Product = {
   // Fetch products by department
   async getProductsByDepartment(departmentId) {
     const query = `
-      SELECT product_id, name, description, price, stock_quantity, warranty_status, popularity_score
+      SELECT product_id, name, description, price, image_url, stock_quantity, warranty_status, popularity_score
       FROM products
       WHERE department_id = ?;
     `;
@@ -17,7 +17,7 @@ const Product = {
   // Fetch and sort products by price for a given department
   async getProductsByDepartmentSortedByPrice(departmentId) {
     const query = `
-      SELECT product_id, name, description, price, stock_quantity, warranty_status, popularity_score
+      SELECT product_id, name, description, price, image_url, stock_quantity, warranty_status, popularity_score
       FROM products
       WHERE department_id = ?
       ORDER BY price ASC;
@@ -29,7 +29,7 @@ const Product = {
   // Fetch and sort products by popularity for a given department
   async getProductsByDepartmentSortedByPopularity(departmentId) {
     const query = `
-      SELECT product_id, name, description, price, stock_quantity, warranty_status, popularity_score
+      SELECT product_id, name, description, price, image_url, stock_quantity, warranty_status, popularity_score
       FROM products
       WHERE department_id = ?
       ORDER BY popularity_score DESC;
@@ -42,7 +42,7 @@ const Product = {
   async searchProducts(query, departmentId) {
     const searchTerm = `%${query}%`;
     const sql = `
-      SELECT product_id, name, description, price, material, stock_quantity, warranty_status, popularity_score
+      SELECT product_id, name, description, price, material, image_url, stock_quantity, warranty_status, popularity_score
       FROM products
       WHERE department_id = ?
         AND (name LIKE ? OR description LIKE ? OR material LIKE ?)

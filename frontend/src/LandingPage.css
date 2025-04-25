@@ -30,13 +30,53 @@
 }
 
 /* Product grid layout */
-.product-grid {
+/* .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     margin-top: 20px;
     padding: 0 20px;
+} */
+
+/* Ensure the product grid has a max width and centers items */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+    gap: 20px; /* Space between items */
+    justify-content: center; /* Center items horizontally */
+    max-width: 1200px; /* Limit the grid width */
+    margin: 0 auto; /* Center the grid on the page */
+    padding: 20px;
 }
+
+/* Limit the size of individual product items */
+.product-item {
+    max-width: 300px; /* Limit the width of each product */
+    width: 100%; /* Allow it to shrink if needed */
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background-color: #fff;
+    text-align: center;
+}
+
+/* Ensure images fit within the product item */
+.product-item img {
+    max-width: 100%; /* Ensure the image doesn't overflow */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 4px;
+}
+
+.product-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+
+/*
+Sorry for the change from card to item Arif and Ayca, but I'm sure you can fix the UI
+*/
 
 /* Product card styling */
 .product-card {

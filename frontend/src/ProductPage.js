@@ -20,7 +20,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
 import Header from "./Header";
 // import DrawerMenu from "./components/DrawerMenu";
-import placeholderImage from "./assets/images/product1.avif";
+
+// temporary fix for now @ArifSari-maker
+// update this later yourself
+const placeholderImage = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`;
+
 
 // Mock products (simulating a backend response)
 const productList = [
