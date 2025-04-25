@@ -22,9 +22,6 @@ import DrawerMenu from "./components/DrawerMenu";
 // Base URL for the API
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
-// Import images (will use @reyhanturhan 's new images for this part)
-// import product1 from "./assets/images/product1.avif"; // and so on
-
 const LandingPage = () => {
   const [department, setDepartment] = useState("Women");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -285,8 +282,30 @@ const LandingPage = () => {
             key={product.product_id}
             className="product-item"
             onClick={() => handleProductClick(product.product_id)}
-            style={{ cursor: "pointer", border: "1px solid #ccc", padding: "10px", margin: "10px" }}
+            style={{
+              cursor: "pointer",
+              border: "1px solid #ccc",
+              padding: "10px",
+              margin: "10px"
+            }}
           >
+            {
+              /* to display the product image given the format `url_SNxy.jpg` */
+              /* NOTE: all images should follow the same format, where `xy` is a 2 digit number */
+              /* if the image is not found, the placeholder will take care of it */
+            }
+            <img
+              src={`${process.env.PUBLIC_URL}/assets/images/${product.image_url}.jpg`}
+              alt={product.name}
+              onError={(e) =>
+                (e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`)}
+              style={{
+                width: "100%",
+                height: "auto"
+              }}
+            />
+
+            { /* display the product's info */}
             <h3 className="product-name">{product.name}</h3>
             <p className="product-price">${product.price}</p>
             <p className="product-popularity">Popularity: {product.popularity_score}</p>
