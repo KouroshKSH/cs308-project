@@ -34,3 +34,6 @@ temp-cart/
 .vscode/
 .idea/
 *.iml
+
+# SQL Save files
+*.save
