@@ -9,7 +9,7 @@ const date = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
 // === FILENAME SETUP ===
 const fileName = `${date}_${productID}_${username}.pdf`;
-const outputDir = path.join(__dirname, "../invoice");
+const outputDir = path.join(__dirname, "invoices");
 const outputPath = path.join(outputDir, fileName);
 
 // === CREATE FOLDER IF NEEDED ===
@@ -41,7 +41,7 @@ function generatePDF() {
 
   doc.end();
 
-  console.log(`✅ PDF generated: ${outputPath}`);
+  console.log(`PDF generated: ${outputPath}`);
 }
 
 generatePDF();

@@ -37,3 +37,6 @@ temp-cart/
 
 # SQL Save files
 *.save
+
+# PDF files
+*.pdf
