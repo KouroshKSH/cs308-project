@@ -285,8 +285,23 @@ const LandingPage = () => {
             key={product.product_id}
             className="product-item"
             onClick={() => handleProductClick(product.product_id)}
-            style={{ cursor: "pointer", border: "1px solid #ccc", padding: "10px", margin: "10px" }}
+            style={{
+              cursor: "pointer",
+              border: "1px solid #ccc",
+              padding: "10px",
+              margin: "10px"
+            }}
           >
+            {/* to display the product image given the format `url_SNxy.jpg` */}
+            <img
+              src={require(`./assets/images/${product.image_url}.jpg`)}
+              alt={product.name}
+              style={{
+                width: "100%",
+                height: "auto"
+              }}
+            />
+
             <h3 className="product-name">{product.name}</h3>
             <p className="product-price">${product.price}</p>
             <p className="product-popularity">Popularity: {product.popularity_score}</p>
