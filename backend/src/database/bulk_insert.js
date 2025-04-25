@@ -3,7 +3,6 @@ const path = require('path');
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-
 async function bulkInsert() {
     try {
         const pool = mysql.createPool({

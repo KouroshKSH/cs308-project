@@ -10,16 +10,14 @@ if [ "$current_dir" != "$expected_dir" ]; then
 fi
 echo "Current directory is correct: $current_dir"
 
-# 2. Check if MySQL is running
-echo "Checking MySQL status..."
-pgrep mysqld > /dev/null
+# 2. Start MySQL service
+echo "Starting MySQL service..."
+sudo service mysql start
 if [ $? -ne 0 ]; then
-  echo "❌ Error: MySQL is not running."
-  echo "👉 Please run this in another terminal first:"
-  echo "   sudo /opt/homebrew/opt/mysql/bin/mysqld_safe --datadir=/opt/homebrew/var/mysql"
+  echo "Error: Failed to start MySQL. Please check your MySQL installation."
   exit 1
 fi
-echo "✅ MySQL is running."
+echo "MySQL service started successfully."
 
 # 3. Print Node.js and npm versions
 echo "Expect these numbers to be shown for the following commands:"
@@ -43,4 +41,4 @@ echo "On Your Network:  http://10.51.38.164:3000"
 npm start
 
 # 5. End of script
-echo "✅ Script execution completed."
+echo "Script execution completed."

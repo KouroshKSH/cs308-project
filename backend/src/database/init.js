@@ -1,16 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
-
-console.log('ENV:', {
-  user: process.env.DB_USER,
-  pass: process.env.DB_PASSWORD
-});
-
-
-
-
+require('dotenv').config();
 
 async function initDatabase() {
     try {

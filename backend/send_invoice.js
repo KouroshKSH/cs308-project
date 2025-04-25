@@ -36,8 +36,8 @@ if (!fs.existsSync(pdfPath)) {
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS
+    user: process.env.OUR_EMAIL_ADDRESS,
+    pass: process.env.OUR_EMAIL_PASSWORD
   }
 });
 
