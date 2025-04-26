@@ -5,12 +5,12 @@ const Cart = {
   getCart: async (user_id, session_id) => {
     const [rows] = await db.query(
       `SELECT c.product_id, c.variation_id, c.quantity,
-          products.name, products.price,
+          p.name, p.price,
           pv.size_id, pv.color_id
         FROM carts c
-        JOIN products ON carts.product_id = products.product_id
-        JOING product_variations pv ON carts.variation_id = pv.variation_id
-        WHERE carts.user_id = ? OR carts.session_id = ?`,
+        JOIN products p ON c.product_id = p.product_id
+        JOIN product_variations pv ON c.variation_id = pv.variation_id
+        WHERE (c.user_id = ? OR c.session_id = ?)`,
       [user_id || null, session_id || null]
     );
     // this endpoint works for both authenticated users and anonymous visitors
