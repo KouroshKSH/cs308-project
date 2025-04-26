@@ -83,7 +83,7 @@ const Cart = {
       // product does not exist in cart, so you can insert a new row
       await db.query(
         `INSERT INTO carts (user_id, session_id, product_id, variation_id, quantity)
-          VALUES (?, ?, ?, ?)`,
+          VALUES (?, ?, ?, ?, ?)`,
         [user_id || null, session_id || null, product_id, variation_id, quantity]
       );
     }
