@@ -144,13 +144,14 @@ const LandingPage = () => {
 
   // 9. Handle adding products to the cart
   // TODO: i'll remove the ability to add products to the cart from landing page
-  const addToCart = (productId) => {
-    const product = products.find((p) => p.product_id === productId);
-    if (product) {
-      setCart((prevCart) => [...prevCart, product]);
-      alert("Product added to your cart!");
-    }
-  };
+  // DOING: trying to remove the add to cart from landing page because users can't add a specific product
+  // const addToCart = (productId) => {
+  //   const product = products.find((p) => p.product_id === productId);
+  //   if (product) {
+  //     setCart((prevCart) => [...prevCart, product]);
+  //     alert("Product added to your cart!");
+  //   }
+  // };
 
   const handleCartClick = (event) => {
     setCartAnchorEl(event.currentTarget);
@@ -309,7 +310,7 @@ const LandingPage = () => {
             <h3 className="product-name">{product.name}</h3>
             <p className="product-price">${product.price}</p>
             <p className="product-popularity">Popularity: {product.popularity_score}</p>
-            <button onClick={() => addToCart(product.product_id)}>Add to Cart</button>
+            {/* <button onClick={() => addToCart(product.product_id)}>Add to Cart</button> */}
             {/* TODO: i will remove the add to cart from landing page for each product because it doesn't make sense */}
           </div>
         ))}
