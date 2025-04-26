@@ -24,4 +24,7 @@ router.get("/pv-stock", productController.getPvStock);
 // Route to get all the info of a product based on its ID
 router.get("/:productId", productController.getProductInfo);
 
+// Get the variations of a product given its ID
+router.get("/:productId/variations", productController.getProductVariations);
+
 module.exports = router;
