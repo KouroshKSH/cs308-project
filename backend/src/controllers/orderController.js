@@ -1,5 +1,6 @@
 const Order = require('../models/order');
 const OrderItem = require('../models/orderItem');
+const Deliveries = require('../models/deliveries');
 
 const pool = require("../config/database");
 
@@ -14,6 +15,14 @@ exports.createOrder = async (req, res) => {
 
     // Creating order
     const orderId = await Order.create({ user_id, delivery_address, total_price });
+
+    // Creating delivery
+    await Deliveries.create({
+      order_id: orderId,
+      delivery_status: 'pending',
+      tracking_number: null,
+      delivery_address: delivery_address
+    });
 
     // Going through order items to create them and to update stock
     await Promise.all(items.map(async item => {
