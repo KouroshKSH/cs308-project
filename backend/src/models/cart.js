@@ -11,8 +11,10 @@ const Cart = {
         JOIN products p ON c.product_id = p.product_id
         JOIN product_variations pv ON c.variation_id = pv.variation_id
         WHERE (c.user_id = ? OR c.session_id = ?)`,
-      [user_id || null, session_id || null]
+      [user_id || null, session_id]
     );
+    // user ID can be null (anonymous visitor) but session ID always has a value
+
     // this endpoint works for both authenticated users and anonymous visitors
     // we mostly care about session ID (do NOT delete this comment!)
     console.log("Session ID:", session_id);
@@ -59,6 +61,16 @@ const Cart = {
       throw new Error("Insufficient stock for product's variation");
     }
 
+    // If user is logging in, update their anonymous cart items first
+    if (user_id) {
+      await db.query(
+          `UPDATE carts
+            SET user_id = ?
+            WHERE session_id = ? AND user_id IS NULL`,
+          [user_id, session_id]
+      );
+    }
+
     // if we reach here, it means both the product and variation exist and have enough stock
     const [existing] = await db.query(
       `SELECT *
@@ -66,7 +78,7 @@ const Cart = {
         WHERE (user_id = ? OR session_id = ?)
         AND product_id = ?
         AND variation_id = ?`,
-      [user_id || null, session_id || null, product_id, variation_id]
+      [user_id || null, session_id, product_id, variation_id]
     );
 
     if (existing.length) {
@@ -77,14 +89,14 @@ const Cart = {
           WHERE (user_id = ? OR session_id = ?)
           AND product_id = ?
           AND variation_id = ?`,
-        [quantity, user_id || null, session_id || null, product_id, variation_id]
+        [quantity, user_id || null, session_id, product_id, variation_id]
       );
     } else {
       // product does not exist in cart, so you can insert a new row
       await db.query(
         `INSERT INTO carts (user_id, session_id, product_id, variation_id, quantity)
           VALUES (?, ?, ?, ?, ?)`,
-        [user_id || null, session_id || null, product_id, variation_id, quantity]
+        [user_id || null, session_id, product_id, variation_id, quantity]
       );
     }
   },
@@ -97,7 +109,7 @@ const Cart = {
         WHERE (user_id = ? OR session_id = ?)
         AND product_id = ?
         AND variation_id = ?`,
-      [quantity, user_id || null, session_id || null, product_id, variation_id]
+      [quantity, user_id || null, session_id, product_id, variation_id]
     );
   },
 
@@ -108,7 +120,7 @@ const Cart = {
         WHERE (user_id = ? OR session_id = ?)
         AND product_id = ?
         AND variation_id = ?`,
-      [user_id || null, session_id || null, product_id, variation_id]
+      [user_id || null, session_id, product_id, variation_id]
     );
   },
 };

@@ -52,11 +52,14 @@ const TempProductPage = () => {
     try {
         const headers = {};
         const token = localStorage.getItem('token');
+        const sessionId = getOrCreateSessionId(); // Always get session ID
 
+        // Always include session ID
+        headers['x-session-id'] = sessionId;
+
+        // Add auth token if logged in
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
-        } else {
-            headers['x-session-id'] = getOrCreateSessionId();
         }
 
         await axios.post(`${process.env.REACT_APP_API_URL}/cart/add`, {
