@@ -1,36 +1,171 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  CircularProgress,
+  Grid,
+} from "@mui/material";
 
 const CheckoutPage = () => {
-  const [cart, setCart] = useState([]);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // ← useNavigate hook to redirect after submit
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    address: "",
+    cardNumber: "",
+    cardPassword: "",
+    expirationDate: "",
+  });
+
+  const [basket, setBasket] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load cart from localStorage
-    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(savedCart);
+    setTimeout(() => {
+      setBasket([
+        { name: "White T-shirt", quantity: 2, price: 19.99 },
+        { name: "Blue Jeans", quantity: 1, price: 49.99 },
+      ]);
+      setLoading(false);
+    }, 1000);
   }, []);
 
-  const handleBackToHome = () => {
-    navigate("/");
+  const total = basket.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Submitted checkout:", formData);
+    navigate("/PaymentPage"); // after submitting go to payment page
   };
 
   return (
-    <div>
-      <h1>Checkout</h1>
-      {cart.length === 0 ? (
-        <p>Your cart is empty.</p>
-      ) : (
-        <ul>
-          {cart.map((item, index) => (
-            <li key={index}>
-              {item.name} - {item.price}
-            </li>
-          ))}
-        </ul>
-      )}
-      <button onClick={handleBackToHome}>Back to Landing Page</button>
-    </div>
+    <Box sx={{ maxWidth: 1200, mx: "auto", p: 4 }}>
+      <Grid container spacing={4}>
+        {/* Left Side: Form */}
+        <Grid item xs={12} md={7}>
+          <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+            <Typography variant="h5" gutterBottom>
+              Checkout
+            </Typography>
+            <form onSubmit={handleSubmit}>
+              <TextField
+                label="Full Name"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                required
+              />
+              <TextField
+                label="Email Address"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                required
+              />
+              <TextField
+                label="Delivery Address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                multiline
+                rows={3}
+                required
+              />
+              <TextField
+                label="Card Number"
+                name="cardNumber"
+                value={formData.cardNumber}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                required
+              />
+              <TextField
+                label="Card Password"
+                name="cardPassword"
+                type="password"
+                value={formData.cardPassword}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                required
+              />
+              <TextField
+                label="Expiration Date"
+                name="expirationDate"
+                type="month"
+                value={formData.expirationDate}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+                required
+                InputLabelProps={{ shrink: true }}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ mt: 3 }}
+              >
+                Complete Order
+              </Button>
+            </form>
+          </Paper>
+        </Grid>
+
+        {/* Right Side: Basket */}
+        <Grid item xs={12} md={5}>
+          <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+            <Typography variant="h5" gutterBottom>
+              Your Basket
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+            {loading ? (
+              <CircularProgress />
+            ) : (
+              <List>
+                {basket.map((item, i) => (
+                  <ListItem key={i} divider>
+                    <ListItemText
+                      primary={item.name}
+                      secondary={`Quantity: ${item.quantity}`}
+                    />
+                    <Typography>${(item.price * item.quantity).toFixed(2)}</Typography>
+                  </ListItem>
+                ))}
+                <Divider sx={{ my: 2 }} />
+                <ListItem>
+                  <ListItemText primary="Total" />
+                  <Typography fontWeight="bold">
+                    ${total.toFixed(2)}
+                  </Typography>
+                </ListItem>
+              </List>
+            )}
+          </Paper>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 

@@ -6,7 +6,7 @@ import { Box, Button, CssBaseline, Divider, FormControl, FormLabel, Link, TextFi
 import { styled } from "@mui/material/styles";
 import zxcvbn from "zxcvbn";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000/api";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",

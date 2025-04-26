@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  AppBar,
-  Toolbar,
   Box,
   Typography,
   Rating,
@@ -17,38 +15,12 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import CloseIcon from "@mui/icons-material/Close";
 import Header from "./Header";
-// import DrawerMenu from "./components/DrawerMenu";
+import { getOrCreateSessionId } from "./utils/sessionStorage"; // Important for adding to cart correctly!
 
-// temporary fix for now @ArifSari-maker
-// update this later yourself
-const placeholderImage = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`;
-
-
-// Mock products (simulating a backend response)
-const productList = [
-  {
-    id: "1",
-    name: "Tommy Jeans Slim Fit T-Shirt",
-    category: "Women",
-    price: "$39.99",
-    description: "High-quality slim fit T-shirt from Tommy Jeans, perfect for casual wear.",
-    images: Array(4).fill(placeholderImage),
-    sizes: ["XS", "S", "M", "L", "XL"],
-    seller: "BOYNER",
-  },
-  {
-    id: "2",
-    name: "Nike Cotton Tank",
-    category: "Men",
-    price: "$29.99",
-    description: "Light and breathable cotton tank top, perfect for workouts or summer.",
-    images: Array(4).fill(placeholderImage),
-    sizes: ["S", "M", "L"],
-    seller: "NIKE OFFICIAL",
-  },
-];
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 const ProductPage = () => {
   const { productId } = useParams();
@@ -58,27 +30,47 @@ const ProductPage = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
-  const [selectedSize, setSelectedSize] = useState("");
-  const [cart, setCart] = useState([]);
+  const [selectedVariation, setSelectedVariation] = useState("");
+  const [quantity, setQuantity] = useState(1);
+
+  const [cart] = useState([]);
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [variations, setVariations] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const found = productList.find((p) => p.id === productId);
-    setProduct(found || productList[0]);
-  }, [productId]);
-
-  useEffect(() => {
-    const fetchReviews = () => {
-      const mockReviews = [
-        { user: "Alice", rating: 5, comment: "Love it! Great fit and fabric." },
-        { user: "John", rating: 4, comment: "Looks good, sizing runs slightly large." },
-      ];
-      setReviews(mockReviews);
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/products/${productId}`);
+        setProduct(res.data);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      }
     };
 
-    fetchReviews();
-  }, []);
+    const fetchReviews = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/products/${productId}/reviews`);
+        setReviews(res.data);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      }
+    };
+
+    const fetchVariations = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/products/${productId}/variations`);
+        setVariations(res.data);
+      } catch (error) {
+        console.error("Error fetching variations:", error);
+      }
+    };
+
+    Promise.all([fetchProduct(), fetchReviews(), fetchVariations()]).finally(() =>
+      setLoading(false)
+    );
+  }, [productId]);
 
   const handleImageClick = (index) => {
     setSelectedIndex(index);
@@ -88,30 +80,44 @@ const ProductPage = () => {
   const handleReviewSubmit = () => {
     if (!reviewText || !reviewRating) return;
     const newReview = {
-      user: "Guest",
+      username: "Guest",
       rating: reviewRating,
       comment: reviewText,
+      created_at: new Date().toISOString(),
     };
     setReviews((prev) => [newReview, ...prev]);
     setReviewText("");
     setReviewRating(0);
   };
 
-  const handleAddToCart = () => {
-    if (product) {
-      setCart((prev) => [...prev, product]);
-      alert("Product added to cart!");
+  const handleAddToCart = async () => {
+    try {
+      const headers = {};
+      const token = localStorage.getItem('token');
+      const sessionId = getOrCreateSessionId();
+
+      headers['x-session-id'] = sessionId;
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      await axios.post(`${BASE_URL}/cart/add`, {
+        product_id: productId,
+        variation_id: selectedVariation,
+        quantity,
+      }, { headers });
+
+      alert('Added to cart successfully!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      alert('Failed to add to cart');
     }
   };
 
-  const handleCheckout = () => {
-    alert("Redirecting to checkout...");
-  };
-
-  if (!product) {
+  if (loading) {
     return (
       <>
-        <Header category="Loading..." cart={cart} onCheckout={handleCheckout} />
+        <Header category="Loading..." cart={cart} onCheckout={() => {}} />
         <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
           <CircularProgress />
         </Box>
@@ -119,9 +125,20 @@ const ProductPage = () => {
     );
   }
 
+  if (!product) {
+    return (
+      <>
+        <Header category="Error" cart={cart} onCheckout={() => {}} />
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+          <Typography>Product not found.</Typography>
+        </Box>
+      </>
+    );
+  }
+
   return (
     <Box>
-      <Header category={product.category || "Home"} cart={cart} onCheckout={handleCheckout} />
+      <Header category={product.department_name || "Home"} cart={cart} onCheckout={() => {}} />
 
       <Box sx={{ maxWidth: "1200px", mx: "auto", p: 4 }}>
         <Button
@@ -133,73 +150,73 @@ const ProductPage = () => {
         </Button>
 
         <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 4 }}>
+          {/* Image Section */}
           <Box sx={{ flex: 1 }}>
             <img
-              src={product.images[selectedIndex]}
-              alt="Main"
+              src={`${process.env.PUBLIC_URL}/assets/images/${product.image_url}.jpg`}
+              alt={product.name}
               onClick={() => handleImageClick(selectedIndex)}
+              onError={(e) =>
+                (e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`)
+              }
               style={{ width: "100%", borderRadius: "10px", cursor: "pointer" }}
             />
-            <Box sx={{ display: "flex", mt: 2, gap: 2 }}>
-              {product.images.map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  alt={`thumb-${i}`}
-                  onClick={() => setSelectedIndex(i)}
-                  style={{
-                    width: 60,
-                    height: 60,
-                    objectFit: "cover",
-                    borderRadius: 6,
-                    cursor: "pointer",
-                    border: i === selectedIndex ? "2px solid #1976d2" : "2px solid transparent",
-                  }}
-                />
-              ))}
-            </Box>
           </Box>
 
-
+          {/* Product Details */}
           <Box sx={{ flex: 1 }}>
             <Typography variant="h5" fontWeight="bold">{product.name}</Typography>
-            <Typography variant="h6" color="primary" sx={{ mt: 1 }}>{product.price}</Typography>
+            <Typography variant="h6" color="primary" sx={{ mt: 1 }}>${product.price}</Typography>
             <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
               <Rating value={4} readOnly />
               <Typography variant="body2">({reviews.length} reviews)</Typography>
             </Box>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Seller: <strong>{product.seller}</strong>
+              Material: <strong>{product.material || "N/A"}</strong>
             </Typography>
             <Typography variant="body1" sx={{ my: 2 }}>{product.description}</Typography>
 
+            {/* Select Size */}
             <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Size</InputLabel>
+              <InputLabel>Select Size</InputLabel>
               <Select
-                value={selectedSize}
-                label="Size"
-                onChange={(e) => setSelectedSize(e.target.value)}
+                value={selectedVariation}
+                label="Select Size"
+                onChange={(e) => setSelectedVariation(e.target.value)}
               >
-                {product.sizes.map((size) => (
-                  <MenuItem key={size} value={size}>
-                    {size}
+                {variations.map((v) => (
+                  <MenuItem key={v.variation_id} value={v.variation_id} disabled={v.stock_quantity === 0}>
+                    {v.size} {v.stock_quantity === 0 ? "(Out of Stock)" : ""}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
 
+            {/* Quantity */}
+            <TextField
+              type="number"
+              label="Quantity"
+              fullWidth
+              value={quantity}
+              onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+              sx={{ mb: 2 }}
+            />
+
+            {/* Add to Cart */}
             <Button
               variant="contained"
               size="large"
               fullWidth
               sx={{ py: 1.5 }}
               onClick={handleAddToCart}
+              disabled={!selectedVariation}
             >
               Add to Cart
             </Button>
           </Box>
         </Box>
 
+        {/* Zoom Image Modal */}
         <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md">
           <DialogContent sx={{ position: "relative", p: 0 }}>
             <IconButton
@@ -209,23 +226,25 @@ const ProductPage = () => {
               <CloseIcon />
             </IconButton>
             <img
-              src={product.images[selectedIndex]}
-              alt="Zoom"
+              src={`${process.env.PUBLIC_URL}/assets/images/${product.image_url}.jpg`}
+              alt="Zoomed"
+              onError={(e) =>
+                (e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`)
+              }
               style={{ width: "100%", borderRadius: "8px" }}
             />
           </DialogContent>
         </Dialog>
 
-        {/* Reviews */}
+        {/* Reviews Section */}
         <Box mt={6}>
           <Typography variant="h6" gutterBottom>Customer Reviews</Typography>
-
           {reviews.length === 0 ? (
             <Typography variant="body2" color="text.secondary">No reviews yet.</Typography>
           ) : (
-            reviews.map((review, idx) => (
-              <Box key={idx} sx={{ mb: 2 }}>
-                <Typography variant="subtitle2">{review.user}</Typography>
+            reviews.map((review) => (
+              <Box key={review.review_id} sx={{ mb: 2 }}>
+                <Typography variant="subtitle2">{review.username}</Typography>
                 <Rating value={review.rating} readOnly size="small" />
                 <Typography variant="body2">{review.comment}</Typography>
               </Box>
@@ -233,7 +252,7 @@ const ProductPage = () => {
           )}
         </Box>
 
-        {/* Add Review */}
+        {/* Add a Review */}
         <Box mt={4}>
           <Typography variant="h6" gutterBottom>Leave a Review</Typography>
           <Rating
