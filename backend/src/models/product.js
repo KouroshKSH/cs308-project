@@ -78,7 +78,7 @@ const Product = {
       SELECT
         pv.variation_id, pv.product_id,
         s.name as size,
-        pv.stock_quantity,
+        pv.stock_quantity
       FROM product_variations pv
       JOIN sizes s ON pv.size_id = s.size_id
       WHERE pv.product_id = ?
