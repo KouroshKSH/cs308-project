@@ -1,6 +1,7 @@
 CREATE OR REPLACE VIEW variation_stock_view AS
 SELECT
   pv.product_id,
+  pv.variation_id, 
   pv.serial_number,
   pv.size_id,
   pv.color_id,

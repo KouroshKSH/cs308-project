@@ -1,6 +1,8 @@
 const Order = require('../models/order');
 const OrderItem = require('../models/orderItem');
 
+const pool = require("../config/database");
+
 exports.createOrder = async (req, res) => {
   try {
     const user_id = req.user.user_id;
@@ -10,14 +12,42 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    // Creating order
     const orderId = await Order.create({ user_id, delivery_address, total_price });
 
-    await Promise.all(items.map(item => {
+    // Going through order items to create them and to update stock
+    await Promise.all(items.map(async item => {
       const { product_id, variation_id, quantity, price_at_purchase } = item;
+
       if (!product_id || !quantity || price_at_purchase == null) {
         throw new Error("Each order item must have product_id, quantity, and price_at_purchase");
       }
-      return OrderItem.create({ order_id: orderId, product_id, variation_id, quantity, price_at_purchase });
+
+      // Checking stock quantity for the selected variation
+      const [variationRows] = await pool.query(
+        `SELECT variation_id, stock_quantity FROM product_variations WHERE variation_id = ?`,
+        [variation_id]
+      );
+
+      if (variationRows.length === 0) {
+        throw new Error("Variation not found");
+      }
+
+      const variation = variationRows[0];
+
+      if (variation.stock_quantity < quantity) {
+        throw new Error(`Not enough stock for variation ${variation_id}`);
+      }
+
+      // Creating the order item
+      await OrderItem.create({ order_id: orderId, product_id, variation_id, quantity, price_at_purchase });
+
+      // Decrementing stock
+      const newStock = variation.stock_quantity - quantity;
+      await pool.query(
+        `UPDATE product_variations SET stock_quantity = ? WHERE variation_id = ?`,
+        [newStock, variation_id]
+      );
     }));
 
     res.status(201).json({ message: 'Order created successfully', order_id: orderId });
@@ -29,14 +59,13 @@ exports.createOrder = async (req, res) => {
 };
 
 exports.getOrdersByUser = async (req, res) => {
-  console.log("🔒 req.user in getOrdersByUser:", req.user);
   try {
     if (!req.user) {
       return res.status(401).json({ message: "Authorization required" });
     }
 
     const userId = req.user.user_id;
-    console.log("🔒 Fetching orders for user_id:", userId);
+    console.log("Fetching orders for user_id:", userId);
 
     const orders = await Order.getByUserId(userId);
 
