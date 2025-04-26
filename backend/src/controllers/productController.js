@@ -153,6 +153,46 @@ const productController = {
       return res.status(500).json({ message: "Internal server error" });
     }
   },
+
+  // Create a product review
+  createProductReview: async (req, res) => {
+    try {
+      const { productId} = req.params;
+      const { rating, comment } = req.body;
+      const userId = req.user.user_id;
+
+      // for logging purposes
+      console.log("User ID:", userId);
+      console.log("Product ID:", productId);
+      console.log("Rating:", rating);
+      console.log("Comment:", comment);
+
+      // checks for rating being a number between 1 and 5
+      if (rating && (rating < 1 || rating > 5)) {
+        console.log("Rating must be between 1 and 5, not: ", rating);
+        return res.status(400).json({ message: "Rating must be between 1 and 5" });
+      }
+
+      // create the review
+      const reviewId = await Review.createReview(
+        userId,
+        productId,
+        rating || null,
+        comment || null
+      );
+
+      console.log("Created review with ID ", reviewId);
+      res.status(201).json({
+        message: "Review created successfully",
+        reviewId
+      });
+    } catch (error) {
+      console.error("Error creating product review:", error);
+
+      // to understand which error is actually happening
+      res.status(error.message.includes("can only review") ? 403 : 500).json({ message: error.message });
+    }
+  },
 };
 
 module.exports = productController;

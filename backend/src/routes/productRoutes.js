@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const productController = require("../controllers/productController");
+const authMiddleware = require("../middleware/authMiddleware");
 
 // Route to fetch products by department
 // NOTE: "Women" is 2, "Men" is 1, "Kids" is 3
@@ -26,5 +27,8 @@ router.get("/:productId", productController.getProductInfo);
 
 // Get the variations of a product given its ID
 router.get("/:productId/variations", productController.getProductVariations);
+
+// Route to create a review for a product (requires authentication)
+router.post("/:productId/reviews", authMiddleware, productController.createProductReview);
 
 module.exports = router;
