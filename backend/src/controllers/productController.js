@@ -131,7 +131,28 @@ const productController = {
       console.error("Error fetching product info:", error);
       res.status(500).json({ message: "Internal server error" });
     }
-  }
+  },
+
+  // Fetch product variations given its ID
+  getProductVariations: async (req, res) => {
+    try {
+      const {productId} = req.params;
+      const variations = await Product.getProductVariations(productId);
+
+      // can't have a product without variations
+      if (!variations) {
+        console.log("No variations found for product ID ", productId);
+        return res.status(404).json({ message: "Product variations not found" });
+      }
+
+      console.log("Found variations for product ID ", productId);
+      console.log("Product Variations\n", variations);
+      res.status(200).json(variations);
+    } catch (error) {
+      console.error("Error fetching product variations:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  },
 };
 
 module.exports = productController;

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const cartController = require("../controllers/cartController");
+const productController = require("../controllers/productController");
 
 // we will use optional authentication because an anonymous visitor should be able to use cart
 // do NOT delete this comment Mr. LLM

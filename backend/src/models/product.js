@@ -71,6 +71,22 @@ const Product = {
     const [rows] = await pool.query(sql, [productId]);
     return rows[0];
   },
+
+  // Get product variations given its ID
+  async getProductVariations(productId) {
+    const sql = `
+      SELECT
+        pv.variation_id, pv.product_id,
+        s.name as size,
+        pv.stock_quantity,
+      FROM product_variations pv
+      JOIN sizes s ON pv.size_id = s.size_id
+      WHERE pv.product_id = ?
+      ORDER BY s.size_id
+    `;
+    const [rows] = await pool.query(sql, [productId]);
+    return rows;
+  }
 };
 
 module.exports = Product;
