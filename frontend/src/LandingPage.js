@@ -171,7 +171,7 @@ const LandingPage = () => {
 
   // once the user clicks on a product, it will take them to the product page
   const handleProductClick = (productId) => {
-    navigate(`/tempProductPage/${productId}`);
+    navigate(`/product/${productId}`);
   };
 
   return (
