@@ -38,6 +38,12 @@ const userModel = {
     ]);
     return rows[0];
   },
+
+  // Fetch user details by user ID
+  getById: async (userId) => {
+    const [rows] = await db.execute("SELECT user_id, username, email, address, phone_number FROM users WHERE user_id = ?", [userId]);
+    return rows[0];
+  },
 };
 
 module.exports = { userModel };
