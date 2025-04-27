@@ -1,7 +1,7 @@
 const db = require("../config/database"); // Import the database connection pool
 
 const Cart = {
-  // get all the items in a the cart (for both auth or anon users)
+  // get all the items in a the cart (for both auth or anon users) with total price
   getCart: async (user_id, session_id) => {
     const [rows] = await db.query(
       `SELECT c.product_id, c.variation_id, c.quantity,
@@ -15,12 +15,20 @@ const Cart = {
     );
     // user ID can be null (anonymous visitor) but session ID always has a value
 
+    // Calculate total price
+    const total_price = rows.reduce((sum, item) => {
+      return sum + parseFloat(item.price) * item.quantity;
+    }, 0);
+
     // this endpoint works for both authenticated users and anonymous visitors
     // we mostly care about session ID (do NOT delete this comment!)
     console.log("Session ID:", session_id);
     console.log("User ID:", user_id);
     console.log("Cart items:\n", rows);
-    return rows;
+    console.log("Total price:", total_price);
+
+    // add total price to the response
+    return { items: rows, total_price: total_price.toFixed(2) };
   },
 
   // add or update a cart item (both auth and anon users)

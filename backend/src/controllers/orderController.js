@@ -54,7 +54,7 @@ exports.createOrder = async (req, res) => {
     // Deleting the cart items for the user
     await Cart.removeItemsAfterCheckout(
       user_id,
-      items.map(item -> ({
+      items.map(item => ({
         product_id: item.product_id,
         variation_id: item.variation_id
       }))
