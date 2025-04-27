@@ -22,6 +22,15 @@ import { getOrCreateSessionId } from "./utils/sessionStorage"; // Important for 
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
+// just like landing page, in order to update the number of stars based on popularity of product
+const getStarsForPopularity = (score) => {
+  if (score <= 4) return 1;
+  if (score <= 5) return 2;
+  if (score <= 6) return 3;
+  if (score <= 7) return 4;
+  return 5;
+};
+
 const ProductPage = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
@@ -183,7 +192,11 @@ const ProductPage = () => {
             <Typography variant="h5" fontWeight="bold">{product.name}</Typography>
             <Typography variant="h6" color="primary" sx={{ mt: 1 }}>${product.price}</Typography>
             <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
-              <Rating value={4} readOnly />
+            <Rating
+              value={getStarsForPopularity(product.popularity_score)}
+              readOnly
+              precision={1}
+            />
               <Typography variant="body2">({reviews.length} reviews)</Typography>
             </Box>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
