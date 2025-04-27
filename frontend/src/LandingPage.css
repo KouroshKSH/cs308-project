@@ -112,3 +112,10 @@ Sorry for the change from card to item Arif and Ayca, but I'm sure you can fix t
     font-size: 16px;
     color: #555;
 }
+
+/* Product popularity stars styling */
+.product-popularity {
+    font-size: 18px;
+    color: gold;
+    margin-top: 5px;
+}
