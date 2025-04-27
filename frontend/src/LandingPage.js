@@ -17,13 +17,18 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import "./LandingPage.css";
 import DrawerMenu from "./components/DrawerMenu";
+import { useLocation } from "react-router-dom";
 
 // do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.) or fellow teammates!
 // Base URL for the API
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 const LandingPage = () => {
-  const [department, setDepartment] = useState("Women");
+  const location = useLocation();
+  const [department, setDepartment] = useState(() => {
+    // Use department from navigation state if present, else default to "Women"
+    return location.state?.department || "Women";
+  });
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [cart, setCart] = useState([]);
   const [cartAnchorEl, setCartAnchorEl] = useState(null);

@@ -48,6 +48,12 @@ const ProductPage = () => {
   const [variations, setVariations] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // for navigating from product page to any department we want
+  const navigateToDepartment = (department) => {
+    // Map department name to department ID if needed, or just pass as state
+    navigate("/", { state: { department } });
+  };
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -162,7 +168,11 @@ const ProductPage = () => {
 
   return (
     <Box>
-      <Header category={product.department_name || "Home"} cart={cart} onCheckout={() => {}} />
+      <Header category={product.department_name || "Home"} 
+      cart={cart} 
+      onCheckout={() => {}} 
+      navigateToDepartment = {navigateToDepartment}
+      />
 
       <Box sx={{ maxWidth: "1200px", mx: "auto", p: 4 }}>
         <Button

@@ -21,7 +21,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import DrawerMenu from "./components/DrawerMenu";
 import { useNavigate } from "react-router-dom";
 
-const Header = ({ category, setCategory, cart = [], onCheckout }) => {
+const Header = ({ category, setCategory, cart = [], onCheckout, navigateToDepartment}) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [cartAnchorEl, setCartAnchorEl] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -62,12 +62,23 @@ const Header = ({ category, setCategory, cart = [], onCheckout }) => {
         {/* use the same drawer component I made */}
         <DrawerMenu />
 
-          <Box sx={{ display: "flex", gap: 4, flexGrow: 1, justifyContent: "center" }}>
+          <Box sx={
+            { display: "flex", 
+              gap: 4, 
+              flexGrow: 1, 
+              justifyContent: "center" 
+            }}>
             {["Women", "Men", "Kids"].map((item) => (
               <Typography
                 key={item}
                 variant="h6"
-                onClick={() => setCategory && setCategory(item)}
+                onClick={() => {
+                  if (navigateToDepartment) {
+                    navigateToDepartment(item);
+                  } else if (setCategory) {
+                    setCategory(item);
+                  }
+                }}
                 sx={{
                   cursor: "pointer",
                   fontWeight: "bold",
