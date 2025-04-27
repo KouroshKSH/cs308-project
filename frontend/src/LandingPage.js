@@ -23,11 +23,21 @@ import { useLocation } from "react-router-dom";
 // Base URL for the API
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
+// useful for naviation, do NOT delete this!!!
+const departmentNameMap = { 2: "Women", 1: "Men", 3: "Kids" };
+
 const LandingPage = () => {
   const location = useLocation();
+  // const [department, setDepartment] = useState(() => {
+  //   // Use department from navigation state if present, else default to "Women"
+  //   return location.state?.department || "Women";
+  // });
   const [department, setDepartment] = useState(() => {
-    // Use department from navigation state if present, else default to "Women"
-    return location.state?.department || "Women";
+    // Use departmentId from navigation state if present, else default to "Women"
+    if (location.state?.departmentId) {
+      return departmentNameMap[location.state.departmentId];
+    }
+    return "Women";
   });
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [cart, setCart] = useState([]);
