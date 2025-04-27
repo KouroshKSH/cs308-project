@@ -7,7 +7,6 @@ import {
   Typography,
   IconButton,
   Box,
-  Drawer,
   List,
   ListItem,
   ListItemText,
@@ -19,6 +18,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircle from "@mui/icons-material/AccountCircle";
+import DrawerMenu from "./components/DrawerMenu";
 import { useNavigate } from "react-router-dom";
 
 const Header = ({ category, setCategory, cart = [], onCheckout }) => {
@@ -59,9 +59,8 @@ const Header = ({ category, setCategory, cart = [], onCheckout }) => {
     <>
       <AppBar position="sticky" color="transparent" elevation={0}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <IconButton edge="start" color="inherit" onClick={toggleDrawer(true)}>
-            <MenuIcon />
-          </IconButton>
+        {/* use the same drawer component I made */}
+        <DrawerMenu />
 
           <Box sx={{ display: "flex", gap: 4, flexGrow: 1, justifyContent: "center" }}>
             {["Women", "Men", "Kids"].map((item) => (
@@ -80,7 +79,14 @@ const Header = ({ category, setCategory, cart = [], onCheckout }) => {
             ))}
           </Box>
 
-          <Box sx={{ display: "flex", gap: 2 }}>
+          <Box sx={
+            { 
+              display: "flex", 
+              gap: 2,
+              flexGrow: 1,
+              justifyContent: "right" 
+            }
+            }>
             <IconButton color="inherit">
               <SearchIcon />
             </IconButton>
@@ -93,20 +99,6 @@ const Header = ({ category, setCategory, cart = [], onCheckout }) => {
           </Box>
         </Toolbar>
       </AppBar>
-
-      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
-        <List sx={{ width: 250 }}>
-          <ListItem button>
-            <ListItemText primary="Home" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="About" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="Contact" />
-          </ListItem>
-        </List>
-      </Drawer>
 
       <Menu
         anchorEl={cartAnchorEl}
