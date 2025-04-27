@@ -31,6 +31,10 @@ const getStarsForPopularity = (score) => {
   return 5;
 };
 
+// useful for navigation
+const departmentMap = { Women: 2, Men: 1, Kids: 3 };
+const departmentNameMap = { 2: "Women", 1: "Men", 3: "Kids" };
+
 const ProductPage = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
@@ -47,6 +51,12 @@ const ProductPage = () => {
   const [reviews, setReviews] = useState([]);
   const [variations, setVariations] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // for navigating from product page to any department we want
+  const navigateToDepartment = (department) => {
+    const deptId = departmentMap[department];
+    navigate("/", { state: { departmentId: deptId } });
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -162,12 +172,19 @@ const ProductPage = () => {
 
   return (
     <Box>
-      <Header category={product.department_name || "Home"} cart={cart} onCheckout={() => {}} />
+      <Header category={product.department_name || "Home"} 
+      cart={cart} 
+      onCheckout={() => {}} 
+      navigateToDepartment = {navigateToDepartment}
+      />
 
       <Box sx={{ maxWidth: "1200px", mx: "auto", p: 4 }}>
         <Button
           variant="text"
-          onClick={() => navigate("/")}
+          onClick={() => {
+            const deptId = departmentMap[product.department_name];
+            navigate("/", { state: { departmentId: deptId } });
+          }}
           sx={{ mb: 2, textTransform: "none", fontWeight: 600 }}
         >
           ← Back to Home
