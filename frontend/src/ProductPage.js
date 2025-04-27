@@ -77,17 +77,32 @@ const ProductPage = () => {
     setDialogOpen(true);
   };
 
-  const handleReviewSubmit = () => {
-    if (!reviewText || !reviewRating) return;
-    const newReview = {
-      username: "Guest",
-      rating: reviewRating,
-      comment: reviewText,
-      created_at: new Date().toISOString(),
-    };
-    setReviews((prev) => [newReview, ...prev]);
-    setReviewText("");
-    setReviewRating(0);
+  const handleReviewSubmit = async () => {
+    if (!reviewText && reviewRating == null) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('You must be logged in to submit a review.');
+      return;
+    }
+
+    try {
+      await axios.post(`${BASE_URL}/products/${productId}/reviews`, {
+        rating: reviewRating,
+        comment: reviewText,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setReviewText("");
+      setReviewRating(null);
+      alert('Review submitted! It will appear after approval.');
+    } catch (error) {
+      console.error('Error submitting review:', error.response?.data || error.message);
+      alert('Failed to submit review');
+    }
   };
 
   const handleAddToCart = async () => {
