@@ -1,5 +1,6 @@
 const Order = require('../models/order');
 const OrderItem = require('../models/orderItem');
+const Cart = require('../models/cart');
 
 const pool = require("../config/database");
 
@@ -50,6 +51,17 @@ exports.createOrder = async (req, res) => {
       );
     }));
 
+    // Deleting the cart items for the user
+    await Cart.removeItemsAfterCheckout(
+      user_id,
+      items.map(item => ({
+        product_id: item.product_id,
+        variation_id: item.variation_id
+      }))
+    );
+
+    // once the order is created, the stock is updated, and cart items are removed,
+    // then we can create the order
     res.status(201).json({ message: 'Order created successfully', order_id: orderId });
   } catch (err) {
     console.error("Order creation error:", err);

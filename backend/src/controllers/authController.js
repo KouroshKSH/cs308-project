@@ -1,6 +1,7 @@
 const { userModel } = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const Cart = require("../models/cart");
 
 const authController = {
   // Handles user registration
@@ -65,6 +66,18 @@ const authController = {
         process.env.JWT_SECRET,
         { expiresIn: "3h" }
       );
+
+      // get the session ID from the request headers
+      const session_id = req.headers["x-session-id"];
+
+      // for logging purposes
+      console.log("Session ID:", session_id);
+
+      // if we have a session ID, we need to update the cart for the user
+      if (session_id) {
+        // this means that person was anon visitor previously, but now is an authenticated user
+        await Cart.updateCartUserId(user.user_id, session_id);
+      }
 
       return res.status(200).json({ token, message: "Login successful" });
     } catch (error) {
