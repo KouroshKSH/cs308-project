@@ -67,26 +67,27 @@ const Header = ({ category, setCategory, cart = [], onCheckout, navigateToDepart
               gap: 4, 
               flexGrow: 1, 
               justifyContent: "center" 
-            }}>
-            {["Women", "Men", "Kids"].map((item) => (
-              <Typography
-                key={item}
-                variant="h6"
-                onClick={() => {
-                  if (navigateToDepartment) {
-                    navigateToDepartment(item);
-                  } else if (setCategory) {
-                    setCategory(item);
-                  }
-                }}
-                sx={{
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  textDecoration: category === item ? "underline" : "none",
-                }}
-              >
-                {item}
-              </Typography>
+            }}
+          >
+          {["Women", "Men", "Kids"].map((item) => (
+            <Typography
+              key={item}
+              variant="h6"
+              onClick={() => {
+                if (navigateToDepartment) {
+                  navigateToDepartment(item);
+                } else if (setCategory) {
+                  setCategory(item);
+                }
+              }}
+              sx={{
+                cursor: "pointer",
+                fontWeight: "bold",
+                textDecoration: category === item ? "underline" : "none",
+              }}
+            >
+              {item}
+            </Typography>
             ))}
           </Box>
 
@@ -94,7 +95,6 @@ const Header = ({ category, setCategory, cart = [], onCheckout, navigateToDepart
             { 
               display: "flex", 
               gap: 2,
-              flexGrow: 1,
               justifyContent: "right" 
             }
             }>
