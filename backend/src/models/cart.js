@@ -123,6 +123,20 @@ const Cart = {
       [user_id || null, session_id, product_id, variation_id]
     );
   },
+
+  // remove multiple items from cart after checkout given user_id and product_id
+  removeItemsAfterCheckout: async (user_id, items) => {
+    if (!items.length) return;
+    // items: [{product_id, variation_id}]
+    const conditions = items.map(() => '(product_id = ? AND variation_id = ?)').join(' OR ');
+    const values = items.flatMap(i => [i.product_id, i.variation_id]);
+
+    // for that specific user, delete all the items in the cart that match the product_id and variation_id
+    await db.query(
+      `DELETE FROM carts WHERE user_id = ? AND (${conditions})`,
+      [user_id, ...values]
+    );
+  },
 };
 
 module.exports = Cart; // Export the cart model for controller use
