@@ -17,6 +17,7 @@ import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
 import { Google as GoogleIcon } from "@mui/icons-material";
 import axios from "axios";
+import { getOrCreateSessionId } from "./utils/sessionStorage";
 
 const API_URL = process.env.REACT_APP_API_URL; // Load API URL from .env
 
@@ -72,10 +73,14 @@ export default function Login() {
     if (!validateInputs()) return;
   
     try {
+      const sessionId = getOrCreateSessionId();
       const response = await axios.post(
         `${API_URL}/auth/login`,
         { email, password },
-        { withCredentials: true }
+        {
+          headers: { "x-session-id": sessionId },
+          withCredentials: true
+        }
       );
 
       // console.log("Token saved to localStorage:", response.data.token); // for logging
