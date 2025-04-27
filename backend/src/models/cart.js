@@ -1,26 +1,50 @@
 const db = require("../config/database"); // Import the database connection pool
 
 const Cart = {
-  // get all the items in a the cart (for both auth or anon users)
+  // get all the items in a the cart (for both auth or anon users) with total price
   getCart: async (user_id, session_id) => {
-    const [rows] = await db.query(
-      `SELECT c.product_id, c.variation_id, c.quantity,
-          p.name, p.price,
-          pv.size_id, pv.color_id
-        FROM carts c
-        JOIN products p ON c.product_id = p.product_id
-        JOIN product_variations pv ON c.variation_id = pv.variation_id
-        WHERE (c.user_id = ? OR c.session_id = ?)`,
-      [user_id || null, session_id]
-    );
     // user ID can be null (anonymous visitor) but session ID always has a value
+    let rows;
+    if (user_id) {
+      // so person is authenticated (logged in or signed up)
+      [rows] = await db.query(
+        `SELECT c.product_id, c.variation_id, c.quantity,
+            p.name, p.price,
+            pv.size_id, pv.color_id
+          FROM carts c
+          JOIN products p ON c.product_id = p.product_id
+          JOIN product_variations pv ON c.variation_id = pv.variation_id
+          WHERE c.user_id = ?`,
+        [user_id]
+      );
+    } else {
+      // anon visitor, so use their session ID
+      [rows] = await db.query(
+        `SELECT c.product_id, c.variation_id, c.quantity,
+            p.name, p.price,
+            pv.size_id, pv.color_id
+          FROM carts c
+          JOIN products p ON c.product_id = p.product_id
+          JOIN product_variations pv ON c.variation_id = pv.variation_id
+          WHERE c.session_id = ?`,
+        [session_id]
+      );
+    }
+
+    // Calculate total price
+    const total_price = rows.reduce((sum, item) => {
+      return sum + parseFloat(item.price) * item.quantity;
+    }, 0);
 
     // this endpoint works for both authenticated users and anonymous visitors
     // we mostly care about session ID (do NOT delete this comment!)
     console.log("Session ID:", session_id);
     console.log("User ID:", user_id);
     console.log("Cart items:\n", rows);
-    return rows;
+    console.log("Total price:", total_price);
+
+    // add total price to the response
+    return { items: rows, total_price: total_price.toFixed(2) };
   },
 
   // add or update a cart item (both auth and anon users)
@@ -71,26 +95,31 @@ const Cart = {
       );
     }
 
-    // if we reach here, it means both the product and variation exist and have enough stock
-    const [existing] = await db.query(
-      `SELECT *
-        FROM carts
-        WHERE (user_id = ? OR session_id = ?)
-        AND product_id = ?
-        AND variation_id = ?`,
-      [user_id || null, session_id, product_id, variation_id]
-    );
+    let existing;
+    if (user_id) {
+      [existing] = await db.query(
+        `SELECT * FROM carts WHERE user_id = ? AND product_id = ? AND variation_id = ?`,
+        [user_id, product_id, variation_id]
+      );
+    } else {
+      [existing] = await db.query(
+        `SELECT * FROM carts WHERE session_id = ? AND product_id = ? AND variation_id = ?`,
+        [session_id, product_id, variation_id]
+      );
+    }
 
     if (existing.length) {
-      // product already exists in cart, so you can update the quantity
-      await db.query(
-        `UPDATE carts
-          SET quantity = quantity + ?
-          WHERE (user_id = ? OR session_id = ?)
-          AND product_id = ?
-          AND variation_id = ?`,
-        [quantity, user_id || null, session_id, product_id, variation_id]
-      );
+      if (user_id) {
+        await db.query(
+          `UPDATE carts SET quantity = quantity + ? WHERE user_id = ? AND product_id = ? AND variation_id = ?`,
+          [quantity, user_id, product_id, variation_id]
+        );
+      } else {
+        await db.query(
+          `UPDATE carts SET quantity = quantity + ? WHERE session_id = ? AND product_id = ? AND variation_id = ?`,
+          [quantity, session_id, product_id, variation_id]
+        );
+      }
     } else {
       // product does not exist in cart, so you can insert a new row
       await db.query(
@@ -103,24 +132,53 @@ const Cart = {
 
   // update by assuming item is already in the cart (both auth and anon users)
   updateCartItem: async (user_id, session_id, product_id, variation_id, quantity) => {
-    await db.query(
-      `UPDATE carts
-        SET quantity = ?
-        WHERE (user_id = ? OR session_id = ?)
-        AND product_id = ?
-        AND variation_id = ?`,
-      [quantity, user_id || null, session_id, product_id, variation_id]
-    );
+    if (user_id) {
+      await db.query(
+        `UPDATE carts SET quantity = ? WHERE user_id = ? AND product_id = ? AND variation_id = ?`,
+        [quantity, user_id, product_id, variation_id]
+      );
+    } else {
+      await db.query(
+        `UPDATE carts SET quantity = ? WHERE session_id = ? AND product_id = ? AND variation_id = ?`,
+        [quantity, session_id, product_id, variation_id]
+      );
+    }
   },
 
   // remove by assuming item is already in the cart (both auth and anon users)
   removeCartItem: async (user_id, session_id, product_id, variation_id) => {
+    if (user_id) {
+      await db.query(
+        `DELETE FROM carts WHERE user_id = ? AND product_id = ? AND variation_id = ?`,
+        [user_id, product_id, variation_id]
+      );
+    } else {
+      await db.query(
+        `DELETE FROM carts WHERE session_id = ? AND product_id = ? AND variation_id = ?`,
+        [session_id, product_id, variation_id]
+      );
+    }
+  },
+
+  // remove multiple items from cart after checkout given user_id and product_id
+  removeItemsAfterCheckout: async (user_id, items) => {
+    if (!items.length) return;
+    const conditions = items.map(() => '(product_id = ? AND variation_id = ?)').join(' OR ');
+    const values = items.flatMap(i => [i.product_id, i.variation_id]);
+
+    // for that specific user, delete all the items in the cart that match the product_id and variation_id
     await db.query(
-      `DELETE FROM carts
-        WHERE (user_id = ? OR session_id = ?)
-        AND product_id = ?
-        AND variation_id = ?`,
-      [user_id || null, session_id, product_id, variation_id]
+      `DELETE FROM carts WHERE user_id = ? AND (${conditions})`,
+      [user_id, ...values]
+    );
+  },
+
+  // update cart rows for a session that has an authenticated user
+  updateCartUserId: async (user_id, session_id) => {
+    if (!user_id || !session_id) return;
+    await db.query(
+      `UPDATE carts SET user_id = ? WHERE session_id = ? AND user_id IS NULL`,
+      [user_id, session_id]
     );
   },
 };
