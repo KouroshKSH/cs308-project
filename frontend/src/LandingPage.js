@@ -34,6 +34,15 @@ const LandingPage = () => {
 
   const navigate = useNavigate();
 
+  // for assigning stars based on popularity score (numbers can change later)
+  const getStarsForPopularity = (score) => {
+    if (score <= 4) return '⭐';
+    if (score <= 5) return '⭐⭐';
+    if (score <= 6) return '⭐⭐⭐';
+    if (score <= 7) return '⭐⭐⭐⭐';
+    return '⭐⭐⭐⭐⭐';
+  };
+
   // 1. Check login state
   useEffect(() => {
     const checkLogin = () => {
@@ -309,7 +318,8 @@ const LandingPage = () => {
             { /* display the product's info */}
             <h3 className="product-name">{product.name}</h3>
             <p className="product-price">${product.price}</p>
-            <p className="product-popularity">Popularity: {product.popularity_score}</p>
+            {/* <p className="product-popularity">Popularity: {product.popularity_score}</p> */}
+            <p className="product-popularity">{getStarsForPopularity(product.popularity_score)}</p>
             {/* <button onClick={() => addToCart(product.product_id)}>Add to Cart</button> */}
             {/* TODO: i will remove the add to cart from landing page for each product because it doesn't make sense */}
           </div>
