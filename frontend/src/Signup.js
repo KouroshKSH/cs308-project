@@ -5,6 +5,7 @@ import axios from "axios";
 import { Box, Button, CssBaseline, Divider, FormControl, FormLabel, Link, TextField, Typography, Stack, Card as MuiCard } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import zxcvbn from "zxcvbn";
+import { getOrCreateSessionId } from "./utils/sessionStorage";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000/api";
 
@@ -69,10 +70,14 @@ export default function SignUp() {
 
     try {
       // First, register the user
+      const sessionId = getOrCreateSessionId();
       const registerResponse = await axios.post(
         `${API_URL}/auth/register`,
         { username, email, password },
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: { "x-session-id": sessionId }
+        }
       );
 
       // If the registration response includes a token, store it; otherwise, perform login.

@@ -14,8 +14,12 @@ import {
   Grid,
 } from "@mui/material";
 
+import axios from "axios";
+import { getOrCreateSessionId } from "./utils/sessionStorage";
+
 const CheckoutPage = () => {
-  const navigate = useNavigate(); // ← useNavigate hook to redirect after submit
+  // useNavigate hook to redirect after submit
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -25,30 +29,69 @@ const CheckoutPage = () => {
     expirationDate: "",
   });
 
-  const [basket, setBasket] = useState([]);
+  // for storing the real cart data
+  const [cart, setCart] = useState({ items: [], total_price: 0 });
   const [loading, setLoading] = useState(true);
 
+  // get the cart data from `carts` table
   useEffect(() => {
-    setTimeout(() => {
-      setBasket([
-        { name: "White T-shirt", quantity: 2, price: 19.99 },
-        { name: "Blue Jeans", quantity: 1, price: 49.99 },
-      ]);
+    const fetchCart = async () => {
+      setLoading(true);
+      try {
+        const sessionId = getOrCreateSessionId();
+        const token = localStorage.getItem("token");
+        const headers = { "x-session-id": sessionId };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+        const res = await axios.get(
+          process.env.REACT_APP_API_URL + "/cart",
+          { headers }
+        );
+        setCart(res.data);
+      } catch (err) {
+        setCart({ items: [], total_price: 0 });
+      }
       setLoading(false);
-    }, 1000);
+    };
+    fetchCart();
   }, []);
-
-  const total = basket.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitted checkout:", formData);
-    navigate("/PaymentPage"); // after submitting go to payment page
+    try {
+      const sessionId = getOrCreateSessionId();
+      const token = localStorage.getItem("token");
+      const headers = { "x-session-id": sessionId };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      // Prepare items for order creation
+      const items = cart.items.map(item => ({
+        product_id: item.product_id,
+        variation_id: item.variation_id,
+        quantity: item.quantity,
+        price_at_purchase: item.price
+      }));
+      const orderData = {
+        delivery_address: formData.address,
+        total_price: cart.total_price,
+        items
+      };
+      const res = await axios.post(
+        process.env.REACT_APP_API_URL + "/orders",
+        orderData,
+        { headers }
+      );
+      // Redirect to invoice page or show success
+      // Example: navigate(`/order/${res.data.order_id}`);
+      alert("Order placed successfully!");
+      // Optionally redirect to invoice page:
+      navigate(`/invoice/${res.data.order_id}`);
+    } catch (err) {
+      alert("Failed to place order: " + (err.response?.data?.error || err.message));
+    }
   };
 
   return (
@@ -137,10 +180,34 @@ const CheckoutPage = () => {
         <Grid item xs={12} md={5}>
           <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
             <Typography variant="h5" gutterBottom>
-              Your Basket
+              Your Cart
             </Typography>
             <Divider sx={{ my: 2 }} />
+
             {loading ? (
+              <CircularProgress />
+            ) : (
+              <List>
+                {cart.items.map((item, i) => (
+                  <ListItem key={i} divider>
+                    <ListItemText
+                      primary={item.name}
+                      secondary={`Quantity: ${item.quantity}`}
+                    />
+                    <Typography>${(item.price * item.quantity).toFixed(2)}</Typography>
+                  </ListItem>
+                ))}
+                <Divider sx={{ my: 2 }} />
+                <ListItem>
+                  <ListItemText primary="Total" />
+                  <Typography fontWeight="bold">
+                    ${cart.total_price}
+                  </Typography>
+                </ListItem>
+              </List>
+            )}
+
+            {/* {loading ? (
               <CircularProgress />
             ) : (
               <List>
@@ -161,7 +228,7 @@ const CheckoutPage = () => {
                   </Typography>
                 </ListItem>
               </List>
-            )}
+            )} */}
           </Paper>
         </Grid>
       </Grid>
