@@ -22,6 +22,19 @@ import { getOrCreateSessionId } from "./utils/sessionStorage"; // Important for 
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
+// just like landing page, in order to update the number of stars based on popularity of product
+const getStarsForPopularity = (score) => {
+  if (score <= 4) return 1;
+  if (score <= 5) return 2;
+  if (score <= 6) return 3;
+  if (score <= 7) return 4;
+  return 5;
+};
+
+// useful for navigation
+const departmentMap = { Women: 2, Men: 1, Kids: 3 };
+const departmentNameMap = { 2: "Women", 1: "Men", 3: "Kids" };
+
 const ProductPage = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
@@ -31,13 +44,24 @@ const ProductPage = () => {
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
   const [selectedVariation, setSelectedVariation] = useState("");
-  const [quantity, setQuantity] = useState(1);
+
+  // allow empty string
+  const [quantity, setQuantity] = useState("");
+
+  // for error message
+  const [quantityError, setQuantityError] = useState("");
 
   const [cart] = useState([]);
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [variations, setVariations] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // for navigating from product page to any department we want
+  const navigateToDepartment = (department) => {
+    const deptId = departmentMap[department];
+    navigate("/", { state: { departmentId: deptId } });
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -106,6 +130,12 @@ const ProductPage = () => {
   };
 
   const handleAddToCart = async () => {
+    // sanity check before sending request to backend
+    if (!quantity || isNaN(Number(quantity)) || Number(quantity) < 1) {
+      setQuantityError("You have to choose a valid quantity");
+      return;
+    }
+
     try {
       const headers = {};
       const token = localStorage.getItem('token');
@@ -119,7 +149,7 @@ const ProductPage = () => {
       await axios.post(`${BASE_URL}/cart/add`, {
         product_id: productId,
         variation_id: selectedVariation,
-        quantity,
+        quantity: Number(quantity),
       }, { headers });
 
       alert('Added to cart successfully!');
@@ -153,12 +183,19 @@ const ProductPage = () => {
 
   return (
     <Box>
-      <Header category={product.department_name || "Home"} cart={cart} onCheckout={() => {}} />
+      <Header category={product.department_name || "Home"} 
+      cart={cart} 
+      onCheckout={() => {}} 
+      navigateToDepartment = {navigateToDepartment}
+      />
 
       <Box sx={{ maxWidth: "1200px", mx: "auto", p: 4 }}>
         <Button
           variant="text"
-          onClick={() => navigate("/")}
+          onClick={() => {
+            const deptId = departmentMap[product.department_name];
+            navigate("/", { state: { departmentId: deptId } });
+          }}
           sx={{ mb: 2, textTransform: "none", fontWeight: 600 }}
         >
           ← Back to Home
@@ -182,10 +219,18 @@ const ProductPage = () => {
           <Box sx={{ flex: 1 }}>
             <Typography variant="h5" fontWeight="bold">{product.name}</Typography>
             <Typography variant="h6" color="primary" sx={{ mt: 1 }}>${product.price}</Typography>
+            
+            {/* to show the popularity of product via stars */}
             <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
-              <Rating value={4} readOnly />
+            <Rating
+              value={getStarsForPopularity(product.popularity_score)}
+              readOnly
+              precision={1}
+            />
               <Typography variant="body2">({reviews.length} reviews)</Typography>
             </Box>
+
+            {/* to show the material */}
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Material: <strong>{product.material || "N/A"}</strong>
             </Typography>
@@ -194,10 +239,15 @@ const ProductPage = () => {
             {/* Select Size */}
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Select Size</InputLabel>
+ 
+              {/* set the default quantity if variation is chosen */}
               <Select
                 value={selectedVariation}
                 label="Select Size"
-                onChange={(e) => setSelectedVariation(e.target.value)}
+                onChange={(e) => {
+                  setSelectedVariation(e.target.value);
+                  if (!quantity) setQuantity("1");
+                }}
               >
                 {variations.map((v) => (
                   <MenuItem key={v.variation_id} value={v.variation_id} disabled={v.stock_quantity === 0}>
@@ -213,8 +263,16 @@ const ProductPage = () => {
               label="Quantity"
               fullWidth
               value={quantity}
-              onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-              sx={{ mb: 2 }}
+              onChange={(e) => {
+                const val = e.target.value;
+                // Allow empty string or positive integers only
+                if (val === "" || (/^\d+$/.test(val) && Number(val) > 0)) {
+                  setQuantity(val);
+                  setQuantityError(""); // clear error on change
+                }
+              }}
+              error={!!quantityError}
+              helperText={quantityError}
             />
 
             {/* Add to Cart */}
