@@ -83,35 +83,39 @@ const ProfilePage = () => {
   return (
     <div style={{
       padding: '20px',
-      textAlign: 'center',
+      textAlign: 'left',
       position: 'relative',
       display: 'flex',
       flexDirection: 'column',
       minHeight: '100vh',
-      paddingBottom: '60px'
+      paddingBottom: '60px',
+      maxWidth: 600,
+      margin: '0 auto'
     }}>
       {/* Back to Home Button */}
       <Button
         variant="outlined"
         color="primary"
         onClick={handleBackToHome}
-        style={{ position: 'absolute', top: '20px', left: '20px' }}
+        style={{ position: 'absolute', top: '20px', left: '10px' }}
       >
         Back to Home
       </Button>
 
       {/* Profile Content */}
-      <div style={{ marginBottom: '20px' }}>
-        <AccountCircle style={{ fontSize: '4rem' }} />
+      <div style={{ marginBottom: '20px', marginTop: '40px' }}>
+        <AccountCircle style={{ fontSize: '4rem', marginBottom: '10px' }} />
+        <Typography variant="h4" style={{ fontWeight: 'bold', marginBottom: '16px' }}>
+          Hi {profile.username}
+        </Typography>
+        <div style={{ display: 'flex', gap: '40px', marginBottom: '8px' }}>
+          <Typography variant="body1"><strong>Email:</strong> {profile.email}</Typography>
+          <Typography variant="body1"><strong>Phone:</strong> {profile.phone_number || 'Not provided'}</Typography>
+        </div>
+        <div style={{ marginBottom: '8px' }}>
+          <Typography variant="body1"><strong>Address:</strong> {profile.address || 'Not provided'}</Typography>
+        </div>
       </div>
-      <h1 style={{ fontSize: '2.5rem' }}>
-        Your Profile
-      </h1>
-      <p><strong>Username:</strong> {profile.username}</p>
-      <p><strong>Email:</strong> {profile.email}</p>
-      <p><strong>Address:</strong> {profile.address || 'Not provided'}</p>
-      <p><strong>Phone:</strong> {profile.phone_number || 'Not provided'}</p>
-
       <div style={{ marginTop: '20px' }}>
         {/* Orders Section */}
         <Typography
