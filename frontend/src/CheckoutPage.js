@@ -15,10 +15,11 @@ import {
 } from "@mui/material";
 
 import axios from "axios";
-import { getOrCreateSessionId } from "./utils/sessionStorage"; // adjust path if needed
+import { getOrCreateSessionId } from "./utils/sessionStorage";
 
 const CheckoutPage = () => {
-  const navigate = useNavigate(); // ← useNavigate hook to redirect after submit
+  // useNavigate hook to redirect after submit
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -27,19 +28,6 @@ const CheckoutPage = () => {
     cardPassword: "",
     expirationDate: "",
   });
-
-  // const [basket, setBasket] = useState([]);
-  // const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setBasket([
-  //       { name: "White T-shirt", quantity: 2, price: 19.99 },
-  //       { name: "Blue Jeans", quantity: 1, price: 49.99 },
-  //     ]);
-  //     setLoading(false);
-  //   }, 1000);
-  // }, []);
 
   // for storing the real cart data
   const [cart, setCart] = useState({ items: [], total_price: 0 });
@@ -66,8 +54,6 @@ const CheckoutPage = () => {
     };
     fetchCart();
   }, []);
-
-  // const total = basket.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -107,12 +93,6 @@ const CheckoutPage = () => {
       alert("Failed to place order: " + (err.response?.data?.error || err.message));
     }
   };
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   console.log("Submitted checkout:", formData);
-  //   navigate("/PaymentPage"); // after submitting go to payment page
-  // };
 
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", p: 4 }}>

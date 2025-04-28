@@ -83,14 +83,11 @@ export default function Login() {
         }
       );
 
-      // console.log("Token saved to localStorage:", response.data.token); // for logging
-
       // Check if the response contains a token
       if (response.data.token) {
         localStorage.setItem('token', response.data.token); // Save the token
         setIsLoggedIn(true); // Trigger state update
         setErrorMessage(''); // Clear any previous error messages
-        // OLD: navigate('/dashboard'); // Redirect to the dashboard
 
         // Redirect to the intended page or default to the profile page
         const redirectTo = location.state?.redirectTo || "/profile"; // or checkout page
