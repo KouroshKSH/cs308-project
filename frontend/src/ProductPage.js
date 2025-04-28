@@ -44,7 +44,13 @@ const ProductPage = () => {
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
   const [selectedVariation, setSelectedVariation] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  // const [quantity, setQuantity] = useState(1);
+
+  // allow empty string
+  const [quantity, setQuantity] = useState("");
+
+  // for error message
+  const [quantityError, setQuantityError] = useState("");
 
   const [cart] = useState([]);
   const [product, setProduct] = useState(null);
@@ -238,13 +244,30 @@ const ProductPage = () => {
             </FormControl>
 
             {/* Quantity */}
-            <TextField
+            {/* <TextField
               type="number"
               label="Quantity"
               fullWidth
               value={quantity}
               onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
               sx={{ mb: 2 }}
+            /> */}
+
+            <TextField
+              type="number"
+              label="Quantity"
+              fullWidth
+              value={quantity}
+              onChange={(e) => {
+                const val = e.target.value;
+                // Allow empty string or positive integers only
+                if (val === "" || (/^\d+$/.test(val) && Number(val) > 0)) {
+                  setQuantity(val);
+                  setQuantityError(""); // clear error on change
+                }
+              }}
+              error={!!quantityError}
+              helperText={quantityError}
             />
 
             {/* Add to Cart */}
