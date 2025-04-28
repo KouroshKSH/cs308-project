@@ -2,8 +2,8 @@
 export const getOrCreateSessionId = () => {
     let sessionId = localStorage.getItem('anonymous_session_id');
     // If sessionId is missing or too old, generate a new one
-    // Expire after 5 minutes (300,000 ms)
-    const EXPIRATION_MS = 5 * 60 * 1000;
+    // Expire after 10 minutes (600,000 ms)
+    const EXPIRATION_MS = 10 * 60 * 1000;
     const now = Date.now();
     let sessionTimestamp = localStorage.getItem('anonymous_session_timestamp');
     if (!sessionId || !sessionTimestamp || now - parseInt(sessionTimestamp, 10) > EXPIRATION_MS) {
