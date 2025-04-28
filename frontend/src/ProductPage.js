@@ -44,7 +44,12 @@ const ProductPage = () => {
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
   const [selectedVariation, setSelectedVariation] = useState("");
-  const [quantity, setQuantity] = useState(1);
+
+  // allow empty string
+  const [quantity, setQuantity] = useState("");
+
+  // for error message
+  const [quantityError, setQuantityError] = useState("");
 
   const [cart] = useState([]);
   const [product, setProduct] = useState(null);
@@ -125,6 +130,12 @@ const ProductPage = () => {
   };
 
   const handleAddToCart = async () => {
+    // sanity check before sending request to backend
+    if (!quantity || isNaN(Number(quantity)) || Number(quantity) < 1) {
+      setQuantityError("You have to choose a valid quantity");
+      return;
+    }
+
     try {
       const headers = {};
       const token = localStorage.getItem('token');
@@ -138,7 +149,7 @@ const ProductPage = () => {
       await axios.post(`${BASE_URL}/cart/add`, {
         product_id: productId,
         variation_id: selectedVariation,
-        quantity,
+        quantity: Number(quantity),
       }, { headers });
 
       alert('Added to cart successfully!');
@@ -208,6 +219,8 @@ const ProductPage = () => {
           <Box sx={{ flex: 1 }}>
             <Typography variant="h5" fontWeight="bold">{product.name}</Typography>
             <Typography variant="h6" color="primary" sx={{ mt: 1 }}>${product.price}</Typography>
+            
+            {/* to show the popularity of product via stars */}
             <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
             <Rating
               value={getStarsForPopularity(product.popularity_score)}
@@ -216,6 +229,8 @@ const ProductPage = () => {
             />
               <Typography variant="body2">({reviews.length} reviews)</Typography>
             </Box>
+
+            {/* to show the material */}
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Material: <strong>{product.material || "N/A"}</strong>
             </Typography>
@@ -224,10 +239,15 @@ const ProductPage = () => {
             {/* Select Size */}
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Select Size</InputLabel>
+ 
+              {/* set the default quantity if variation is chosen */}
               <Select
                 value={selectedVariation}
                 label="Select Size"
-                onChange={(e) => setSelectedVariation(e.target.value)}
+                onChange={(e) => {
+                  setSelectedVariation(e.target.value);
+                  if (!quantity) setQuantity("1");
+                }}
               >
                 {variations.map((v) => (
                   <MenuItem key={v.variation_id} value={v.variation_id} disabled={v.stock_quantity === 0}>
@@ -243,8 +263,16 @@ const ProductPage = () => {
               label="Quantity"
               fullWidth
               value={quantity}
-              onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-              sx={{ mb: 2 }}
+              onChange={(e) => {
+                const val = e.target.value;
+                // Allow empty string or positive integers only
+                if (val === "" || (/^\d+$/.test(val) && Number(val) > 0)) {
+                  setQuantity(val);
+                  setQuantityError(""); // clear error on change
+                }
+              }}
+              error={!!quantityError}
+              helperText={quantityError}
             />
 
             {/* Add to Cart */}
