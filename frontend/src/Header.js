@@ -1,5 +1,3 @@
-// src/components/Header.js
-
 import React, { useState, useEffect } from "react";
 import {
   AppBar,
@@ -13,6 +11,7 @@ import {
   Menu,
   MenuItem,
   Button,
+  TextField,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
@@ -20,16 +19,21 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import DrawerMenu from "./components/DrawerMenu";
 import MiniCart from "./components/MiniCart";
+import axios from "axios";
 
 import { useNavigate } from "react-router-dom";
 
-const Header = ({ category, setCategory, cart = [], onCheckout, navigateToDepartment}) => {
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+const departmentMap = { Women: 2, Men: 1, Kids: 3 };
+
+const Header = ({ category, setCategory, onSearchResults, cart = [], onCheckout, navigateToDepartment}) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [cartAnchorEl, setCartAnchorEl] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
   const navigate = useNavigate();
   const [miniCartAnchorEl, setMiniCartAnchorEl] = useState(null);
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchBoxVisible, setSearchBoxVisible] = useState(false);
 
   useEffect(() => {
     const checkLogin = () => {
@@ -62,6 +66,31 @@ const Header = ({ category, setCategory, cart = [], onCheckout, navigateToDepart
     } else {
       navigate("/login", { state: { redirectTo: "/profile" } });
     }
+  };
+
+  const handleSearchIconClick = () => {
+    setSearchBoxVisible(true);
+  };
+  
+  const handleSearchSubmit = async (e) => {
+    e.preventDefault();
+    if (!searchTerm) return;
+    try {
+      const departmentId = departmentMap[category];
+      const formattedSearchTerm = `%${searchTerm}%`;
+      const response = await axios.get(
+        `${BASE_URL}/products/department/${departmentId}/search?q=${formattedSearchTerm}`
+      );
+      if (typeof onSearchResults === "function") {
+        onSearchResults(response.data);
+      }
+    } catch (error) {
+      if (typeof onSearchResults === "function") {
+        onSearchResults([]);
+      }
+    }
+    setSearchTerm("");
+    setSearchBoxVisible(false);
   };
 
   return (
@@ -108,9 +137,24 @@ const Header = ({ category, setCategory, cart = [], onCheckout, navigateToDepart
           }
           }>
 
-          <IconButton color="inherit">
+          <IconButton color="inherit" onClick={handleSearchIconClick}>
             <SearchIcon />
           </IconButton>
+            {searchBoxVisible && (
+            <form onSubmit={handleSearchSubmit}>
+              <TextField
+                label="Search Products"
+                variant="outlined"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                size="small"
+                sx={{ ml: 2 }}
+              />
+              <Button type="submit" variant="contained" color="primary" sx={{ ml: 2 }}>
+                Search
+              </Button>
+            </form>
+          )}
             
           <IconButton color="inherit" onClick={handleCartClick}>
             <ShoppingCartIcon />
