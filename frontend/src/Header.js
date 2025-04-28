@@ -19,6 +19,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import DrawerMenu from "./components/DrawerMenu";
+import MiniCart from "./components/MiniCart";
+
 import { useNavigate } from "react-router-dom";
 
 const Header = ({ category, setCategory, cart = [], onCheckout, navigateToDepartment}) => {
@@ -26,6 +28,8 @@ const Header = ({ category, setCategory, cart = [], onCheckout, navigateToDepart
   const [cartAnchorEl, setCartAnchorEl] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
   const navigate = useNavigate();
+  const [miniCartAnchorEl, setMiniCartAnchorEl] = useState(null);
+
 
   useEffect(() => {
     const checkLogin = () => {
@@ -40,7 +44,12 @@ const Header = ({ category, setCategory, cart = [], onCheckout, navigateToDepart
   };
 
   const handleCartClick = (event) => {
-    setCartAnchorEl(event.currentTarget);
+    setMiniCartAnchorEl(event.currentTarget);
+  };
+
+
+  const handleMiniCartClose = () => {
+    setMiniCartAnchorEl(null);
   };
 
   const handleCartClose = () => {
@@ -62,54 +71,64 @@ const Header = ({ category, setCategory, cart = [], onCheckout, navigateToDepart
         {/* use the same drawer component I made */}
         <DrawerMenu />
 
-          <Box sx={
-            { display: "flex", 
-              gap: 4, 
-              flexGrow: 1, 
-              justifyContent: "center" 
+        <Box sx={
+          { display: "flex", 
+            gap: 4, 
+            flexGrow: 1, 
+            justifyContent: "center" 
+          }}
+        >
+        {["Women", "Men", "Kids"].map((item) => (
+          <Typography
+            key={item}
+            variant="h6"
+            onClick={() => {
+              if (navigateToDepartment) {
+                navigateToDepartment(item);
+              } else if (setCategory) {
+                setCategory(item);
+              }
+            }}
+            sx={{
+              cursor: "pointer",
+              fontWeight: "bold",
+              textDecoration: category === item ? "underline" : "none",
             }}
           >
-          {["Women", "Men", "Kids"].map((item) => (
-            <Typography
-              key={item}
-              variant="h6"
-              onClick={() => {
-                if (navigateToDepartment) {
-                  navigateToDepartment(item);
-                } else if (setCategory) {
-                  setCategory(item);
-                }
-              }}
-              sx={{
-                cursor: "pointer",
-                fontWeight: "bold",
-                textDecoration: category === item ? "underline" : "none",
-              }}
-            >
-              {item}
-            </Typography>
-            ))}
-          </Box>
+            {item}
+          </Typography>
+          ))}
+        </Box>
 
-          <Box sx={
-            { 
-              display: "flex", 
-              gap: 2,
-              justifyContent: "right" 
-            }
-            }>
-            <IconButton color="inherit">
-              <SearchIcon />
-            </IconButton>
-            <IconButton color="inherit" onClick={handleCartClick}>
-              <ShoppingCartIcon />
-            </IconButton>
-            <IconButton color="inherit" onClick={handleProfileClick}>
-              <AccountCircle />
-            </IconButton>
+        <Box sx={
+          { 
+            display: "flex", 
+            gap: 2,
+            justifyContent: "right" 
+          }
+          }>
+
+          <IconButton color="inherit">
+            <SearchIcon />
+          </IconButton>
+            
+          <IconButton color="inherit" onClick={handleCartClick}>
+            <ShoppingCartIcon />
+          </IconButton>
+          
+          <IconButton color="inherit" onClick={handleProfileClick}>
+            <AccountCircle />
+          </IconButton>
           </Box>
         </Toolbar>
       </AppBar>
+
+      {/* Mini Cart */}
+      <MiniCart
+        anchorEl={miniCartAnchorEl}
+        open={Boolean(miniCartAnchorEl)}
+        onClose={handleMiniCartClose}
+      />
 
       <Menu
         anchorEl={cartAnchorEl}
