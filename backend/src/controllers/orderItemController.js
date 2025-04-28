@@ -1,5 +1,6 @@
 const OrderItem = require("../models/orderItem");
 const Order = require("../models/order");
+const Product = require("../models/product");
 
 exports.getItemsByOrder = async (req, res) => {
   try {
@@ -11,7 +12,21 @@ exports.getItemsByOrder = async (req, res) => {
     }
 
     const items = await OrderItem.getByOrderId(orderId);
-    res.json(items);
+
+    const itemDetails = await Promise.all(items.map(async (item) => {
+      const product = await Product.getProductById(item.product_id);
+      return {
+        ...item,
+        product_name: product.name,
+        product_price_at_purchase: item.price_at_purchase,
+      };
+    }));
+
+    res.json({
+      order: order,
+      items: itemDetails,
+    });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
