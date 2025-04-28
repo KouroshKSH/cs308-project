@@ -12,13 +12,12 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-// import SearchIcon from "@mui/icons-material/Search";
-// import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-// import AccountCircle from "@mui/icons-material/AccountCircle";
+import SearchIcon from "@mui/icons-material/Search";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import AccountCircle from "@mui/icons-material/AccountCircle";
 import "./LandingPage.css";
-// import DrawerMenu from "./components/DrawerMenu";
+import DrawerMenu from "./components/DrawerMenu";
 import { useLocation } from "react-router-dom";
-import Header from "./Header";
 
 // do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.) or fellow teammates!
 // Base URL for the API
@@ -41,12 +40,8 @@ const LandingPage = () => {
     return "Women";
   });
   const [drawerOpen, setDrawerOpen] = useState(false);
-  
-  // old
-  // const [cart, setCart] = useState([]);
-  // const [cartAnchorEl, setCartAnchorEl] = useState(null);
-  
-  
+  const [cart, setCart] = useState([]);
+  const [cartAnchorEl, setCartAnchorEl] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -182,19 +177,14 @@ const LandingPage = () => {
   //   }
   // };
 
-  // old cart
-  // const handleCartClick = (event) => {
-  //   setCartAnchorEl(event.currentTarget);
-  // };
+  const handleCartClick = (event) => {
+    setCartAnchorEl(event.currentTarget);
+  };
 
-  // old cart
-  // const handleCartClose = () => {
-  //   setCartAnchorEl(null);
-  // };
+  const handleCartClose = () => {
+    setCartAnchorEl(null);
+  };
 
-
-  // do we need this?
-  // TODO: check if we even need landing page to checkout, it doesn't make sense
   const handleCheckout = () => {
     if (isLoggedIn) {
       navigate("/checkout");
@@ -210,14 +200,13 @@ const LandingPage = () => {
 
   return (
     <div className="landing-container">
-      {/* remove old app bar that was custom to this page */}
-      {/* <AppBar position="absolute" color="transparent" elevation={0}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}> */}
+      <AppBar position="absolute" color="transparent" elevation={0}>
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           {/* the custom drawer component */}
-          {/* <DrawerMenu /> */}
+          <DrawerMenu />
 
           { /*  changes the department based on what you click  */}
-          {/* <Box sx={{ display: "flex", gap: 4, flexGrow: 1, justifyContent: "center" }}>
+          <Box sx={{ display: "flex", gap: 4, flexGrow: 1, justifyContent: "center" }}>
             {["Women", "Men", "Kids"].map((dept) => (
               <Typography
                 key={dept}
@@ -233,9 +222,9 @@ const LandingPage = () => {
                 {dept}
               </Typography>
             ))}
-          </Box> */}
+          </Box>
 
-          {/* <Box sx={{ display: "flex", gap: 2 }}>
+          <Box sx={{ display: "flex", gap: 2 }}>
             <IconButton
               color="inherit"
               onClick={handleSearchIconClick}>
@@ -256,22 +245,18 @@ const LandingPage = () => {
                   Search
                 </Button>
               </form>
-            )} */}
+            )}
 
-            {/* old cart */}
-            {/* <IconButton color="inherit" onClick={handleCartClick}>
+            <IconButton color="inherit" onClick={handleCartClick}>
               <ShoppingCartIcon />
-            </IconButton> */}
-
-            {/* <IconButton color="inherit" onClick={handleProfileClick}>
+            </IconButton>
+            <IconButton color="inherit" onClick={handleProfileClick}>
               <AccountCircle />
             </IconButton>
           </Box>
         </Toolbar>
-      </AppBar> */}
+      </AppBar>
 
-      <Header category={department} setCategory={setDepartment} />
-      
       <main className="landing-content">
         <Typography variant="h2">{department} Collection</Typography>
         <p>New season models reflecting the energy of spring</p>
@@ -289,8 +274,7 @@ const LandingPage = () => {
         </Button>
       </Box>
 
-      {/* old cart */}
-      {/* <Menu
+      <Menu
         anchorEl={cartAnchorEl}
         open={Boolean(cartAnchorEl)}
         onClose={handleCartClose}
@@ -313,7 +297,7 @@ const LandingPage = () => {
             </Button>
           </MenuItem>
         )}
-      </Menu> */}
+      </Menu>
 
 
       {/* Product Grid with Product Detail Link of fetched products */}
