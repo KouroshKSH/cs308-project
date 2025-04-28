@@ -137,7 +137,13 @@ const ProfilePage = () => {
                 {orders.map((order) => (
                   <div key={order.order_id}>
                     <ListItem
-                      style={{ padding: '15px', border: '1px solid #ddd', marginBottom: '10px', borderRadius: '8px' }}
+                      style={{ 
+                        padding: '15px', 
+                        border: '2px solid #ddd', 
+                        marginBottom: '10px', 
+                        borderRadius: '8px',
+                        cursor: 'pointer'
+                       }}
                       onClick={() => handleOrderClick(order.order_id)} // Add click event to go to the order status page
                     >
                       <ListItemText
