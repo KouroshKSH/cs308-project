@@ -2,6 +2,7 @@ const Order = require('../models/order');
 const OrderItem = require('../models/orderItem');
 const Deliveries = require('../models/deliveries');
 const Cart = require('../models/cart');
+const Product = require('../models/product');
 
 const pool = require("../config/database");
 
@@ -148,3 +149,33 @@ exports.deleteOrder = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getOrderWithItems = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const order = await Order.getById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (req.user && order.user_id !== req.user.user_id) {
+      return res.status(403).json({ message: "You are not authorized to view this order" });
+    }
+
+    const items = await OrderItem.getByOrderId(orderId);
+
+    const itemDetails = await Promise.all(items.map(async (item) => {
+      const product = await Product.getProductById(item.product_id);
+      return {
+        ...item,
+        product_name: product?.name || "Unknown Product",
+      };
+    }));
+
+    res.json({ order, items: itemDetails });
+  } catch (err) {
+    console.error("Error fetching order with items:", err);
+    res.status(500).json({ error: err.message });
+  }
+};  

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -11,80 +11,100 @@ import {
   ListItemText,
   Button,
   Paper,
-} from '@mui/material';
+  CircularProgress,
+} from "@mui/material";
+import axios from "axios";
 
-const mockOrderData = {
-  '12345': {
-    orderId: '12345', // type `http://localhost:3000/order/12345` in URL bar to visit
-    orderDate: '2025-04-01',
-    totalAmount: '$150.00',
-    status: 'Shipped',
-    customer: {
-      name: 'Reza Yıldırım',
-      address: 'yılmaz sokak, Istanbul, Türkiye',
-      contact: '+90 555 123 4567',
-    },
-    items: [
-      { name: 'Product 1', quantity: 1, price: '$50.00' },
-      { name: 'Product 2', quantity: 2, price: '$100.00' },
-    ],
-    estimatedDelivery: '2025-04-10',
-  },
-    '67890': {
-        orderId: '67890',
-        orderDate: '2025-04-02',
-        totalAmount: '$200.00',
-        status: 'Pending',
-        customer: {
-        name: 'John Smith',
-        address: 'Main St, New York, USA',
-        contact: '+90 555 987 6543',
-        },
-        items: [
-        { name: 'Product 3', quantity: 1, price: '$200.00' },
-        ],
-        estimatedDelivery: '2025-04-15',
-    },
-};
+const API_URL = process.env.REACT_APP_API_URL;
 
-const statusSteps = ['Pending', 'Processing', 'Shipped', 'Delivered'];
+const statusSteps = ["processing", "in-transit", "delivered"];
 
 const OrderStatusPage = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  const [order, setOrder] = useState(null);
+
+  const [orderDetails, setOrderDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Simulate fetching order data
-    const fetchedOrder = mockOrderData[orderId];
-    if (fetchedOrder) {
-      setOrder(fetchedOrder);
-    } else {
-      console.error('Order not found');
-    }
+    const fetchOrderDetails = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/orders/with-items/${orderId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setOrderDetails(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError("Error loading order details");
+        setLoading(false);
+      }
+    };
+
+    fetchOrderDetails();
   }, [orderId]);
 
-  if (!order) {
-    return <Typography>Loading order details...</Typography>;
+  const calculateEstimatedDelivery = (orderDate) => {
+    if (!orderDate) {
+      console.error("orderDate is undefined or invalid:", orderDate);
+      return null;
+    }
+
+    const date = new Date(orderDate);
+    if (isNaN(date)) {
+      console.error("Invalid date:", orderDate);
+      return null;
+    }
+
+    date.setDate(date.getDate() + 7);
+    return date;
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
+    );
   }
 
-  const currentStep = statusSteps.indexOf(order.status);
+  if (error) {
+    return <Typography color="error">{error}</Typography>;
+  }
+
+  if (!orderDetails) {
+    return <Typography>No order details available</Typography>;
+  }
+
+  const { order, items } = orderDetails;
+  const estimatedDelivery = calculateEstimatedDelivery(order.order_date);
+  const currentStep = statusSteps.indexOf(order.status.toLowerCase());
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', p: 4 }}>
+    <Box sx={{ maxWidth: 800, mx: "auto", p: 4 }}>
       <Paper elevation={3} sx={{ p: 3 }}>
         <Typography variant="h6" gutterBottom>
           Order Details
         </Typography>
-        <Typography>Order ID: {order.orderId}</Typography>
-        <Typography>Order Date: {order.orderDate}</Typography>
-        <Typography>Total Amount: {order.totalAmount}</Typography>
+        <Typography>Order Number: {order.order_id}</Typography>
+        <Typography>Order Date: {formatDate(order.order_date)}</Typography>
+        <Typography>Total Price: ${order.total_price}</Typography>
 
         <Box sx={{ my: 4 }}>
           <Stepper activeStep={currentStep} alternativeLabel>
             {statusSteps.map((label) => (
               <Step key={label}>
-                <StepLabel>{label}</StepLabel>
+                <StepLabel>{label.charAt(0).toUpperCase() + label.slice(1)}</StepLabel>
               </Step>
             ))}
           </Stepper>
@@ -93,19 +113,17 @@ const OrderStatusPage = () => {
         <Typography variant="h6" gutterBottom>
           Shipping Information
         </Typography>
-        <Typography>Name: {order.customer.name}</Typography>
-        <Typography>Address: {order.customer.address}</Typography>
-        <Typography>Contact: {order.customer.contact}</Typography>
+        <Typography>Delivery Address: {order.delivery_address}</Typography>
 
         <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
           Items in Order
         </Typography>
         <List>
-          {order.items.map((item, index) => (
-            <ListItem key={index}>
+          {items.map((item) => (
+            <ListItem key={item.order_item_id}>
               <ListItemText
-                primary={`${item.name} (x${item.quantity})`}
-                secondary={`Price: ${item.price}`}
+                primary={`${item.product_name} (x${item.quantity})`}
+                secondary={`Price at Purchase: $${item.price_at_purchase}`}
               />
             </ListItem>
           ))}
@@ -114,15 +132,33 @@ const OrderStatusPage = () => {
         <Typography variant="h6" gutterBottom>
           Estimated Delivery
         </Typography>
-        <Typography>{order.estimatedDelivery}</Typography>
+        <Typography>
+          {estimatedDelivery ? formatDate(estimatedDelivery) : "N/A"}
+        </Typography>
 
-        <Button
-          variant="contained"
-          sx={{ mt: 3 }}
-          onClick={() => navigate('/')}
-        >
-          Back to Home
-        </Button>
+        {/* navigation buttons to landing page and/or profile page */}
+        <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate("/")}
+            sx={{ flex: 1 }}
+          >
+            Back to Home
+          </Button>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#9c27b0", // MUI purple[500]
+              color: "#fff",
+              flex: 1,
+              "&:hover": { backgroundColor: "#7b1fa2" }, // MUI purple[700]
+            }}
+            onClick={() => navigate("/profile")}
+          >
+            Back to Profile
+          </Button>
+        </Box>
       </Paper>
     </Box>
   );
