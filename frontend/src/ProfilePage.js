@@ -35,8 +35,15 @@ const ProfilePage = () => {
 
       console.log('Fetched FULL data from backend:', response.data);
 
+      const ordersWithItems = response.data.orders.map((order) => {
+        return {
+          ...order,
+          items: order.items || []
+        };
+      });
+
       setProfile(response.data.user);
-      setOrders(response.data.orders || []);
+      setOrders(ordersWithItems);
     } catch (error) {
       console.error('Error:', error);
       if (error.response && error.response.data && error.response.data.message) {
@@ -58,6 +65,11 @@ const ProfilePage = () => {
 
   const handleToggleOrders = () => {
     setOpenOrders(!openOrders);
+  };
+
+  const handleOrderClick = (orderId) => {
+    // Navigate to the Order Status page, passing the orderId in the URL
+    navigate(`/order/${orderId}`);
   };
 
   if (error) {
@@ -119,21 +131,23 @@ const ProfilePage = () => {
             ) : (
               <List>
                 {orders.map((order) => (
-                  <ListItem
-                    key={order.order_id}
-                    style={{ padding: '15px', border: '1px solid #ddd', marginBottom: '10px', borderRadius: '8px' }}
-                  >
-                    <ListItemText
-                      primary={<><strong>Order ID: </strong>{order.order_id}</>}
-                      secondary={(
-                        <>
-                          <div><strong>Status:</strong> {order.status}</div>
-                          <div><strong>Total Price:</strong> ${order.total_price}</div>
-                          <div><strong>Delivery Address:</strong> {order.delivery_address}</div>
-                        </>
-                      )}
-                    />
-                  </ListItem>
+                  <div key={order.order_id}>
+                    <ListItem
+                      style={{ padding: '15px', border: '1px solid #ddd', marginBottom: '10px', borderRadius: '8px' }}
+                      onClick={() => handleOrderClick(order.order_id)} // Add click event to go to the order status page
+                    >
+                      <ListItemText
+                        primary={<><strong>Order ID: </strong>{order.order_id}</>}
+                        secondary={(
+                          <>
+                            <div><strong>Status:</strong> {order.status}</div>
+                            <div><strong>Total Price:</strong> ${order.total_price}</div>
+                            <div><strong>Delivery Address:</strong> {order.delivery_address}</div>
+                          </>
+                        )}
+                      />
+                    </ListItem>
+                  </div>
                 ))}
               </List>
             )}
