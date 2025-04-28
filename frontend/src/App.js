@@ -10,7 +10,8 @@ import ProductPage from "./ProductPage";
 import OrderStatusPage from "./OrderStatusPage";
 import ContactPage from "./ContactPage";
 import TempProductPage from "./tempProductPage";
-import PaymentPage from "./PaymentPage";
+// import PaymentPage from "./PaymentPage";
+import InvoicePage from "./InvoicePage";
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
         <Route path="/tempProductPage/:productId" element={<TempProductPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/PaymentPage" element={<PaymentPage/>} />
+        {/* <Route path="/PaymentPage" element={<PaymentPage/>} /> */}
         <Route path="/product/:productId" element={<ProductPage />} />
         <Route path="/order/:orderId" element={<OrderStatusPage />}
         // type `http://localhost:3000/order/12345` in URL bar to visit
@@ -41,15 +42,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* <Route path="/PaymentPage" element={<PaymentPage/>}/> */}
+        <Route path="/contact" element={<ContactPage />} />
         <Route
-          path="/PaymentPage"
+          path="/invoice/:orderId"
           element={
-           
-               <PaymentPage/>
-            
+            <ProtectedRoute>
+              <InvoicePage />
+            </ProtectedRoute>
           }
         />
-        <Route path="/contact" element={<ContactPage />} />
       </Routes>
     </BrowserRouter>
   );

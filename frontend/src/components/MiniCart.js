@@ -154,10 +154,10 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
               fullWidth
               onClick={() => {
                 onClose();
-                navigate("/cart");
+                navigate("/checkout");
               }}
             >
-              Go to Cart
+              Check Out
             </Button>
           </MenuItem>
         </>
