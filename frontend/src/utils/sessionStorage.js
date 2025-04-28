@@ -1,10 +1,12 @@
 // a utility function to manage session storage for anonymous users
 export const getOrCreateSessionId = () => {
     let sessionId = localStorage.getItem('anonymous_session_id');
-    // If sessionId is missing or too old (e.g., older than 1 day), generate a new one
+    // If sessionId is missing or too old, generate a new one
+    // Expire after 5 minutes (300,000 ms)
+    const EXPIRATION_MS = 5 * 60 * 1000;
     const now = Date.now();
     let sessionTimestamp = localStorage.getItem('anonymous_session_timestamp');
-    if (!sessionId || !sessionTimestamp || now - parseInt(sessionTimestamp, 10) > 24 * 60 * 60 * 1000) {
+    if (!sessionId || !sessionTimestamp || now - parseInt(sessionTimestamp, 10) > EXPIRATION_MS) {
         // Generate a new session ID with more randomness and time precision
         sessionId = `session_${now}_${Math.random().toString(36).slice(2)}_${crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)}`;
         localStorage.setItem('anonymous_session_id', sessionId);
@@ -12,16 +14,3 @@ export const getOrCreateSessionId = () => {
     }
     return sessionId;
 };
-
-
-// attempt 1: failure
-// reason: Session ID is not unique enough (it persists across browser restarts and users, causing collisions).
-// export const getOrCreateSessionId = () => {
-//     let sessionId = localStorage.getItem('anonymous_session_id');
-//     if (!sessionId) {
-//         // we care about today, anything after a day is a new session
-//         sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-//         localStorage.setItem('anonymous_session_id', sessionId);
-//     }
-//     return sessionId;
-// };
