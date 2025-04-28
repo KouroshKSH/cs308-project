@@ -12,11 +12,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-// import SearchIcon from "@mui/icons-material/Search";
-// import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-// import AccountCircle from "@mui/icons-material/AccountCircle";
 import "./LandingPage.css";
-// import DrawerMenu from "./components/DrawerMenu";
 import { useLocation } from "react-router-dom";
 import Header from "./Header";
 
@@ -29,10 +25,6 @@ const departmentNameMap = { 2: "Women", 1: "Men", 3: "Kids" };
 
 const LandingPage = () => {
   const location = useLocation();
-  // const [department, setDepartment] = useState(() => {
-  //   // Use department from navigation state if present, else default to "Women"
-  //   return location.state?.department || "Women";
-  // });
   const [department, setDepartment] = useState(() => {
     // Use departmentId from navigation state if present, else default to "Women"
     if (location.state?.departmentId) {
@@ -41,11 +33,6 @@ const LandingPage = () => {
     return "Women";
   });
   const [drawerOpen, setDrawerOpen] = useState(false);
-  
-  // old
-  // const [cart, setCart] = useState([]);
-  // const [cartAnchorEl, setCartAnchorEl] = useState(null);
-  
   
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
   const [products, setProducts] = useState([]);
@@ -171,28 +158,6 @@ const LandingPage = () => {
     setDrawerOpen(open);
   };
 
-  // 9. Handle adding products to the cart
-  // TODO: i'll remove the ability to add products to the cart from landing page
-  // DOING: trying to remove the add to cart from landing page because users can't add a specific product
-  // const addToCart = (productId) => {
-  //   const product = products.find((p) => p.product_id === productId);
-  //   if (product) {
-  //     setCart((prevCart) => [...prevCart, product]);
-  //     alert("Product added to your cart!");
-  //   }
-  // };
-
-  // old cart
-  // const handleCartClick = (event) => {
-  //   setCartAnchorEl(event.currentTarget);
-  // };
-
-  // old cart
-  // const handleCartClose = () => {
-  //   setCartAnchorEl(null);
-  // };
-
-
   // do we need this?
   // TODO: check if we even need landing page to checkout, it doesn't make sense
   const handleCheckout = () => {
@@ -210,66 +175,7 @@ const LandingPage = () => {
 
   return (
     <div className="landing-container">
-      {/* remove old app bar that was custom to this page */}
-      {/* <AppBar position="absolute" color="transparent" elevation={0}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}> */}
-          {/* the custom drawer component */}
-          {/* <DrawerMenu /> */}
-
-          { /*  changes the department based on what you click  */}
-          {/* <Box sx={{ display: "flex", gap: 4, flexGrow: 1, justifyContent: "center" }}>
-            {["Women", "Men", "Kids"].map((dept) => (
-              <Typography
-                key={dept}
-                variant="h6"
-                className={`department-item ${department === dept ? "active" : ""}`}
-                onClick={() => setDepartment(dept)}  // Update department state on click
-                sx={{
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  textDecoration: department === dept ? "underline" : "none",
-                }}
-              >
-                {dept}
-              </Typography>
-            ))}
-          </Box> */}
-
-          {/* <Box sx={{ display: "flex", gap: 2 }}>
-            <IconButton
-              color="inherit"
-              onClick={handleSearchIconClick}>
-                <SearchIcon />
-            </IconButton>
-
-            {searchBoxVisible && (
-              <form onSubmit={handleSearchSubmit}>
-                <TextField
-                  label="Search Products"
-                  variant="outlined"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  size="small"
-                  sx={{ ml: 2 }}
-                />
-                <Button type="submit" variant="contained" color="primary" sx={{ ml: 2 }}>
-                  Search
-                </Button>
-              </form>
-            )} */}
-
-            {/* old cart */}
-            {/* <IconButton color="inherit" onClick={handleCartClick}>
-              <ShoppingCartIcon />
-            </IconButton> */}
-
-            {/* <IconButton color="inherit" onClick={handleProfileClick}>
-              <AccountCircle />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar> */}
-
+      {/* we now have a custom header that we can customize and user everywhere */}
       <Header category={department} setCategory={setDepartment} />
       
       <main className="landing-content">
@@ -288,33 +194,6 @@ const LandingPage = () => {
           Sort by Popularity (High to Low)
         </Button>
       </Box>
-
-      {/* old cart */}
-      {/* <Menu
-        anchorEl={cartAnchorEl}
-        open={Boolean(cartAnchorEl)}
-        onClose={handleCartClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        {cart.length === 0 ? (
-          <MenuItem>Your cart is empty</MenuItem>
-        ) : (
-          cart.map((item, index) => (
-            <MenuItem key={index}>
-              {item.name} - {item.price}
-            </MenuItem>
-          ))
-        )}
-        {cart.length > 0 && (
-          <MenuItem>
-            <Button variant="contained" color="primary" onClick={handleCheckout}>
-              Checkout
-            </Button>
-          </MenuItem>
-        )}
-      </Menu> */}
-
 
       {/* Product Grid with Product Detail Link of fetched products */}
       <div className="product-grid">

@@ -43,25 +43,6 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
     // eslint-disable-next-line
   }, [open]);
 
-//   useEffect(() => {
-//     if (!open) return;
-//     const fetchCart = async () => {
-//       setLoading(true);
-//       try {
-//         const sessionId = getOrCreateSessionId();
-//         const token = localStorage.getItem("token");
-//         const headers = { "x-session-id": sessionId };
-//         if (token) headers["Authorization"] = `Bearer ${token}`;
-//         const res = await axios.get(`${API_URL}/cart`, { headers });
-//         setCart(res.data);
-//       } catch (err) {
-//         setCart({ items: [], total_price: 0 });
-//       }
-//       setLoading(false);
-//     };
-//     fetchCart();
-//   }, [open]);
-
   // Handlers for plus, minus, remove
   const handleUpdateQuantity = async (item, newQty, idx) => {
     if (newQty < 1) return;
@@ -78,8 +59,8 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
       }, { headers });
       await fetchCart();
     } catch (err) {
-      // show the error
-
+      console.error("Failed to update quantity:", err);
+      alert("An error occurred while updating the cart. Please try again.");
     }
     setActionLoading(null);
   };
@@ -100,7 +81,9 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
       });
       await fetchCart();
     } catch (err) {
-      // Optionally show error
+      console.error("Failed to remove item:", err);
+      alert("An error occurred while removing the item. Please try again.");
+      throw new Error("Failed to remove item from cart");
     }
     setActionLoading(null);
   };
@@ -182,54 +165,5 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
     </Menu>
   );
 };
-//   return (
-//     <Menu
-//       anchorEl={anchorEl}
-//       open={open}
-//       onClose={onClose}
-//       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-//       transformOrigin={{ vertical: "top", horizontal: "right" }}
-//     >
-//       {loading ? (
-//         <Box sx={{ p: 2, display: "flex", alignItems: "center" }}>
-//           <CircularProgress size={24} />
-//         </Box>
-//       ) : cart.items.length === 0 ? (
-//         <MenuItem>Your cart is empty</MenuItem>
-//       ) : (
-//         <>
-//           {cart.items.map((item, idx) => (
-//             <MenuItem key={idx} sx={{ whiteSpace: "normal", alignItems: "flex-start" }}>
-//               <Box>
-//                 <Typography variant="body1" fontWeight="bold">{item.name}</Typography>
-//                 <Typography variant="body2">
-//                   ${item.price} (x{item.quantity})
-//                 </Typography>
-//               </Box>
-//             </MenuItem>
-//           ))}
-//           <MenuItem divider>
-//             <Typography variant="subtitle2" sx={{ flex: 1 }}>
-//               Total: ${cart.total_price}
-//             </Typography>
-//           </MenuItem>
-//           <MenuItem>
-//             <Button
-//               variant="contained"
-//               color="primary"
-//               fullWidth
-//               onClick={() => {
-//                 onClose();
-//                 navigate("/cart");
-//               }}
-//             >
-//               Go to Cart
-//             </Button>
-//           </MenuItem>
-//         </>
-//       )}
-//     </Menu>
-//   );
-// };
 
 export default MiniCart;
