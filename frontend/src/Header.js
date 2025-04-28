@@ -94,7 +94,16 @@ const Header = ({ category, setCategory, onSearchResults, cart = [], onCheckout,
 
   return (
     <>
-      <AppBar position="sticky" color="transparent" elevation={0}>
+      <AppBar 
+        position="sticky" 
+        color="transparent" 
+        elevation={0}
+        sx={{
+          backdropFilter: "blur(8px)",
+          // backgroundColor: "rgba(30, 30, 30, 0.05)", // 5% dark overlay
+          WebkitBackdropFilter: "blur(10px)", // for Safari support
+          zIndex: 1201, // ensure it's above drawer and content
+        }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         {/* use the same drawer component I made */}
         <DrawerMenu />
