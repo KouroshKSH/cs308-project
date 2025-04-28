@@ -77,9 +77,8 @@ const Header = ({ category, setCategory, onSearchResults, cart = [], onCheckout,
     if (!searchTerm) return;
     try {
       const departmentId = departmentMap[category];
-      const formattedSearchTerm = `%${searchTerm}%`;
       const response = await axios.get(
-        `${BASE_URL}/products/department/${departmentId}/search?q=${formattedSearchTerm}`
+        `${BASE_URL}/products/department/${departmentId}/search?q=${searchTerm}`
       );
       if (typeof onSearchResults === "function") {
         onSearchResults(response.data);
