@@ -136,13 +136,29 @@ const OrderStatusPage = () => {
           {estimatedDelivery ? formatDate(estimatedDelivery) : "N/A"}
         </Typography>
 
-        <Button
-          variant="contained"
-          sx={{ mt: 3 }}
-          onClick={() => navigate("/")}
-        >
-          Back to Home
-        </Button>
+        {/* navigation buttons to landing page and/or profile page */}
+        <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate("/")}
+            sx={{ flex: 1 }}
+          >
+            Back to Home
+          </Button>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#9c27b0", // MUI purple[500]
+              color: "#fff",
+              flex: 1,
+              "&:hover": { backgroundColor: "#7b1fa2" }, // MUI purple[700]
+            }}
+            onClick={() => navigate("/profile")}
+          >
+            Back to Profile
+          </Button>
+        </Box>
       </Paper>
     </Box>
   );
