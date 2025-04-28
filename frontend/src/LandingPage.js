@@ -176,7 +176,11 @@ const LandingPage = () => {
   return (
     <div className="landing-container">
       {/* we now have a custom header that we can customize and user everywhere */}
-      <Header category={department} setCategory={setDepartment} />
+      <Header 
+        category={department} 
+        setCategory={setDepartment} 
+        onSearchResults={setProducts}
+      />
       
       <main className="landing-content">
         <Typography variant="h2">{department} Collection</Typography>
