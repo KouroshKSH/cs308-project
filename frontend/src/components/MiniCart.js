@@ -11,6 +11,9 @@ import {
 import { getOrCreateSessionId } from "../utils/sessionStorage";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import RemoveIcon from "@mui/icons-material/Remove";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
@@ -40,7 +43,6 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
 
   useEffect(() => {
     if (open) fetchCart();
-    // eslint-disable-next-line
   }, [open]);
 
   // Handlers for plus, minus, remove
@@ -95,6 +97,14 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
       onClose={onClose}
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       transformOrigin={{ vertical: "top", horizontal: "right" }}
+      PaperProps={{
+        sx: {
+          width: 340, // fix the width
+          maxHeight: 420, // you can scroll if it's more than max height
+          overflowY: "auto",
+          p: 0.5,
+        },
+      }}
     >
       {loading ? (
         <Box sx={{ p: 2, display: "flex", alignItems: "center" }}>
@@ -105,22 +115,50 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
       ) : (
         <>
           {cart.items.map((item, idx) => (
-            <MenuItem key={idx} sx={{ whiteSpace: "normal", alignItems: "flex-start" }}>
-              <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+            <MenuItem
+              key={idx}
+              sx={{
+                whiteSpace: "normal",
+                alignItems: "flex-start",
+                py: 1,
+                px: 1.5,
+                minHeight: 70,
+              }}
+            >
+              <Box sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%"
+                }}
+              >
                 <Box sx={{ flex: 1 }}>
-                  <Typography variant="body1" fontWeight="bold">{item.name}</Typography>
+                  <Typography variant="body1" fontWeight="bold">
+                    {item.name}
+                    </Typography>
+                    {/* we can also show the color as `{item.color_name}` but not needed */}
                   <Typography variant="body2">
                     ${item.price} (x{item.quantity})
                   </Typography>
+                  <Typography variant="body2">
+                    Size: {item.size_name}
+                  </Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", ml: 1 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    ml: 2,
+                    gap: 0.5,
+                  }}
+                >
+                <Box sx={{ display: "flex", alignItems: "center" }}>
                   <IconButton
                     size="small"
                     onClick={() => handleUpdateQuantity(item, item.quantity - 1, idx)}
                     disabled={actionLoading === idx || item.quantity <= 1}
                     title="Decrease"
                   >
-                    ➖
+                    <RemoveIcon sx={{ color: "#222" }} />
                   </IconButton>
                   <IconButton
                     size="small"
@@ -128,7 +166,7 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                     disabled={actionLoading === idx}
                     title="Increase"
                   >
-                    ➕
+                    <AddIcon sx={{ color: "#222" }} />
                   </IconButton>
                   <IconButton
                     size="small"
@@ -136,8 +174,9 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                     disabled={actionLoading === idx}
                     title="Remove"
                   >
-                    🗑️
+                    <DeleteIcon sx={{ color: "#222" }} />
                   </IconButton>
+                  </Box>
                 </Box>
               </Box>
             </MenuItem>

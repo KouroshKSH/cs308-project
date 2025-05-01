@@ -10,10 +10,13 @@ const Cart = {
       [rows] = await db.query(
         `SELECT c.product_id, c.variation_id, c.quantity,
             p.name, p.price,
-            pv.size_id, pv.color_id
+            pv.size_id, s.name AS size_name,
+            pv.color_id, co.name AS color_name
           FROM carts c
           JOIN products p ON c.product_id = p.product_id
           JOIN product_variations pv ON c.variation_id = pv.variation_id
+          JOIN sizes s ON pv.size_id = s.size_id
+          JOIN colors co ON pv.color_id = co.color_id
           WHERE c.user_id = ?`,
         [user_id]
       );
@@ -22,10 +25,13 @@ const Cart = {
       [rows] = await db.query(
         `SELECT c.product_id, c.variation_id, c.quantity,
             p.name, p.price,
-            pv.size_id, pv.color_id
+            pv.size_id, s.name AS size_name,
+            pv.color_id, co.name AS color_name
           FROM carts c
           JOIN products p ON c.product_id = p.product_id
           JOIN product_variations pv ON c.variation_id = pv.variation_id
+          JOIN sizes s ON pv.size_id = s.size_id
+          JOIN colors co ON pv.color_id = co.color_id
           WHERE c.session_id = ?`,
         [session_id]
       );
