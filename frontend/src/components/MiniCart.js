@@ -109,10 +109,14 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
               <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="body1" fontWeight="bold">
-                    {item.name} - {item.size_name} / {item.color_name}
+                    {item.name}
                     </Typography>
+                    {/* we can also show the color as `{item.color_name}` but not needed */}
                   <Typography variant="body2">
                     ${item.price} (x{item.quantity})
+                  </Typography>
+                  <Typography variant="body2">
+                    Size: {item.size_name}
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", ml: 1 }}>
