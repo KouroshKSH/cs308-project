@@ -11,6 +11,9 @@ import {
 import { getOrCreateSessionId } from "../utils/sessionStorage";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import RemoveIcon from "@mui/icons-material/Remove";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
@@ -152,7 +155,8 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                     disabled={actionLoading === idx || item.quantity <= 1}
                     title="Decrease"
                   >
-                    ➖
+                    {/* ➖ */}
+                    <RemoveIcon sx={{ color: "#222" }} />
                   </IconButton>
                   <IconButton
                     size="small"
@@ -160,7 +164,8 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                     disabled={actionLoading === idx}
                     title="Increase"
                   >
-                    ➕
+                    {/* ➕ */}
+                    <AddIcon sx={{ color: "#222" }} />
                   </IconButton>
                   <IconButton
                     size="small"
@@ -168,7 +173,8 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                     disabled={actionLoading === idx}
                     title="Remove"
                   >
-                    🗑️
+                    {/* 🗑️ */}
+                    <DeleteIcon sx={{ color: "#222" }} />
                   </IconButton>
                   </Box>
                 </Box>
