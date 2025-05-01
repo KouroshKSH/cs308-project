@@ -95,6 +95,14 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
       onClose={onClose}
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       transformOrigin={{ vertical: "top", horizontal: "right" }}
+      PaperProps={{
+        sx: {
+          width: 340,           // fixed width
+          maxHeight: 420,       // max height for scroll
+          overflowY: "auto",
+          p: 0.5,
+        },
+      }}
     >
       {loading ? (
         <Box sx={{ p: 2, display: "flex", alignItems: "center" }}>
@@ -105,7 +113,16 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
       ) : (
         <>
           {cart.items.map((item, idx) => (
-            <MenuItem key={idx} sx={{ whiteSpace: "normal", alignItems: "flex-start" }}>
+            <MenuItem
+              key={idx}
+              sx={{
+                whiteSpace: "normal",
+                alignItems: "flex-start",
+                py: 1,
+                px: 1.5,
+                minHeight: 70,
+              }}
+            >
               <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="body1" fontWeight="bold">
@@ -119,7 +136,16 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                     Size: {item.size_name}
                   </Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", ml: 1 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    // flexDirection: "column",
+                    alignItems: "center",
+                    ml: 2,
+                    gap: 0.5,
+                  }}
+                >
+                <Box sx={{ display: "flex", alignItems: "center" }}>
                   <IconButton
                     size="small"
                     onClick={() => handleUpdateQuantity(item, item.quantity - 1, idx)}
@@ -144,6 +170,7 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                   >
                     🗑️
                   </IconButton>
+                  </Box>
                 </Box>
               </Box>
             </MenuItem>
