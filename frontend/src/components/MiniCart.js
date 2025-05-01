@@ -43,7 +43,6 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
 
   useEffect(() => {
     if (open) fetchCart();
-    // eslint-disable-next-line
   }, [open]);
 
   // Handlers for plus, minus, remove
@@ -100,8 +99,8 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
       transformOrigin={{ vertical: "top", horizontal: "right" }}
       PaperProps={{
         sx: {
-          width: 340,           // fixed width
-          maxHeight: 420,       // max height for scroll
+          width: 340, // fix the width
+          maxHeight: 420, // you can scroll if it's more than max height
           overflowY: "auto",
           p: 0.5,
         },
@@ -126,7 +125,12 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                 minHeight: 70,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+              <Box sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%"
+                }}
+              >
                 <Box sx={{ flex: 1 }}>
                   <Typography variant="body1" fontWeight="bold">
                     {item.name}
@@ -142,7 +146,6 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                 <Box
                   sx={{
                     display: "flex",
-                    // flexDirection: "column",
                     alignItems: "center",
                     ml: 2,
                     gap: 0.5,
@@ -155,7 +158,6 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                     disabled={actionLoading === idx || item.quantity <= 1}
                     title="Decrease"
                   >
-                    {/* ➖ */}
                     <RemoveIcon sx={{ color: "#222" }} />
                   </IconButton>
                   <IconButton
@@ -164,7 +166,6 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                     disabled={actionLoading === idx}
                     title="Increase"
                   >
-                    {/* ➕ */}
                     <AddIcon sx={{ color: "#222" }} />
                   </IconButton>
                   <IconButton
@@ -173,7 +174,6 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                     disabled={actionLoading === idx}
                     title="Remove"
                   >
-                    {/* 🗑️ */}
                     <DeleteIcon sx={{ color: "#222" }} />
                   </IconButton>
                   </Box>
