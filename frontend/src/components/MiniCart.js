@@ -108,7 +108,9 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
             <MenuItem key={idx} sx={{ whiteSpace: "normal", alignItems: "flex-start" }}>
               <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
                 <Box sx={{ flex: 1 }}>
-                  <Typography variant="body1" fontWeight="bold">{item.name}</Typography>
+                  <Typography variant="body1" fontWeight="bold">
+                    {item.name} - {item.size_name} / {item.color_name}
+                    </Typography>
                   <Typography variant="body2">
                     ${item.price} (x{item.quantity})
                   </Typography>
