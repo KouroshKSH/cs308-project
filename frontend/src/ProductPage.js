@@ -312,16 +312,30 @@ const ProductPage = () => {
         {/* Reviews Section */}
         <Box mt={6}>
           <Typography variant="h6" gutterBottom>Customer Reviews</Typography>
-          {reviews.length === 0 ? (
+          {reviews.filter(
+            (review) =>
+              review.rating !== null || review.comment_approval === "approved"
+          ).length === 0 ? (
             <Typography variant="body2" color="text.secondary">No reviews yet.</Typography>
           ) : (
-            reviews.map((review) => (
-              <Box key={review.review_id} sx={{ mb: 2 }}>
-                <Typography variant="subtitle2">{review.username}</Typography>
-                <Rating value={review.rating} readOnly size="small" />
-                <Typography variant="body2">{review.comment}</Typography>
-              </Box>
-            ))
+            reviews
+              .filter(
+                (review) =>
+                  review.rating !== null || review.comment_approval === "approved"
+              )
+              .map((review) => (
+                <Box key={review.review_id} sx={{ mb: 2 }}>
+                  {(review.rating !== null || review.comment_approval === "approved") && (
+                    <Typography variant="subtitle2">{review.username}</Typography>
+                  )}
+                  {review.rating !== null && (
+                    <Rating value={review.rating} readOnly size="small" />
+                  )}
+                  {review.comment_approval === "approved" && review.comment && (
+                    <Typography variant="body2">{review.comment}</Typography>
+                  )}
+                </Box>
+              ))
           )}
         </Box>
 
