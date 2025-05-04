@@ -3,6 +3,8 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import { List, ListItem, ListItemText, Button, Typography, Collapse } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -10,12 +12,19 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
+
+  // for showing the orders
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState(null);
   const [openOrders, setOpenOrders] = useState(false);
 
+  // for showing the cart items
+  const [cart, setCart] = useState({ items: [], total_price: 0 });
+  const [openCart, setOpenCart] = useState(false);
+
   useEffect(() => {
     fetchUserProfile();
+    fetchCart();
   }, []);
 
   const fetchUserProfile = async () => {
@@ -63,6 +72,7 @@ const ProfilePage = () => {
     navigate("/");
   };
 
+  // for showing the orders
   const handleToggleOrders = () => {
     setOpenOrders(!openOrders);
   };
@@ -70,6 +80,23 @@ const ProfilePage = () => {
   const handleOrderClick = (orderId) => {
     // Navigate to the Order Status page, passing the orderId in the URL
     navigate(`/order/${orderId}`);
+  };
+
+  // for showing the cart items
+  const fetchCart = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const headers = { "Authorization": `Bearer ${token}` };
+      const res = await axios.get(`${API_URL}/cart`, { headers });
+      setCart(res.data);
+    } catch (err) {
+      setCart({ items: [], total_price: 0 });
+    }
+  };
+
+  const handleToggleCart = () => {
+    setOpenCart(!openCart);
+    if (!openCart) setOpenOrders(false);
   };
 
   if (error) {
@@ -116,16 +143,31 @@ const ProfilePage = () => {
           <Typography variant="body1"><strong>Address:</strong> {profile.address || 'Not provided'}</Typography>
         </div>
       </div>
+
+      {/* clickable items to show the user's past Orders and Cart content */}
       <div style={{ marginTop: '20px' }}>
-        {/* Orders Section */}
-        <Typography
-          variant="h6"
-          color="primary"
-          onClick={handleToggleOrders}
-          style={{ cursor: 'pointer', textDecoration: 'underline', marginBottom: '10px' }}
-        >
-          Orders
-        </Typography>
+        <div style={{ display: 'flex', gap: '30px', alignItems: 'center', marginBottom: '10px' }}>
+          {/* Orders Section */}
+          <Typography
+            variant="h6"
+            color={openOrders ? "primary" : "inherit"}
+            onClick={handleToggleOrders}
+            style={{ cursor: 'pointer', textDecoration: openOrders ? 'underline' : 'none' }}
+          >
+            <ReceiptLongIcon fontSize="small" style={{ marginRight: 4 }} />
+            Orders
+          </Typography>
+          {/* Cart Section */}
+          <Typography
+            variant="h6"
+            color={openCart ? "primary" : "inherit"}
+            onClick={handleToggleCart}
+            style={{ cursor: 'pointer', textDecoration: openCart ? 'underline' : 'none', display: 'flex', alignItems: 'center' }}
+          >
+            <ShoppingCartIcon fontSize="small" style={{ marginRight: 4 }} />
+            Cart
+          </Typography>
+        </div>
 
         <Collapse in={openOrders}>
           <div>
@@ -159,6 +201,72 @@ const ProfilePage = () => {
                     </ListItem>
                   </div>
                 ))}
+              </List>
+            )}
+          </div>
+        </Collapse>
+
+        {/* Cart Dropdown */}
+        <Collapse in={openCart}>
+          <div>
+            <h2>Your Cart</h2>
+            {cart.items.length === 0 ? (
+              <p>Your cart is empty.</p>
+            ) : (
+              <List>
+                {cart.items.map((item, idx) => (
+                  <div key={idx}>
+                    <ListItem
+                      style={{
+                        padding: '15px',
+                        border: '2px solid #ddd',
+                        marginBottom: '10px',
+                        borderRadius: '8px',
+                        alignItems: 'flex-start'
+                      }}
+                    >
+                      <ListItemText
+                        primary={
+                          <span>
+                            <strong>{item.name}</strong>
+                          </span>
+                        }
+                        secondary={
+                          <>
+                            <div>Size: {item.size_name}</div>
+                            <div>Color: {item.color_name}</div>
+                            <div>Price: ${item.price}</div>
+                            <div>Quantity: {item.quantity}</div>
+                          </>
+                        }
+                      />
+                      {/* Show product image thumbnail */}
+                      <img
+                        src={`${process.env.PUBLIC_URL}/assets/images/${item.image_url}.jpg`}
+                        alt={item.name}
+                        onError={e => e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`}
+                        style={{ width: 89, height: 115, objectFit: "cover", marginRight: 12, borderRadius: 4 }}
+                      />
+                    </ListItem>
+                  </div>
+                ))}
+                {/* show the total and the checkout button */}
+                <ListItem
+                  secondaryAction={
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      onClick={() => navigate("/checkout")}
+                    >
+                      Check Out
+                    </Button>
+                  }
+                >
+                  <ListItemText
+                    primary={<strong>Total: ${cart.total_price}</strong>}
+                  />
+                </ListItem>
               </List>
             )}
           </div>
