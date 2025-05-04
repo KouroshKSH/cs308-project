@@ -240,6 +240,13 @@ const ProfilePage = () => {
                           </>
                         }
                       />
+                      {/* Show product image thumbnail */}
+                      <img
+                        src={`${process.env.PUBLIC_URL}/assets/images/${item.image_url}.jpg`}
+                        alt={item.name}
+                        onError={e => e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`}
+                        style={{ width: 89, height: 115, objectFit: "cover", marginRight: 12, borderRadius: 4 }}
+                      />
                     </ListItem>
                   </div>
                 ))}
