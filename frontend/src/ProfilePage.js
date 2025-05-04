@@ -4,6 +4,7 @@ import { List, ListItem, ListItemText, Button, Typography, Collapse } from '@mui
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -153,6 +154,7 @@ const ProfilePage = () => {
             onClick={handleToggleOrders}
             style={{ cursor: 'pointer', textDecoration: openOrders ? 'underline' : 'none' }}
           >
+            <ReceiptLongIcon fontSize="small" style={{ marginRight: 4 }} />
             Orders
           </Typography>
           {/* Cart Section */}
