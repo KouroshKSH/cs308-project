@@ -9,7 +9,7 @@ const Cart = {
       // so person is authenticated (logged in or signed up)
       [rows] = await db.query(
         `SELECT c.product_id, c.variation_id, c.quantity,
-            p.name, p.price,
+            p.name, p.price, p.image_url,
             pv.size_id, s.name AS size_name,
             pv.color_id, co.name AS color_name
           FROM carts c
@@ -24,7 +24,7 @@ const Cart = {
       // anon visitor, so use their session ID
       [rows] = await db.query(
         `SELECT c.product_id, c.variation_id, c.quantity,
-            p.name, p.price,
+            p.name, p.price, p.image_url,
             pv.size_id, s.name AS size_name,
             pv.color_id, co.name AS color_name
           FROM carts c
