@@ -243,7 +243,19 @@ const ProfilePage = () => {
                     </ListItem>
                   </div>
                 ))}
-                <ListItem>
+                {/* show the total and the checkout button */}
+                <ListItem
+                  secondaryAction={
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      onClick={() => navigate("/checkout")}
+                    >
+                      Check Out
+                    </Button>
+                  }
+                >
                   <ListItemText
                     primary={<strong>Total: ${cart.total_price}</strong>}
                   />
