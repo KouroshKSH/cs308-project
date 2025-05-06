@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { jsPDF } from "jspdf";
 import './InvoicePage.css';
-import { Button } from '@mui/material'; // Import Material-UI Button
+import { Button } from '@mui/material';
 
 const InvoicePage = () => {
   const { orderId } = useParams(); // Get the orderId from URL params
@@ -147,10 +147,9 @@ const InvoicePage = () => {
           ))}
         </tbody>
       </table>
-      <h3 className="invoice-total">Total Amount: {orderData.order.total_price}</h3>
+      <h3 className="invoice-total">Total Amount: ${orderData.order.total_price}</h3>
 
       <div className="invoice-footer">
-
         {/* Back to Profile Button */}
         <Button
           variant="contained"
@@ -162,22 +161,21 @@ const InvoicePage = () => {
 
         {/* Download PDF Button */}
         <Button
-          variant="outlined" // Red outline button
+          variant="outlined"
           onClick={downloadPDF}
           sx={{
-            color: 'red', // Red text
-            borderColor: 'red', // Red outline
-            backgroundColor: 'white', // White background
+            color: 'red',
+            borderColor: 'red',
+            backgroundColor: 'white',
             '&:hover': {
-              backgroundColor: '#ffe6e6', // Light red background on hover
-              borderColor: 'darkred', // Darker red outline on hover
+              backgroundColor: '#ffe6e6',
+              borderColor: 'darkred',
             },
-            marginRight: '10px', // Add spacing between buttons
+            marginRight: '10px', // spacing between buttons
           }}
         >
           Download PDF
         </Button>
-
       </div>
 
     </div>
