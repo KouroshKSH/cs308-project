@@ -5,9 +5,6 @@ import {
   Typography,
   IconButton,
   Box,
-  List,
-  ListItem,
-  ListItemText,
   Menu,
   MenuItem,
   Button,
@@ -17,8 +14,8 @@ import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import DrawerMenu from "./components/DrawerMenu";
-import MiniCart from "./components/MiniCart";
+import DrawerMenu from "./DrawerMenu";
+import MiniCart from "./MiniCart";
 import axios from "axios";
 
 import { useNavigate } from "react-router-dom";
@@ -100,51 +97,50 @@ const Header = ({ category, setCategory, onSearchResults, cart = [], onCheckout,
         elevation={0}
         sx={{
           backdropFilter: "blur(8px)",
-          // backgroundColor: "rgba(30, 30, 30, 0.05)", // 5% dark overlay
           WebkitBackdropFilter: "blur(10px)", // for Safari support
-          // zIndex: 1201, // ensure it's above drawer and content
-          zIndex: (theme) => theme.zIndex.drawer - 1, // <-- This ensures Drawer is always above AppBar
+          zIndex: (theme) => theme.zIndex.drawer - 1, // Drawer is always above AppBar now
         }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        {/* use the same drawer component I made */}
-        <DrawerMenu />
 
-        <Box sx={
-          { display: "flex", 
-            gap: 4, 
-            flexGrow: 1, 
-            justifyContent: "center" 
-          }}
-        >
-        {["Women", "Men", "Kids"].map((item) => (
-          <Typography
-            key={item}
-            variant="h6"
-            onClick={() => {
-              if (navigateToDepartment) {
-                navigateToDepartment(item);
-              } else if (setCategory) {
-                setCategory(item);
-              }
-            }}
-            sx={{
-              cursor: "pointer",
-              fontWeight: "bold",
-              textDecoration: category === item ? "underline" : "none",
+          {/* use the same drawer component I made */}
+          <DrawerMenu />
+
+          <Box sx={
+            { display: "flex",
+              gap: 4,
+              flexGrow: 1,
+              justifyContent: "center"
             }}
           >
-            {item}
-          </Typography>
-          ))}
-        </Box>
+          {["Women", "Men", "Kids"].map((item) => (
+            <Typography
+              key={item}
+              variant="h6"
+              onClick={() => {
+                if (navigateToDepartment) {
+                  navigateToDepartment(item);
+                } else if (setCategory) {
+                  setCategory(item);
+                }
+              }}
+              sx={{
+                cursor: "pointer",
+                fontWeight: "bold",
+                textDecoration: category === item ? "underline" : "none",
+              }}
+            >
+              {item}
+            </Typography>
+            ))}
+          </Box>
 
-        <Box sx={
-          { 
-            display: "flex", 
-            gap: 2,
-            justifyContent: "right" 
-          }
-          }>
+          <Box sx={
+            {
+              display: "flex",
+              gap: 2,
+              justifyContent: "right"
+            }
+            }>
 
           <IconButton color="inherit" onClick={handleSearchIconClick}>
             <SearchIcon />

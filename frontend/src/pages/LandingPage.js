@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from "react";
 import {
-  AppBar,
-  Toolbar,
   Typography,
-  IconButton,
   Box,
-  Menu,
-  MenuItem,
   Button,
-  TextField,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./LandingPage.css";
 import { useLocation } from "react-router-dom";
-import Header from "./Header";
+import Header from "../components/Header";
+import { Rating } from "@mui/material";
 
 // do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.) or fellow teammates!
 // Base URL for the API
@@ -43,11 +38,11 @@ const LandingPage = () => {
 
   // for assigning stars based on popularity score (numbers can change later)
   const getStarsForPopularity = (score) => {
-    if (score <= 4) return '⭐';
-    if (score <= 5) return '⭐⭐';
-    if (score <= 6) return '⭐⭐⭐';
-    if (score <= 7) return '⭐⭐⭐⭐';
-    return '⭐⭐⭐⭐⭐';
+    if (score <= 4) return <Rating name="read-only" value={1} readOnly />;
+    if (score <= 5) return <Rating name="read-only" value={2} readOnly />;
+    if (score <= 6) return <Rating name="read-only" value={3} readOnly />;
+    if (score <= 7) return <Rating name="read-only" value={4} readOnly />;
+    return <Rating name="read-only" value={5} readOnly />;
   };
 
   // 1. Check login state
@@ -231,11 +226,10 @@ const LandingPage = () => {
 
             { /* display the product's info */}
             <h3 className="product-name">{product.name}</h3>
-            <p className="product-price">${product.price}</p>
+            <h4 className="product-price">${product.price}</h4>
             {/* <p className="product-popularity">Popularity: {product.popularity_score}</p> */}
             <p className="product-popularity">{getStarsForPopularity(product.popularity_score)}</p>
-            {/* <button onClick={() => addToCart(product.product_id)}>Add to Cart</button> */}
-            {/* TODO: i will remove the add to cart from landing page for each product because it doesn't make sense */}
+            {/* TODO: let's add a heart icon for wishlisting */}
           </div>
         ))}
       </div>;
