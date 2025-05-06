@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./LandingPage.css";
 import { useLocation } from "react-router-dom";
-import Header from "./Header";
+import Header from "../components/Header";
 
 // do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.) or fellow teammates!
 // Base URL for the API

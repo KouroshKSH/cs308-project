@@ -1,28 +1,25 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ProtectedRoute from "./ProtectedRoute";
-import Login from "./Login";
-import SignUp from "./Signup";
-import LandingPage from "./LandingPage";
-import CheckoutPage from "./CheckoutPage";
-import ProfilePage from "./ProfilePage";
-import ProductPage from "./ProductPage";
-import OrderStatusPage from "./OrderStatusPage";
-import ContactPage from "./ContactPage";
-import TempProductPage from "./tempProductPage";
-import InvoicePage from "./InvoicePage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./pages/Login";
+import SignUp from "./pages/Signup";
+import LandingPage from "./pages/LandingPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import ProfilePage from "./pages/ProfilePage";
+import ProductPage from "./pages/ProductPage";
+import OrderStatusPage from "./pages/OrderStatusPage";
+import ContactPage from "./pages/ContactPage";
+import InvoicePage from "./pages/InvoicePage";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/tempProductPage/:productId" element={<TempProductPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/product/:productId" element={<ProductPage />} />
         <Route path="/order/:orderId" element={<OrderStatusPage />}
-        // type `http://localhost:3000/order/12345` in URL bar to visit
         />
         <Route
           path="/checkout"

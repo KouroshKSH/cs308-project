@@ -5,7 +5,7 @@ import axios from "axios";
 import { Box, Button, CssBaseline, Divider, FormControl, FormLabel, Link, TextField, Typography, Stack, Card as MuiCard } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import zxcvbn from "zxcvbn";
-import { getOrCreateSessionId } from "./utils/sessionStorage";
+import { getOrCreateSessionId } from "../utils/sessionStorage";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3000/api";
 

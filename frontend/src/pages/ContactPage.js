@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography, Box } from "@mui/material";
 import "./ContactPage.css";
-import DrawerMenu from "./components/DrawerMenu";
+import DrawerMenu from "../components/DrawerMenu";
 
 const ContactPage = () => {
 

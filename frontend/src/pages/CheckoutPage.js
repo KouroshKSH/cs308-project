@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 
 import axios from "axios";
-import { getOrCreateSessionId } from "./utils/sessionStorage";
+import { getOrCreateSessionId } from "../utils/sessionStorage";
 
 const CheckoutPage = () => {
   // useNavigate hook to redirect after submit

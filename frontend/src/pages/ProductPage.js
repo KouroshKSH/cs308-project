@@ -17,8 +17,8 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import CloseIcon from "@mui/icons-material/Close";
-import Header from "./Header";
-import { getOrCreateSessionId } from "./utils/sessionStorage"; // Important for adding to cart correctly!
+import Header from "../components/Header";
+import { getOrCreateSessionId } from "../utils/sessionStorage"; // Important for adding to cart correctly!
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 

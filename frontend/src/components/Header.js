@@ -17,8 +17,8 @@ import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import DrawerMenu from "./components/DrawerMenu";
-import MiniCart from "./components/MiniCart";
+import DrawerMenu from "./DrawerMenu";
+import MiniCart from "./MiniCart";
 import axios from "axios";
 
 import { useNavigate } from "react-router-dom";

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { jsPDF } from "jspdf"; // Import jsPDF
+import { jsPDF } from "jspdf";
 import { Box, Typography } from '@mui/material';
+import './InvoicePage.css';
 
 const InvoicePage = () => {
   const { orderId } = useParams(); // Get the orderId from URL params
@@ -51,11 +52,11 @@ const InvoicePage = () => {
   }, [orderId]);  // Dependency array makes sure it re-fetches when orderId changes
 
   if (error) {
-    return <div style={centeredStyle}>Error: {error}</div>;
+    return <div className="invoice-container">Error: {error}</div>;
   }
 
   if (!orderData) {
-    return <div style={centeredStyle}>Loading...</div>;
+    return <div className="invoice-container">Loading...</div>;
   }
 
   // Download PDF function
@@ -117,26 +118,14 @@ const InvoicePage = () => {
   };
 
   return (
-    <div style={centeredStyle}>
-      <Box sx={{ position: 'relative', width: '100%' }}>
-        {/* Download PDF as clickable text */}
-        <Typography
-          variant="body1"
-          onClick={downloadPDF}
-          sx={{
-            position: 'absolute',
-            top: '30px', // Adjusted position to move closer to the middle
-            right: '400px', // Keep some space from the right
-            cursor: 'pointer',
-            color: 'blue',
-            textDecoration: 'underline',
-          }}
-        >
-          Download PDF
-        </Typography>
-      </Box>
+    <div className="invoice-container">
 
-      <div>
+      {/* to download their invoice PDF, they can click on the text */}
+      <div className="download-pdf" onClick={downloadPDF}>
+        Download PDF
+      </div>
+
+      {/* <div>
         <h1>Invoice</h1>
         <h2 style={invoiceNumberStyle}>Invoice No: {formatInvoiceNo(orderData.order.order_id)}</h2>
         <p>Billing Address: {orderData.order.delivery_address}</p>
@@ -163,22 +152,39 @@ const InvoicePage = () => {
           </tbody>
         </table>
         <h3 style={totalAmountStyle}>Total Amount: {orderData.order.total_price}</h3>
-      </div>
+      </div> */}
+
+      <h1 className="invoice-header">Invoice</h1>
+      <h2 className="invoice-number">Invoice No: {formatInvoiceNo(orderData.order.order_id)}</h2>
+      <p className="invoice-details">Billing Address: {orderData.order.delivery_address}</p>
+      <p className="invoice-details">Issue Date: {formatDate(orderData.order.order_date)}</p>
+      <h3 className="invoice-items-heading">Items</h3>
+      <table className="invoice-table">
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {orderData.items.map((item, index) => (
+            <tr key={item.order_item_id} style={{ backgroundColor: index % 2 === 0 ? 'white' : '#f9f9f9' }}>
+              <td>{item.product_name}</td>
+              <td>{item.quantity}</td>
+              <td>{parseFloat(item.price_at_purchase).toFixed(2)}</td>
+              <td>{(parseFloat(item.price_at_purchase) * item.quantity).toFixed(2)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <h3 className="invoice-total">Total Amount: {orderData.order.total_price}</h3>
 
       {/* Back to Profile Button */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-        <Typography
-          onClick={() => navigate("/profile")}
-          sx={{
-            cursor: 'pointer',
-            color: '#9c27b0',
-            textDecoration: 'underline',
-            padding: '10px 20px',
-          }}
-        >
-          Back to Profile
-        </Typography>
-      </Box>
+      <div className="back-to-profile" onClick={() => navigate("/profile")}>
+        Back to Profile
+      </div>
     </div>
   );
 };
