@@ -7,67 +7,75 @@
     margin: 0 auto;
     max-width: 800px;
     font-family: Arial, sans-serif;
-  }
+}
   
-  .invoice-header {
+.invoice-header {
     font-size: 28px;
     font-weight: bold;
     margin-bottom: 20px;
-  }
+}
   
-  .invoice-number {
+.invoice-number {
     font-size: 18px;
     font-weight: normal;
     margin-bottom: 10px;
-  }
+}
   
-  .invoice-details {
+.invoice-details {
     font-size: 16px;
     margin-bottom: 20px;
-  }
+}
   
-  .invoice-items-heading {
+.invoice-items-heading {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 10px;
-  }
+}
   
-  .invoice-table {
+.invoice-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
-  }
+}
   
-  .invoice-table th,
-  .invoice-table td {
+.invoice-table th,
+.invoice-table td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
-  }
+}
   
-  .invoice-table th {
+.invoice-table th {
     background-color: #f4f4f4;
     font-weight: bold;
-  }
+}
   
-  .invoice-total {
+.invoice-total {
     font-size: 18px;
     font-weight: bold;
     text-align: right;
     margin-top: 20px;
-  }
+}
   
-  .download-pdf {
+.download-pdf {
     cursor: pointer;
     color: blue;
     text-decoration: underline;
     margin-bottom: 20px;
-  }
+}
   
-  .back-to-profile {
+.back-to-profile {
     cursor: pointer;
     color: #9c27b0;
     text-decoration: underline;
     padding: 10px 20px;
     margin-top: 20px;
-  }
+}
+
+.invoice-footer {
+    display: flex;
+    justify-content: center; /* Center the buttons horizontally */
+    align-items: center;    /* Align buttons vertically */
+    margin-top: 20px;       /* Add spacing above the footer */
+    gap: 10px;              /* Add spacing between buttons */
+}
