@@ -18,6 +18,10 @@ const Deliveries = {
     const [rows] = await db.execute('SELECT * FROM deliveries WHERE order_id = ?', [orderId]);
     return rows[0];
   },
+  getByStatus: async (status) => {
+    const [rows] = await db.execute('SELECT * FROM deliveries WHERE delivery_status = ?', [status]);
+    return rows;
+  },
   updateStatus: async (id, delivery_status) => {
     await db.execute('UPDATE deliveries SET delivery_status = ? WHERE delivery_id = ?', [delivery_status, id]);
   },

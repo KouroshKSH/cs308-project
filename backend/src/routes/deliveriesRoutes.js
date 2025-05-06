@@ -6,6 +6,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 router.post("/", authMiddleware, deliveriesController.createDelivery);
 router.get("/", authMiddleware, deliveriesController.getAllDeliveries);
+router.get("/status/:status", authMiddleware, deliveriesController.getDeliveriesByStatus);
 router.get("/:orderId", authMiddleware, deliveriesController.getDeliveryByOrder);
 router.patch("/:id/status", authMiddleware, deliveriesController.updateDeliveryStatus);
 

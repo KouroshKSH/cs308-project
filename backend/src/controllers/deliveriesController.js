@@ -44,6 +44,20 @@ exports.createDelivery = async (req, res) => {
       res.status(500).json({ error: err.message });
     }
   };
+
+  exports.getDeliveriesByStatus = async (req, res) => {
+    try {
+      if (req.user.role !== 'productManager') {
+        return res.status(403).json({ message: "Only product managers can view deliveries." });
+      }
+  
+      const { status } = req.params;
+      const deliveries = await Deliveries.getByStatus(status);
+      res.json(deliveries);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
   
   exports.updateDeliveryStatus = async (req, res) => {
     try {

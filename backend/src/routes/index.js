@@ -10,6 +10,7 @@ const orderItemRoutes = require("./orderItemRoutes");
 const returnsRoutes = require("./returnsRoutes");
 const deliveriesRoutes = require("./deliveriesRoutes");
 const userRoutes = require("./userRoutes");
+const reviewsRoutes = require("./reviewsRoutes");
 
 // Mount authentication-related routes under /auth
 router.use("/auth", authRoutes);
@@ -34,5 +35,8 @@ router.use("/deliveries", deliveriesRoutes);
 
 //  Mount user-related routes under /users
 router.use("/user", userRoutes);
+
+// Mount review-related routes under /reviews
+router.use("/reviews", reviewsRoutes);
 
 module.exports = router;
