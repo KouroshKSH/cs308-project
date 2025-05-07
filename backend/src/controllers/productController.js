@@ -23,6 +23,17 @@ const productController = {
     }
   },
 
+  // Fetch products by category
+  getProductsByCategory: async (req, res) => {
+    const { categoryId } = req.params;
+    try {
+      const products = await Product.getProductsByCategory(categoryId);
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching products by category:", error);
+      res.status(500).json({ message: "Failed to fetch products by category" });
+    }
+  },
   // Fetch and sort products by price for a given department
   getProductsByDepartmentSortedByPrice: async (req, res) => {
     try {
@@ -33,12 +44,16 @@ const productController = {
       }
 
       // Fetch and sort products using the Product model
-      const products = await Product.getProductsByDepartmentSortedByPrice(departmentId);
+      const products = await Product.getProductsByDepartmentSortedByPrice(
+        departmentId
+      );
 
       return res.status(200).json(products);
     } catch (error) {
       console.error("Error fetching sorted products:", error);
-      return res.status(500).json({ message: "Failed to fetch sorted products" });
+      return res
+        .status(500)
+        .json({ message: "Failed to fetch sorted products" });
     }
   },
 
@@ -52,12 +67,16 @@ const productController = {
       }
 
       // Fetch and sort products using the Product model
-      const products = await Product.getProductsByDepartmentSortedByPopularity(departmentId);
+      const products = await Product.getProductsByDepartmentSortedByPopularity(
+        departmentId
+      );
 
       return res.status(200).json(products);
     } catch (error) {
       console.error("Error fetching sorted products by popularity:", error);
-      return res.status(500).json({ message: "Failed to fetch sorted products by popularity" });
+      return res
+        .status(500)
+        .json({ message: "Failed to fetch sorted products by popularity" });
     }
   },
 
@@ -76,7 +95,6 @@ const productController = {
       // this will not care if there are NO reviews (0 comments and 0 ratings)
       // it'll still be 200 OK since some products might not have any reviews
       // do NOT change the logic here by saying `if (reviews.length === 0) return res.status(404).json({ message: "No reviews found" })`
-
     } catch (error) {
       console.error("Error fetching product reviews:", error);
       return res.status(500).json({ message: "Failed to fetch reviews" });
@@ -110,14 +128,16 @@ const productController = {
       res.status(200).json(stockData);
     } catch (error) {
       console.error("Error fetching stock data:", error);
-      return res.status(500).json({ message: "Failed to fetch product variation stock data" });
+      return res
+        .status(500)
+        .json({ message: "Failed to fetch product variation stock data" });
     }
   },
 
   // Fetch all the product info for product page given product ID
   getProductInfo: async (req, res) => {
     try {
-      const {productId} = req.params;
+      const { productId } = req.params;
       const product = await Product.getProductById(productId);
 
       if (!product) {
@@ -136,13 +156,15 @@ const productController = {
   // Fetch product variations given its ID
   getProductVariations: async (req, res) => {
     try {
-      const {productId} = req.params;
+      const { productId } = req.params;
       const variations = await Product.getProductVariations(productId);
 
       // can't have a product without variations
       if (!variations) {
         console.log("No variations found for product ID ", productId);
-        return res.status(404).json({ message: "Product variations not found" });
+        return res
+          .status(404)
+          .json({ message: "Product variations not found" });
       }
 
       console.log("Found variations for product ID ", productId);
@@ -157,7 +179,7 @@ const productController = {
   // Create a product review
   createProductReview: async (req, res) => {
     try {
-      const { productId} = req.params;
+      const { productId } = req.params;
       const { rating, comment } = req.body;
       const userId = req.user.user_id;
 
@@ -170,7 +192,9 @@ const productController = {
       // checks for rating being a number between 1 and 5
       if (rating && (rating < 1 || rating > 5)) {
         console.log("Rating must be between 1 and 5, not: ", rating);
-        return res.status(400).json({ message: "Rating must be between 1 and 5" });
+        return res
+          .status(400)
+          .json({ message: "Rating must be between 1 and 5" });
       }
 
       // create the review
@@ -184,13 +208,46 @@ const productController = {
       console.log("Created review with ID ", reviewId);
       res.status(201).json({
         message: "Review created successfully",
-        reviewId
+        reviewId,
       });
     } catch (error) {
       console.error("Error creating product review:", error);
 
       // to understand which error is actually happening
-      res.status(error.message.includes("can only review") ? 403 : 500).json({ message: error.message });
+      res
+        .status(error.message.includes("can only review") ? 403 : 500)
+        .json({ message: error.message });
+    }
+  },
+  // Filter products by both department ID and category ID
+  getFilteredProducts: async (req, res) => {
+    try {
+      // Extract departmentId and categoryId from the request URL parameters
+      const { departmentId, categoryId } = req.params;
+
+      // Validate both values exist
+      if (!departmentId || !categoryId) {
+        return res
+          .status(400)
+          .json({ message: "Department ID and Category ID are required" });
+      }
+
+      // Use the Product model method to fetch matching products from the database
+      // This method performs a JOIN between products and categories
+      // and filters by department and category IDs
+      const products = await Product.getProductsByDepartmentAndCategory(
+        departmentId,
+        categoryId
+      );
+
+      // Send the list of filtered products as a JSON response
+      return res.status(200).json(products);
+    } catch (error) {
+      // Log any errors that occur and send a generic error response
+      console.error("Error fetching filtered products:", error);
+      return res
+        .status(500)
+        .json({ message: "Failed to fetch filtered products" });
     }
   },
 };

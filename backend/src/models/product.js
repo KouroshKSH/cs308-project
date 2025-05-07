@@ -22,6 +22,7 @@ const Product = {
       WHERE department_id = ?
       ORDER BY price ASC;
     `;
+
     const [rows] = await pool.query(query, [departmentId]);
     return rows;
   },
@@ -48,7 +49,12 @@ const Product = {
         AND (name LIKE ? OR description LIKE ? OR material LIKE ?)
       LIMIT 5;
     `;
-    const [rows] = await pool.query(sql, [departmentId, searchTerm, searchTerm, searchTerm]);
+    const [rows] = await pool.query(sql, [
+      departmentId,
+      searchTerm,
+      searchTerm,
+      searchTerm,
+    ]);
     return rows;
     // we can show up to 5 results to avoid showing too many results
     // the user's search term will be tried to match to `name`, `description`, or `material`
@@ -86,7 +92,26 @@ const Product = {
     `;
     const [rows] = await pool.query(sql, [productId]);
     return rows;
-  }
+  },
+  async getProductsByCategory(categoryId) {
+    const query = `
+      SELECT * FROM products
+      WHERE category_id = ?;
+    `;
+    const [rows] = await pool.query(query, [categoryId]);
+    return rows;
+  },
+  // NEW METHOD: Fetch products filtered by both department ID and category ID
+  async getProductsByDepartmentAndCategory(departmentId, categoryId) {
+    const query = `
+      SELECT p.product_id, p.name, p.description, p.price, p.image_url, p.stock_quantity, p.warranty_status, p.popularity_score
+      FROM products p
+      JOIN categories c ON p.category_id = c.id
+      WHERE c.department_id = ? AND p.category_id = ?;
+    `;
+    const [rows] = await pool.query(query, [departmentId, categoryId]);
+    return rows;
+  },
 };
 
 module.exports = Product;
