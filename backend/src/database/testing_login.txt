@@ -67,3 +67,9 @@ pleasework@gmail.com
 example 7:
 monster@rooster.com
 ^M*Z7KZ"]b$2bW'
+
+---
+
+example 8: this one is a product manager
+productmanager1@email.com
+pas123
