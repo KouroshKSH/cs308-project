@@ -125,7 +125,16 @@ const ProductPage = () => {
       alert('Review submitted! It will appear after approval.');
     } catch (error) {
       console.error('Error submitting review:', error.response?.data || error.message);
-      alert('Failed to submit review');
+    
+      const msg = error?.response?.data?.message;
+    
+      if (msg === "You have already reviewed this product") {
+        alert("You’ve already reviewed this product.");
+      } else if (msg === "You can only review products you have purchased and received") {
+        alert("You can only review products you’ve purchased and received.");
+      } else {
+        alert("Failed to submit review.");
+      }
     }
   };
 
