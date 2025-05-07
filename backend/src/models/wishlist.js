@@ -4,7 +4,7 @@ const Wishlist = {
   getWishlistByUserId: async (userId) => {
     const [rows] = await db.execute(`
       SELECT w.*, p.name, p.price, p.image_url, pv.size_id, pv.color_id
-      FROM wishlist w
+      FROM wishlists w
       JOIN products p ON w.product_id = p.product_id
       LEFT JOIN product_variations pv ON w.variation_id = pv.variation_id
       WHERE w.user_id = ?
@@ -14,7 +14,7 @@ const Wishlist = {
 
   addToWishlist: async (userId, productId, variationId) => {
     const [existing] = await db.execute(`
-      SELECT 1 FROM wishlist
+      SELECT 1 FROM wishlists
       WHERE user_id = ? AND product_id = ? AND variation_id <=> ?
     `, [userId, productId, variationId ?? null]);
   
@@ -23,7 +23,7 @@ const Wishlist = {
     }
   
     const [result] = await db.execute(`
-      INSERT INTO wishlist (user_id, product_id, variation_id)
+      INSERT INTO wishlists (user_id, product_id, variation_id)
       VALUES (?, ?, ?)
     `, [userId, productId, variationId ?? null]);
   
@@ -33,7 +33,7 @@ const Wishlist = {
 
   removeFromWishlist: async (userId, productId, variationId) => {
     const [result] = await db.execute(`
-      DELETE FROM wishlist
+      DELETE FROM wishlists
       WHERE user_id = ? AND product_id = ? AND variation_id = ?
     `, [userId, productId, variationId]);
     return result.affectedRows;
