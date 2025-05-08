@@ -10,6 +10,8 @@ import ProductPage from "./pages/ProductPage";
 import OrderStatusPage from "./pages/OrderStatusPage";
 import ContactPage from "./pages/ContactPage";
 import InvoicePage from "./pages/InvoicePage";
+import ProductManagerPage from "./pages/ProductManagerPage";
+import SalesManagerPage from "./pages/SalesManagerPage";
 
 function App() {
   return (
@@ -46,6 +48,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* TODO: these two need to be protected */}
+        <Route path="/product-manager" element={<ProductManagerPage />} />
+        <Route path="/sales-manager" element={<SalesManagerPage />} />
       </Routes>
     </BrowserRouter>
   );
