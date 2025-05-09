@@ -3,11 +3,11 @@ USE fashion_ecommerce;
 -- inserting products
 -- Men (department_id = 1)
 INSERT IGNORE INTO products (serial_number, name, description, price, department_id, category_id, material, image_url, stock_quantity, warranty_status, distributor_info, popularity_score) VALUES
-('SN10', 'Cotton T-Shirt', 'Premium cotton t-shirt', 19.99, 1, 5, 'Cotton', 'url_SN10', 300, '1 Year', 'Dist1', RAND() * 10), -- category_id: 5 (T-Shirts)
-('SN11', 'Cargo Pants', 'Multi-functional neutral cargo pants', 45.00, 1, 9, 'Cotton', 'url_SN11', 220, '1 Year', 'Dist3', RAND() * 10), -- category_id: 9 (Jeans)
-('SN12', 'Leather Boots', 'High quality leather boots', 75.00, 1, 14, 'Leather', 'url_SN12', 300, 'Lifetime', 'DistL', RAND() * 10), -- category_id: 14 (Boots)
-('SN13', 'Wrist Watch', 'Premium wrist watch', 60.00, 1, 17, 'Steel', 'url_SN13', 30, 'Lifetime', 'DistJ', RAND() * 10), -- category_id: 17 (Watches)
-('SN14', 'Steel Ring Set', '5 piece stainless steel ring set', 54.99, 1, 21, 'Steel', 'url_SN14', 100, 'Lifetime', 'DistJ', RAND() * 10); -- category_id: 21 (Jewellery)
+('SN10', 'Cotton T-Shirt', 'Premium cotton t-shirt', 19.99, 1, 8, 'Cotton', 'url_SN10', 300, '1 Year', 'Dist1', RAND() * 10), -- category_id: 5 (T-Shirts)
+('SN11', 'Cargo Pants', 'Multi-functional neutral cargo pants', 45.00, 1, 13, 'Cotton', 'url_SN11', 220, '1 Year', 'Dist3', RAND() * 10), -- category_id: 9 (Jeans)
+('SN12', 'Leather Boots', 'High quality leather boots', 75.00, 1, 16, 'Leather', 'url_SN12', 300, 'Lifetime', 'DistL', RAND() * 10), -- category_id: 14 (Boots)
+('SN13', 'Wrist Watch', 'Premium wrist watch', 60.00, 1, 18, 'Steel', 'url_SN13', 30, 'Lifetime', 'DistJ', RAND() * 10), -- category_id: 17 (Watches)
+('SN14', 'Steel Ring Set', '5 piece stainless steel ring set', 54.99, 1, 22, 'Steel', 'url_SN14', 100, 'Lifetime', 'DistJ', RAND() * 10); -- category_id: 21 (Jewellery)
 
 -- Women (department_id = 2)
 INSERT IGNORE INTO products (serial_number, name, description, price, department_id, category_id, material, image_url, stock_quantity, warranty_status, distributor_info, popularity_score) VALUES
