@@ -20,7 +20,7 @@ INSERT IGNORE INTO products (serial_number, name, description, price, department
 -- Kids (department_id = 3)
 INSERT IGNORE INTO products (serial_number, name, description, price, department_id, category_id, material, image_url, stock_quantity, warranty_status, distributor_info, popularity_score) VALUES
 ('SN30', 'Tie-Dye Cotton T-Shirt', 'Premium cotton t-shirt with tie dye effect', 21.00, 3, 48, 'Cotton', 'url_SN30', 125, '1 Year', 'DistK', RAND() * 10), -- category_id: 5 (T-Shirts)
-('SN31', 'Denim Shorts', 'Denim shorts with patches', 34.99, 3, 11, 'Denim', 'url_SN31', 125, '6 Months', 'DistD', RAND() * 10), -- category_id: 11 (Shorts)
-('SN32', 'Wool Sweater', 'Premium wool sweater', 40.00, 3, 7, 'Wool', 'url_SN32', 225, '1 Year', 'DistT', RAND() * 10), -- category_id: 7 (Sweaters)
-('SN33', 'Sporty Sandals', 'Active wear sport sandals', 50.00, 3, 15, 'Mesh', 'url_SN33', 300, '1 Year', 'DistS', RAND() * 10), -- category_id: 15 (Sandals)
-('SN34', 'Glittery Bucket Hat', 'Bucket Hat with glittery fabric', 24.99, 3, 19, 'Canvas', 'url_SN34', 100, '1 Year', 'DistH', RAND() * 10); -- category_id: 19 (Hats)
+('SN31', 'Denim Shorts', 'Denim shorts with patches', 34.99, 3, 54, 'Denim', 'url_SN31', 125, '6 Months', 'DistD', RAND() * 10), -- category_id: 11 (Shorts)
+('SN32', 'Wool Sweater', 'Premium wool sweater', 40.00, 3, 50, 'Wool', 'url_SN32', 225, '1 Year', 'DistT', RAND() * 10), -- category_id: 7 (Sweaters)
+('SN33', 'Sporty Sandals', 'Active wear sport sandals', 50.00, 3, 58, 'Mesh', 'url_SN33', 300, '1 Year', 'DistS', RAND() * 10), -- category_id: 15 (Sandals)
+('SN34', 'Glittery Bucket Hat', 'Bucket Hat with glittery fabric', 24.99, 3, 61, 'Canvas', 'url_SN34', 100, '1 Year', 'DistH', RAND() * 10); -- category_id: 19 (Hats)
