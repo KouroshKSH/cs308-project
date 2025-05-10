@@ -102,16 +102,38 @@ const Product = {
     return rows;
   },
   // NEW METHOD: Fetch products filtered by both department ID and category ID
+  // async getProductsByDepartmentAndCategory(departmentId, categoryId) {
+  //   const query = `
+  //     SELECT p.product_id, p.name, p.description, p.price, p.image_url, p.stock_quantity, p.warranty_status, p.popularity_score
+  //     FROM products p
+  //     JOIN categories c ON p.category_id = c.id
+  //     WHERE c.department_id = ? AND p.category_id = ?;
+  //   `;
+  //   const [rows] = await pool.query(query, [departmentId, categoryId]);
+  //   return rows;
+  // },
+
   async getProductsByDepartmentAndCategory(departmentId, categoryId) {
     const query = `
+      WITH RECURSIVE category_hierarchy AS (
+        -- Start with the given category_id
+        SELECT category_id
+        FROM categories
+        WHERE category_id = ?
+        UNION ALL
+        -- Recursively find all subcategories
+        SELECT c.category_id
+        FROM categories c
+        INNER JOIN category_hierarchy ch ON c.parent_category_id = ch.category_id
+      )
       SELECT p.product_id, p.name, p.description, p.price, p.image_url, p.stock_quantity, p.warranty_status, p.popularity_score
       FROM products p
-      JOIN categories c ON p.category_id = c.id
-      WHERE c.department_id = ? AND p.category_id = ?;
+      WHERE p.department_id = ?
+        AND p.category_id IN (SELECT category_id FROM category_hierarchy);
     `;
-    const [rows] = await pool.query(query, [departmentId, categoryId]);
+    const [rows] = await pool.query(query, [categoryId, departmentId]);
     return rows;
-  },
+  }
 };
 
 module.exports = Product;
