@@ -22,6 +22,7 @@ const Product = {
       WHERE department_id = ?
       ORDER BY price ASC;
     `;
+
     const [rows] = await pool.query(query, [departmentId]);
     return rows;
   },
@@ -48,7 +49,12 @@ const Product = {
         AND (name LIKE ? OR description LIKE ? OR material LIKE ?)
       LIMIT 5;
     `;
-    const [rows] = await pool.query(sql, [departmentId, searchTerm, searchTerm, searchTerm]);
+    const [rows] = await pool.query(sql, [
+      departmentId,
+      searchTerm,
+      searchTerm,
+      searchTerm,
+    ]);
     return rows;
     // we can show up to 5 results to avoid showing too many results
     // the user's search term will be tried to match to `name`, `description`, or `material`
@@ -85,6 +91,51 @@ const Product = {
       ORDER BY s.size_id
     `;
     const [rows] = await pool.query(sql, [productId]);
+    return rows;
+  },
+
+  // fetch products given the category they belong to
+  // considering the hierarchical structure of categories
+  async getProductsByCategory(categoryId) {
+    const query = `
+      WITH RECURSIVE category_hierarchy AS (
+        SELECT category_id
+        FROM categories
+        WHERE category_id = ?
+        UNION ALL
+        SELECT c.category_id
+        FROM categories c
+        INNER JOIN category_hierarchy ch ON c.parent_category_id = ch.category_id
+      )
+      SELECT *
+      FROM products
+      WHERE category_id IN (SELECT category_id FROM category_hierarchy);
+    `;
+    const [rows] = await pool.query(query, [categoryId]);
+    return rows;
+  },
+
+  // Fetch products filtered by both department ID and category ID
+  // WITH RESPECT TO the hierarchical structure of categories
+  async getProductsByDepartmentAndCategory(departmentId, categoryId) {
+    const query = `
+      WITH RECURSIVE category_hierarchy AS (
+        -- Start with the given category_id
+        SELECT category_id
+        FROM categories
+        WHERE category_id = ?
+        UNION ALL
+        -- Recursively find all subcategories
+        SELECT c.category_id
+        FROM categories c
+        INNER JOIN category_hierarchy ch ON c.parent_category_id = ch.category_id
+      )
+      SELECT p.product_id, p.name, p.description, p.price, p.image_url, p.stock_quantity, p.warranty_status, p.popularity_score
+      FROM products p
+      WHERE p.department_id = ?
+        AND p.category_id IN (SELECT category_id FROM category_hierarchy);
+    `;
+    const [rows] = await pool.query(query, [categoryId, departmentId]);
     return rows;
   }
 };
