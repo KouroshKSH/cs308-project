@@ -93,26 +93,30 @@ const Product = {
     const [rows] = await pool.query(sql, [productId]);
     return rows;
   },
+
+  // fetch products given the category they belong to
+  // considering the hierarchical structure of categories
   async getProductsByCategory(categoryId) {
     const query = `
-      SELECT * FROM products
-      WHERE category_id = ?;
+      WITH RECURSIVE category_hierarchy AS (
+        SELECT category_id
+        FROM categories
+        WHERE category_id = ?
+        UNION ALL
+        SELECT c.category_id
+        FROM categories c
+        INNER JOIN category_hierarchy ch ON c.parent_category_id = ch.category_id
+      )
+      SELECT *
+      FROM products
+      WHERE category_id IN (SELECT category_id FROM category_hierarchy);
     `;
     const [rows] = await pool.query(query, [categoryId]);
     return rows;
   },
-  // NEW METHOD: Fetch products filtered by both department ID and category ID
-  // async getProductsByDepartmentAndCategory(departmentId, categoryId) {
-  //   const query = `
-  //     SELECT p.product_id, p.name, p.description, p.price, p.image_url, p.stock_quantity, p.warranty_status, p.popularity_score
-  //     FROM products p
-  //     JOIN categories c ON p.category_id = c.id
-  //     WHERE c.department_id = ? AND p.category_id = ?;
-  //   `;
-  //   const [rows] = await pool.query(query, [departmentId, categoryId]);
-  //   return rows;
-  // },
 
+  // Fetch products filtered by both department ID and category ID
+  // WITH RESPECT TO the hierarchical structure of categories
   async getProductsByDepartmentAndCategory(departmentId, categoryId) {
     const query = `
       WITH RECURSIVE category_hierarchy AS (
