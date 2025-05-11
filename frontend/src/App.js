@@ -71,7 +71,7 @@ function App() {
           }
         />
 
-        {/* <Route
+        <Route
           path="/sales-manager"
           element={
             <ProtectedRoute role="salesManager">
@@ -79,11 +79,9 @@ function App() {
             </ProtectedRoute>
           }
         />
-      </Routes> */}
-
 
         {/* not protecting sales manager page for now since Ayca is working on its frontend */}
-        <Route path="/sales-manager" element={<SalesManagerPage />} />
+        {/* <Route path="/sales-manager" element={<SalesManagerPage />} /> */}
       </Routes>
     </BrowserRouter>
   );

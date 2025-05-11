@@ -1,7 +1,22 @@
 import React from 'react';
-import { Typography, Button, Card, CardContent, List, ListItem } from '@mui/material';
+import {
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  List,
+  ListItem
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const SalesManagerPage = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
       <Typography variant="h4" gutterBottom>
@@ -30,7 +45,11 @@ const SalesManagerPage = () => {
         </CardContent>
       </Card>
 
-      <Button variant="contained" color="secondary">
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={handleLogout}
+      >
         Logout
       </Button>
     </div>
