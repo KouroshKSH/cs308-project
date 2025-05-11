@@ -46,8 +46,22 @@ const ManagerLogin = () => {
     }
   };
 
+  const handleBackToHome = () => {
+    navigate("/"); // Redirect to the landing page
+  };
+
   return (
-    <Box sx={{ maxWidth: 400, margin: "auto", padding: 4 }}>
+    <Box sx={{ maxWidth: '40%', margin: "auto", padding: 4 }}>
+    {/* Back to Home Button */}
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={handleBackToHome}
+        sx={{ position: "absolute", top: 20, left: 20 }}
+      >
+        Back to Home
+
+      </Button>
       <Typography variant="h4" gutterBottom>
         Manager Login
       </Typography>
