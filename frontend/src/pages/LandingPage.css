@@ -108,12 +108,12 @@
 }
 
 /* hover effect for the filter button */
-button.MuiButton-outlined {
+.filter-button.MuiButton-outlined {
     border: 1px solid #ccc;
     transition: all 0.3s ease;
 }
 
-button.MuiButton-outlined:hover {
+.filter-button.MuiButton-outlined:hover {
     background-color: #f5f5f5;
     border-color: #888;
 }
