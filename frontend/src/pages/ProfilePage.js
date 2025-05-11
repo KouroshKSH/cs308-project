@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import DrawerMenu from '../components/DrawerMenu';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -108,6 +109,12 @@ const ProfilePage = () => {
   }
 
   return (
+    <>
+    <div style={{ padding: '10px 20px 0 30px' }}>
+      <DrawerMenu />
+    </div>
+
+    {/* main content of profile page */}
     <div style={{
       padding: '20px',
       textAlign: 'left',
@@ -116,7 +123,7 @@ const ProfilePage = () => {
       flexDirection: 'column',
       minHeight: '100vh',
       paddingBottom: '60px',
-      maxWidth: 600,
+      maxWidth: '90%',
       margin: '0 auto'
     }}>
       {/* Back to Home Button */}
@@ -283,6 +290,7 @@ const ProfilePage = () => {
         Logout
       </Button>
     </div>
+    </>
   );
 };
 

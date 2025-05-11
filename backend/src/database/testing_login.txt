@@ -73,3 +73,9 @@ monster@rooster.com
 example 8: this one is a product manager
 productmanager1@email.com
 pas123
+
+---
+
+example 9: this one is a sales manager
+salesmanager1@email.com
+pas123

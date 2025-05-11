@@ -12,6 +12,7 @@ import ContactPage from "./pages/ContactPage";
 import InvoicePage from "./pages/InvoicePage";
 import ProductManagerPage from "./pages/ProductManagerPage";
 import SalesManagerPage from "./pages/SalesManagerPage";
+import ManagerLogin from "./pages/ManagerLogin";
 
 function App() {
   return (
@@ -31,15 +32,19 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Customer routes for their profile page */}
         <Route
           path="/profile"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute role="customer">
               <ProfilePage />
             </ProtectedRoute>
           }
         />
+
         <Route path="/contact" element={<ContactPage />} />
+
         <Route
           path="/invoice/:orderId"
           element={
@@ -49,8 +54,34 @@ function App() {
           }
         />
         {/* TODO: these two need to be protected */}
-        <Route path="/product-manager" element={<ProductManagerPage />} />
-        <Route path="/sales-manager" element={<SalesManagerPage />} />
+        {/* <Route path="/product-manager" element={<ProductManagerPage />} /> */}
+
+        {/* protecting the product manager page via manager login page */}
+        {/* Manager routes */}
+        <Route
+          path="/manager-login"
+          element={<ManagerLogin />}
+        />
+        <Route
+          path="/product-manager"
+          element={
+            <ProtectedRoute role="productManager">
+              <ProductManagerPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/sales-manager"
+          element={
+            <ProtectedRoute role="salesManager">
+              <SalesManagerPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* not protecting sales manager page for now since Ayca is working on its frontend */}
+        {/* <Route path="/sales-manager" element={<SalesManagerPage />} /> */}
       </Routes>
     </BrowserRouter>
   );
