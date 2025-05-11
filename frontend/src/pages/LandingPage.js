@@ -19,7 +19,8 @@ import ShirtIcon from "@mui/icons-material/KeyboardDoubleArrowUp"; // Tops (T-sh
 import PantsIcon from "@mui/icons-material/KeyboardDoubleArrowDown"; // Bottoms
 import ShoeIcon from "@mui/icons-material/IceSkating"; // Shoes
 import WatchIcon from "@mui/icons-material/AutoAwesome"; // Accessories (Watch is still a good fit)
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney'; // for sorting by price
+import StarHalfIcon from '@mui/icons-material/StarHalf'; // for sorting by popularity
 
 // do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.) or fellow teammates!
 // Base URL for the API
@@ -181,16 +182,6 @@ const LandingPage = () => {
     setDrawerOpen(open);
   };
 
-  // do we need this?
-  // TODO: check if we even need landing page to checkout, it doesn't make sense
-  const handleCheckout = () => {
-    if (isLoggedIn) {
-      navigate("/checkout");
-    } else {
-      navigate("/login", { state: { redirectTo: "/checkout" } });
-    }
-  };
-
   // 9. once the user clicks on a product, it will take them to the product page
   const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);
@@ -233,13 +224,27 @@ const LandingPage = () => {
 
       <Box sx={{ display: "flex", gap: 2, marginTop: 2, alignItems: "center" }}>
         {/* Sort by Price */}
-        <Button variant="contained" color="primary" onClick={handleSortByPrice}>
-          Sort by Price (Low to High)
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AttachMoneyIcon />}
+          sx={{ marginRight: 2 }}
+          padding={2}
+          onClick={handleSortByPrice}
+        >
+          Sort by Price
         </Button>
 
         {/* Sort by Popularity */}
-        <Button variant="contained" color="secondary" onClick={handleSortByPopularity}>
-          Sort by Popularity (High to Low)
+        <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<StarHalfIcon />}
+          sx={{ marginRight: 2 }}
+          padding={2}
+          onClick={handleSortByPopularity}
+        >
+          Sort by Popularity
         </Button>
 
         {/* Filter by Category */}
