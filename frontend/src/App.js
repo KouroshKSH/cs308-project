@@ -12,6 +12,7 @@ import ContactPage from "./pages/ContactPage";
 import InvoicePage from "./pages/InvoicePage";
 import ProductManagerPage from "./pages/ProductManagerPage";
 import SalesManagerPage from "./pages/SalesManagerPage";
+import ManagerLogin from "./pages/ManagerLogin";
 
 function App() {
   return (
@@ -49,7 +50,21 @@ function App() {
           }
         />
         {/* TODO: these two need to be protected */}
-        <Route path="/product-manager" element={<ProductManagerPage />} />
+        {/* <Route path="/product-manager" element={<ProductManagerPage />} /> */}
+
+        {/* protecting the product manager page via manager login page */}
+        <Route path="/manager-login" element={<ManagerLogin />} />
+        <Route
+          path="/product-manager"
+          element={
+            <ProtectedRoute role="productManager">
+              <ProductManagerPage />
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* not protecting sales manager page for now since Ayca is working on its frontend */}
         <Route path="/sales-manager" element={<SalesManagerPage />} />
       </Routes>
     </BrowserRouter>
