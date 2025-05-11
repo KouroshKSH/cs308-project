@@ -13,12 +13,13 @@ import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import { Rating } from "@mui/material";
 
-// icons for the filter dropdown menu
+// icons for the filters and sorting
 import FilterListIcon from "@mui/icons-material/FilterList";
-import CheckroomIcon from "@mui/icons-material/Checkroom"; // Tops
-import PantsIcon from "@mui/icons-material/Pants"; // Bottoms
-import SportsEsportsIcon from "@mui/icons-material/SportsEsports"; // Shoes
-import WatchIcon from "@mui/icons-material/Watch"; // Accessories
+import ShirtIcon from "@mui/icons-material/KeyboardDoubleArrowUp"; // Tops (T-shirt)
+import PantsIcon from "@mui/icons-material/KeyboardDoubleArrowDown"; // Bottoms
+import ShoeIcon from "@mui/icons-material/IceSkating"; // Shoes
+import WatchIcon from "@mui/icons-material/AutoAwesome"; // Accessories (Watch is still a good fit)
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 // do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.) or fellow teammates!
 // Base URL for the API
@@ -37,9 +38,9 @@ const categoryMap = {
 
 // for better UI, let's show icons per category in filter dropdown
 const categoryIcons = {
-  Tops: <CheckroomIcon />,
+  Tops: <ShirtIcon />,
   Bottoms: <PantsIcon />,
-  Shoes: <SportsEsportsIcon />,
+  Shoes: <ShoeIcon />,
   Accessories: <WatchIcon />,
 };
 
@@ -230,20 +231,29 @@ const LandingPage = () => {
         <p>New season models reflecting the energy of spring</p>
       </main>
 
-      <Box sx={{ display: "flex", gap: 2, marginTop: 2 }}>
-        { /* sort the products from low to high price */}
+      <Box sx={{ display: "flex", gap: 2, marginTop: 2, alignItems: "center" }}>
+        {/* Sort by Price */}
         <Button variant="contained" color="primary" onClick={handleSortByPrice}>
           Sort by Price (Low to High)
         </Button>
 
-        { /* sort the products from high to low popularity */}
+        {/* Sort by Popularity */}
         <Button variant="contained" color="secondary" onClick={handleSortByPopularity}>
           Sort by Popularity (High to Low)
         </Button>
+
+        {/* Filter by Category */}
+        <Button
+          variant="outlined"
+          color="info"
+          startIcon={<FilterListIcon />}
+          onClick={handleFilterClick}
+          sx={{ border: "1px solid #ccc", padding: "8px 16px" }}
+        >
+          Filter by Category
+        </Button>
       </Box>
 
-      {/* filtering products based on category - dropdown */}
-      <Button onClick={handleFilterClick}>Filter by Category</Button>
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -253,8 +263,9 @@ const LandingPage = () => {
           <MenuItem
             key={category}
             onClick={() => handleFilterClose(category)}
+            sx={{ display: "flex", alignItems: "center", gap: 1 }}
           >
-            {category}
+            {categoryIcons[category]} {category}
           </MenuItem>
         ))}
       </Menu>
