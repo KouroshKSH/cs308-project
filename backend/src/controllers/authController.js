@@ -109,6 +109,43 @@ const authController = {
       return res.status(500).json({ message: "Login failed" });
     }
   },
+
+  // Handles manager login
+  loginManager: async (req, res) => {
+    try {
+      const { email, password, role } = req.body;
+
+      if (!email || !password || !role) {
+        return res.status(400).json({
+          message: "Missing email, password, or role"
+        });
+      }
+
+      const user = await userModel.findByEmail(email);
+      if (!user || user.role !== role) {
+        return res.status(404).json({
+          message: "Invalid credentials or role mismatch"
+        });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password_hash);
+      if (!isMatch) {
+        return res.status(401).json({
+          message: "Invalid password"
+        });
+      }
+
+      const token = jwt.sign(
+        { user_id: user.user_id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: "3h" }
+      );
+
+      res.status(200).json({ token, message: "Manager login successful" });
+    } catch (error) {
+      res.status(500).json({ message: "Manager login failed" });
+    }
+  },
 };
 
 module.exports = authController;
