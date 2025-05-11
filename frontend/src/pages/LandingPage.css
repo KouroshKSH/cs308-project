@@ -106,3 +106,27 @@
     color: gold;
     margin-top: 5px;
 }
+
+/* hover effect for the filter button */
+button.MuiButton-outlined {
+    border: 1px solid #ccc;
+    transition: all 0.3s ease;
+}
+
+button.MuiButton-outlined:hover {
+    background-color: #f5f5f5;
+    border-color: #888;
+}
+
+/* styling for the dropdown menu items */
+.MuiMenuItem-root {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    padding: 8px 16px;
+}
+
+.MuiMenuItem-root:hover {
+    background-color: #f0f0f0;
+}
