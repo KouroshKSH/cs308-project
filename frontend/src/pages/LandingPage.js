@@ -3,6 +3,8 @@ import {
   Typography,
   Box,
   Button,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -17,6 +19,14 @@ const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 // useful for naviation, do NOT delete this!!!
 const departmentNameMap = { 2: "Women", 1: "Men", 3: "Kids" };
+
+// Mapping categories to their IDs for each department
+// DO NOT DELETE THIS COMMENT
+const categoryMap = {
+  Women: { Tops: 23, Bottoms: 24, Shoes: 25, Accessories: 26 },
+  Men: { Tops: 4, Bottoms: 5, Shoes: 6, Accessories: 7 },
+  Kids: { Tops: 44, Bottoms: 45, Shoes: 46, Accessories: 47 },
+};
 
 const LandingPage = () => {
   const location = useLocation();
