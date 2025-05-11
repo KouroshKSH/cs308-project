@@ -8,6 +8,7 @@ import {
   ListItem
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import DrawerMenu from '../components/DrawerMenu';
 
 const ProductManagerPage = () => {
   const navigate = useNavigate();
@@ -18,7 +19,9 @@ const ProductManagerPage = () => {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ padding: '20px', maxWidth: '90%', margin: '0 auto' }}>
+      <DrawerMenu />
+
       <Typography variant="h4" gutterBottom>
         Product Manager Dashboard
       </Typography>
