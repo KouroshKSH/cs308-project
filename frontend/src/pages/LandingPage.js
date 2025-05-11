@@ -228,8 +228,7 @@ const LandingPage = () => {
           variant="contained"
           color="primary"
           startIcon={<AttachMoneyIcon />}
-          sx={{ marginRight: 2 }}
-          padding={2}
+          sx={{ marginRight: 1, padding: 2 }}
           onClick={handleSortByPrice}
         >
           Sort by Price
@@ -240,8 +239,7 @@ const LandingPage = () => {
           variant="contained"
           color="secondary"
           startIcon={<StarHalfIcon />}
-          sx={{ marginRight: 2 }}
-          padding={2}
+          sx={{ marginRight: 1, padding: 2 }}
           onClick={handleSortByPopularity}
         >
           Sort by Popularity
@@ -253,7 +251,7 @@ const LandingPage = () => {
           color="info"
           startIcon={<FilterListIcon />}
           onClick={handleFilterClick}
-          sx={{ border: "1px solid #ccc", padding: "8px 16px" }}
+          sx={{ border: "2px solid #ccc", padding: 2 }}
         >
           Filter by Category
         </Button>
