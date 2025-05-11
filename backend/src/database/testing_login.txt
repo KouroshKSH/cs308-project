@@ -79,3 +79,9 @@ pas123
 example 9: this one is a sales manager
 salesmanager1@email.com
 pas123
+
+---
+
+example 10: i found the bug 187 with this account
+sadig@gara.com
+s_93Xu4iHtFfFqf
