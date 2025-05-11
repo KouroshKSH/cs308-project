@@ -3,6 +3,8 @@ import {
   Typography,
   Box,
   Button,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -11,12 +13,37 @@ import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import { Rating } from "@mui/material";
 
+// icons for the filters and sorting
+import FilterListIcon from "@mui/icons-material/FilterList";
+import ShirtIcon from "@mui/icons-material/KeyboardDoubleArrowUp"; // Tops (T-shirt)
+import PantsIcon from "@mui/icons-material/KeyboardDoubleArrowDown"; // Bottoms
+import ShoeIcon from "@mui/icons-material/IceSkating"; // Shoes
+import WatchIcon from "@mui/icons-material/AutoAwesome"; // Accessories (Watch is still a good fit)
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney'; // for sorting by price
+import StarHalfIcon from '@mui/icons-material/StarHalf'; // for sorting by popularity
+
 // do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.) or fellow teammates!
 // Base URL for the API
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 // useful for naviation, do NOT delete this!!!
 const departmentNameMap = { 2: "Women", 1: "Men", 3: "Kids" };
+
+// Mapping categories to their IDs for each department
+// DO NOT DELETE THIS COMMENT
+const categoryMap = {
+  Women: { Tops: 23, Bottoms: 24, Shoes: 25, Accessories: 26 },
+  Men: { Tops: 4, Bottoms: 5, Shoes: 6, Accessories: 7 },
+  Kids: { Tops: 44, Bottoms: 45, Shoes: 46, Accessories: 47 },
+};
+
+// for better UI, let's show icons per category in filter dropdown
+const categoryIcons = {
+  Tops: <ShirtIcon />,
+  Bottoms: <PantsIcon />,
+  Shoes: <ShoeIcon />,
+  Accessories: <WatchIcon />,
+};
 
 const LandingPage = () => {
   const location = useLocation();
@@ -33,6 +60,8 @@ const LandingPage = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchBoxVisible, setSearchBoxVisible] = useState(false);
+
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const navigate = useNavigate();
 
@@ -153,19 +182,30 @@ const LandingPage = () => {
     setDrawerOpen(open);
   };
 
-  // do we need this?
-  // TODO: check if we even need landing page to checkout, it doesn't make sense
-  const handleCheckout = () => {
-    if (isLoggedIn) {
-      navigate("/checkout");
-    } else {
-      navigate("/login", { state: { redirectTo: "/checkout" } });
-    }
-  };
-
-  // once the user clicks on a product, it will take them to the product page
+  // 9. once the user clicks on a product, it will take them to the product page
   const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);
+  };
+
+  // 10. handle category selection
+  const handleFilterClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleFilterClose = async (category) => {
+    setAnchorEl(null);
+    if (!category) return;
+
+    try {
+      const departmentId = { Women: 2, Men: 1, Kids: 3 }[department];
+      const categoryId = categoryMap[department][category];
+      const response = await axios.get(
+        `${BASE_URL}/products/filter/${departmentId}/${categoryId}`
+      );
+      setProducts(response.data);
+    } catch (error) {
+      console.error("Error filtering products:", error);
+    }
   };
 
   return (
@@ -182,17 +222,56 @@ const LandingPage = () => {
         <p>New season models reflecting the energy of spring</p>
       </main>
 
-      <Box sx={{ display: "flex", gap: 2, marginTop: 2 }}>
-        { /* sort the products from low to high price */}
-        <Button variant="contained" color="primary" onClick={handleSortByPrice}>
-          Sort by Price (Low to High)
+      <Box sx={{ display: "flex", gap: 2, marginTop: 2, alignItems: "center" }}>
+        {/* Sort by Price */}
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AttachMoneyIcon />}
+          sx={{ marginRight: 1, padding: 2 }}
+          onClick={handleSortByPrice}
+        >
+          Sort by Price
         </Button>
 
-        { /* sort the products from high to low popularity */}
-        <Button variant="contained" color="secondary" onClick={handleSortByPopularity}>
-          Sort by Popularity (High to Low)
+        {/* Sort by Popularity */}
+        <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<StarHalfIcon />}
+          sx={{ marginRight: 1, padding: 2 }}
+          onClick={handleSortByPopularity}
+        >
+          Sort by Popularity
+        </Button>
+
+        {/* Filter by Category */}
+        <Button
+          variant="outlined"
+          color="info"
+          startIcon={<FilterListIcon />}
+          onClick={handleFilterClick}
+          sx={{ border: "2px solid #ccc", padding: 2 }}
+        >
+          Filter by Category
         </Button>
       </Box>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => handleFilterClose(null)}
+      >
+        {Object.keys(categoryMap[department]).map((category) => (
+          <MenuItem
+            key={category}
+            onClick={() => handleFilterClose(category)}
+            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+          >
+            {categoryIcons[category]} {category}
+          </MenuItem>
+        ))}
+      </Menu>
 
       {/* Product Grid with Product Detail Link of fetched products */}
       <div className="product-grid">
