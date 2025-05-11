@@ -13,6 +13,13 @@ import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import { Rating } from "@mui/material";
 
+// icons for the filter dropdown menu
+import FilterListIcon from "@mui/icons-material/FilterList";
+import CheckroomIcon from "@mui/icons-material/Checkroom"; // Tops
+import PantsIcon from "@mui/icons-material/Pants"; // Bottoms
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports"; // Shoes
+import WatchIcon from "@mui/icons-material/Watch"; // Accessories
+
 // do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.) or fellow teammates!
 // Base URL for the API
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
@@ -26,6 +33,14 @@ const categoryMap = {
   Women: { Tops: 23, Bottoms: 24, Shoes: 25, Accessories: 26 },
   Men: { Tops: 4, Bottoms: 5, Shoes: 6, Accessories: 7 },
   Kids: { Tops: 44, Bottoms: 45, Shoes: 46, Accessories: 47 },
+};
+
+// for better UI, let's show icons per category in filter dropdown
+const categoryIcons = {
+  Tops: <CheckroomIcon />,
+  Bottoms: <PantsIcon />,
+  Shoes: <SportsEsportsIcon />,
+  Accessories: <WatchIcon />,
 };
 
 const LandingPage = () => {
