@@ -44,6 +44,8 @@ const LandingPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchBoxVisible, setSearchBoxVisible] = useState(false);
 
+  const [anchorEl, setAnchorEl] = useState(null);
+
   const navigate = useNavigate();
 
   // for assigning stars based on popularity score (numbers can change later)
@@ -173,9 +175,30 @@ const LandingPage = () => {
     }
   };
 
-  // once the user clicks on a product, it will take them to the product page
+  // 9. once the user clicks on a product, it will take them to the product page
   const handleProductClick = (productId) => {
     navigate(`/product/${productId}`);
+  };
+
+  // 10. handle category selection
+  const handleFilterClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleFilterClose = async (category) => {
+    setAnchorEl(null);
+    if (!category) return;
+
+    try {
+      const departmentId = { Women: 2, Men: 1, Kids: 3 }[department];
+      const categoryId = categoryMap[department][category];
+      const response = await axios.get(
+        `${BASE_URL}/products/filter/${departmentId}/${categoryId}`
+      );
+      setProducts(response.data);
+    } catch (error) {
+      console.error("Error filtering products:", error);
+    }
   };
 
   return (
@@ -203,6 +226,23 @@ const LandingPage = () => {
           Sort by Popularity (High to Low)
         </Button>
       </Box>
+
+      {/* filtering products based on category - dropdown */}
+      <Button onClick={handleFilterClick}>Filter by Category</Button>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => handleFilterClose(null)}
+      >
+        {Object.keys(categoryMap[department]).map((category) => (
+          <MenuItem
+            key={category}
+            onClick={() => handleFilterClose(category)}
+          >
+            {category}
+          </MenuItem>
+        ))}
+      </Menu>
 
       {/* Product Grid with Product Detail Link of fetched products */}
       <div className="product-grid">
