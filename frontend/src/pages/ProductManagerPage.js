@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import {
   Typography,
   Button,
@@ -6,18 +6,51 @@ import {
   CardContent,
   List,
   ListItem,
-  Divider
+  ListItemText,
+  Divider,
+  CircularProgress,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import DrawerMenu from '../components/DrawerMenu';
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const ProductManagerPage = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('Product & Category Management');
+  const [deliveries, setDeliveries] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleLogout = () => {
     localStorage.removeItem("token"); // removethe token
     navigate("/"); // go to landing page
+  };
+
+  // when "Delivery Management" is selected, get ALL the deliveries
+  useEffect(() => {
+    if (activeSection === 'Delivery Management') {
+      fetchDeliveries();
+    }
+  }, [activeSection]);
+
+  const fetchDeliveries = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/deliveries`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setDeliveries(response.data);
+    } catch (err) {
+      setError('Failed to fetch deliveries. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderContent = () => {
@@ -40,10 +73,41 @@ const ProductManagerPage = () => {
           <Card variant="outlined" style={{ marginBottom: '20px' }}>
             <CardContent>
               <Typography variant="h6">Delivery Management</Typography>
-              <List>
-                <ListItem>- View all deliveries with status</ListItem>
-                <ListItem>- Update delivery status (pending, shipped, delivered)</ListItem>
-              </List>
+              {loading ? (
+                <CircularProgress />
+              ) : error ? (
+                <Typography color="error">{error}</Typography>
+              ) : (
+                <List>
+                  {deliveries.length === 0 ? (
+                    <Typography>No deliveries found.</Typography>
+                  ) : (
+                    deliveries.map((delivery) => (
+                      <ListItem
+                        key={delivery.delivery_id}
+                        style={{
+                          padding: '15px',
+                          border: '1px solid #ddd',
+                          marginBottom: '10px',
+                          borderRadius: '8px',
+                        }}
+                      >
+                        <ListItemText
+                          primary={`Order ID: ${delivery.order_id}`}
+                          secondary={
+                            <>
+                              <div><strong>Status:</strong> {delivery.delivery_status}</div>
+                              <div><strong>Address:</strong> {delivery.delivery_address}</div>
+                              <div><strong>Tracking Number:</strong> {delivery.tracking_number || 'N/A'}</div>
+                              <div><strong>Shipped Date:</strong> {new Date(delivery.shipped_date).toLocaleString()}</div>
+                            </>
+                          }
+                        />
+                      </ListItem>
+                    ))
+                  )}
+                </List>
+              )}
             </CardContent>
           </Card>
         );
