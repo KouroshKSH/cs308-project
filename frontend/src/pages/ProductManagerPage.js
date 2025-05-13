@@ -13,6 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DrawerMenu from '../components/DrawerMenu';
+import './ProductManagerPage.css';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -57,70 +58,76 @@ const ProductManagerPage = () => {
     switch (activeSection) {
       case 'Product & Category Management':
         return (
-          <Card variant="outlined" style={{ marginBottom: '20px' }}>
-            <CardContent>
-              <Typography variant="h6">Product & Category Management</Typography>
-              <List>
-                <ListItem>- Add or remove products</ListItem>
-                <ListItem>- Manage product categories</ListItem>
-                <ListItem>- Update stock quantities</ListItem>
-              </List>
-            </CardContent>
-          </Card>
+          <div className="scrollable-content">
+            <Card variant="outlined" style={{ marginBottom: '20px' }}>
+              <CardContent>
+                <Typography variant="h6">Product & Category Management</Typography>
+                <List>
+                  <ListItem>- Add or remove products</ListItem>
+                  <ListItem>- Manage product categories</ListItem>
+                  <ListItem>- Update stock quantities</ListItem>
+                </List>
+              </CardContent>
+            </Card>
+          </div>
         );
       case 'Delivery Management':
         return (
-          <Card variant="outlined" style={{ marginBottom: '20px' }}>
-            <CardContent>
-              <Typography variant="h6">Delivery Management</Typography>
-              {loading ? (
-                <CircularProgress />
-              ) : error ? (
-                <Typography color="error">{error}</Typography>
-              ) : (
-                <List>
-                  {deliveries.length === 0 ? (
-                    <Typography>No deliveries found.</Typography>
-                  ) : (
-                    deliveries.map((delivery) => (
-                      <ListItem
-                        key={delivery.delivery_id}
-                        style={{
-                          padding: '15px',
-                          border: '1px solid #ddd',
-                          marginBottom: '10px',
-                          borderRadius: '8px',
-                        }}
-                      >
-                        <ListItemText
-                          primary={`Order ID: ${delivery.order_id}`}
-                          secondary={
-                            <>
-                              <div><strong>Status:</strong> {delivery.delivery_status}</div>
-                              <div><strong>Address:</strong> {delivery.delivery_address}</div>
-                              <div><strong>Tracking Number:</strong> {delivery.tracking_number || 'N/A'}</div>
-                              <div><strong>Shipped Date:</strong> {new Date(delivery.shipped_date).toLocaleString()}</div>
-                            </>
-                          }
-                        />
-                      </ListItem>
-                    ))
-                  )}
-                </List>
-              )}
-            </CardContent>
-          </Card>
+          <div className="scrollable-content">
+            <Card variant="outlined" style={{ marginBottom: '20px' }}>
+              <CardContent>
+                <Typography variant="h6">Delivery Management</Typography>
+                {loading ? (
+                  <CircularProgress />
+                ) : error ? (
+                  <Typography color="error">{error}</Typography>
+                ) : (
+                  <List>
+                    {deliveries.length === 0 ? (
+                      <Typography>No deliveries found.</Typography>
+                    ) : (
+                      deliveries.map((delivery) => (
+                        <ListItem
+                          key={delivery.delivery_id}
+                          style={{
+                            padding: '15px',
+                            border: '1px solid #ddd',
+                            marginBottom: '10px',
+                            borderRadius: '8px',
+                          }}
+                        >
+                          <ListItemText
+                            primary={`Order ID: ${delivery.order_id}`}
+                            secondary={
+                              <>
+                                <div><strong>Status:</strong> {delivery.delivery_status}</div>
+                                <div><strong>Address:</strong> {delivery.delivery_address}</div>
+                                <div><strong>Tracking Number:</strong> {delivery.tracking_number || 'N/A'}</div>
+                                <div><strong>Shipped Date:</strong> {new Date(delivery.shipped_date).toLocaleString()}</div>
+                              </>
+                            }
+                          />
+                        </ListItem>
+                      ))
+                    )}
+                  </List>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         );
       case 'Comment Moderation':
         return (
-          <Card variant="outlined" style={{ marginBottom: '20px' }}>
-            <CardContent>
-              <Typography variant="h6">Comment Moderation</Typography>
-              <List>
-                <ListItem>- Approve or reject product comments</ListItem>
-              </List>
-            </CardContent>
-          </Card>
+          <div className="scrollable-content">
+            <Card variant="outlined" style={{ marginBottom: '20px' }}>
+              <CardContent>
+                <Typography variant="h6">Comment Moderation</Typography>
+                <List>
+                  <ListItem>- Approve or reject product comments</ListItem>
+                </List>
+              </CardContent>
+            </Card>
+          </div>
         );
       default:
         return null;
