@@ -53,11 +53,8 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* TODO: these two need to be protected */}
-        {/* <Route path="/product-manager" element={<ProductManagerPage />} /> */}
 
         {/* protecting the product manager page via manager login page */}
-        {/* Manager routes */}
         <Route
           path="/manager-login"
           element={<ManagerLogin />}
@@ -79,9 +76,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        {/* not protecting sales manager page for now since Ayca is working on its frontend */}
-        {/* <Route path="/sales-manager" element={<SalesManagerPage />} /> */}
       </Routes>
     </BrowserRouter>
   );
