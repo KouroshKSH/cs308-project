@@ -193,7 +193,10 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
               fullWidth
               onClick={() => {
                 onClose();
-                navigate("/checkout");
+                navigate(
+                  "/checkout",
+                  { state: { role: "customer" } }
+                );
               }}
             >
               Check Out
