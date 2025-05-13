@@ -5,13 +5,17 @@ import {
   Card,
   CardContent,
   List,
-  ListItem
+  ListItem,
+  Divider
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import DrawerMenu from '../components/DrawerMenu';
 
 const ProductManagerPage = () => {
   const navigate = useNavigate();
+  // add the part about active section
+
+  // add the part about render Content
 
   const handleLogout = () => {
     localStorage.removeItem("token"); // removethe token
