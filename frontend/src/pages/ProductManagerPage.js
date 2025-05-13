@@ -54,23 +54,21 @@ const ProductManagerPage = () => {
     }
   };
 
-  // Fetch manager profile on component mount
-  // useEffect(() => {
-  //   fetchManagerProfile();
-  // }, []);
-
   const handleLogout = () => {
     localStorage.removeItem("token"); // removethe token
     navigate("/"); // go to landing page
   };
 
+  useEffect(() => {
+    fetchManagerProfile(); // Fetch manager profile only once
+  }, []); // Runs only on component mount
+
   // when "Delivery Management" is selected, get ALL the deliveries
   useEffect(() => {
-    fetchManagerProfile();
     if (activeSection === 'Delivery Management') {
-      fetchDeliveries(filterStatusDeliveries);
+      fetchDeliveries(filterStatusDeliveries); // Fetch deliveries when activeSection or filter changes
     }
-  }, [activeSection, filterStatusDeliveries]);
+  }, [activeSection, filterStatusDeliveries]); // Dependencies for fetching deliveries
 
   const fetchDeliveries = async () => {
     setLoading(true);
