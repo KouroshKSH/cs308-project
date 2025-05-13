@@ -9,6 +9,10 @@ import {
   ListItemText,
   Divider,
   CircularProgress,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -24,6 +28,9 @@ const ProductManagerPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // for filtering deliveries
+  const [filterStatusDeliveries, setFilterStatusDeliveries] = useState('');
+
   const handleLogout = () => {
     localStorage.removeItem("token"); // removethe token
     navigate("/"); // go to landing page
@@ -32,26 +39,38 @@ const ProductManagerPage = () => {
   // when "Delivery Management" is selected, get ALL the deliveries
   useEffect(() => {
     if (activeSection === 'Delivery Management') {
-      fetchDeliveries();
+      fetchDeliveries(filterStatusDeliveries);
     }
-  }, [activeSection]);
+  }, [activeSection, filterStatusDeliveries]);
 
   const fetchDeliveries = async () => {
     setLoading(true);
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/deliveries`, {
+      const endpoint = filterStatusDeliveries
+        ? `${API_URL}/deliveries/status/${filterStatusDeliveries}` // Fetch deliveries by status
+        : `${API_URL}/deliveries`; // Fetch all deliveries
+      const response = await axios.get(endpoint, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      // const response = await axios.get(`${API_URL}/deliveries`, {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      // });
       setDeliveries(response.data);
     } catch (err) {
       setError('Failed to fetch deliveries. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFilterChange = (event) => {
+    setFilterStatusDeliveries(event.target.value);
   };
 
   const renderContent = () => {
@@ -77,6 +96,21 @@ const ProductManagerPage = () => {
             <Card variant="outlined" style={{ marginBottom: '20px' }}>
               <CardContent>
                 <Typography variant="h6">Delivery Management</Typography>
+                
+                {/* Filter Dropdown */}
+                <FormControl style={{ marginBottom: '20px', minWidth: 200 }}>
+                  <InputLabel id="filter-label">Delivery Status</InputLabel>
+                  <Select
+                    labelId="filter-label"
+                    value={filterStatusDeliveries}
+                    onChange={handleFilterChange}
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="shipped">Shipped</MenuItem>
+                    <MenuItem value="delivered">Delivered</MenuItem>
+                  </Select>
+                </FormControl>
                 {loading ? (
                   <CircularProgress />
                 ) : error ? (
