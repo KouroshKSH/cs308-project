@@ -5,6 +5,13 @@
   padding-right: 10px; /* Add padding for scrollbar space */
   width: 80%; /* Set the desired width (adjust as needed) */
   margin: 0 auto; /* Center the content horizontally */
+  /* Gradient Masks for Top and Bottom */
+  mask-image: linear-gradient(to bottom, transparent 0%, black 0%, black 90%, transparent 98%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 0%, black 90%, transparent 98%);
+  mask-size: 100% 100%;
+  -webkit-mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
 }
 
 /* Style for the scrollbar */

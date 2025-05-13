@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DrawerMenu from '../components/DrawerMenu';
 import './ProductManagerPage.css';
+import FilterListIcon from "@mui/icons-material/FilterList";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -95,22 +96,31 @@ const ProductManagerPage = () => {
           <div className="scrollable-content">
             <Card variant="outlined" style={{ marginBottom: '20px' }}>
               <CardContent>
-                <Typography variant="h6">Delivery Management</Typography>
+                <Typography 
+                  variant="h6"
+                  style={{ marginBottom: '20px', fontWeight: 'bold' }}
+                >
+                    Delivery Management
+                  </Typography>
                 
-                {/* Filter Dropdown */}
-                <FormControl style={{ marginBottom: '20px', minWidth: 200 }}>
-                  <InputLabel id="filter-label">Delivery Status</InputLabel>
-                  <Select
-                    labelId="filter-label"
-                    value={filterStatusDeliveries}
-                    onChange={handleFilterChange}
-                  >
-                    <MenuItem value="">All</MenuItem>
-                    <MenuItem value="pending">Pending</MenuItem>
-                    <MenuItem value="shipped">Shipped</MenuItem>
-                    <MenuItem value="delivered">Delivered</MenuItem>
-                  </Select>
-                </FormControl>
+                {/* Filter Dropdown with Icon */}
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                  <FilterListIcon style={{ marginRight: '8px', color: 'rgba(0, 0, 0, 0.54)' }} />
+                  <FormControl style={{ minWidth: 200 }}>
+                    <InputLabel id="filter-label">Delivery Status</InputLabel>
+                    <Select
+                      labelId="filter-label"
+                      value={filterStatusDeliveries}
+                      onChange={handleFilterChange}
+                    >
+                      <MenuItem value="">All</MenuItem>
+                      <MenuItem value="pending">Pending</MenuItem>
+                      <MenuItem value="shipped">Shipped</MenuItem>
+                      <MenuItem value="delivered">Delivered</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+
                 {loading ? (
                   <CircularProgress />
                 ) : error ? (
@@ -240,6 +250,37 @@ const ProductManagerPage = () => {
           <List style={{ paddingLeft: '20px' }}>
             <ListItem>Approve or reject product comments</ListItem>
           </List>
+
+          <Divider style={{ marginBottom: '20px' }} />
+          
+          <Typography
+            variant="body1"
+            style={{
+              fontSize: '1.2em',
+              marginTop: '20px',
+              marginBottom: '15px',
+              textAlign: 'center',
+              color: 'rgba(0, 0, 0, 0.7)',
+            }}
+          >
+            Would you like to log out?
+          </Typography>
+
+          {/* Logout Button at the bottom */}
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleLogout}
+            style={{
+              backgroundColor: '#f44336',
+              color: '#fff',
+              padding: '10px 20px',
+              fontSize: '16px',
+              width: 'calc(100% - 40px)',
+            }}
+          >
+            Logout
+          </Button>
         </div>
 
         {/* Main Content Area */}
@@ -248,20 +289,6 @@ const ProductManagerPage = () => {
             {activeSection}
           </Typography>
           {renderContent()}
-
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleLogout}
-          style={{
-            marginTop: '20px',
-            backgroundColor: '#f44336',
-            color: '#fff',
-            padding: '10px 20px',
-            fontSize: '16px',
-        }}>
-            Logout
-          </Button>
         </div>
       </div>
     </>
