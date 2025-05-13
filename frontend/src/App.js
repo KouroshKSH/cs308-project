@@ -48,7 +48,7 @@ function App() {
         <Route
           path="/invoice/:orderId"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute role="customer">
               <InvoicePage />
             </ProtectedRoute>
           }
