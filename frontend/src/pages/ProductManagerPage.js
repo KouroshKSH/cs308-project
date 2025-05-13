@@ -77,7 +77,7 @@ const ProductManagerPage = () => {
             width: '350px',
             backgroundColor: '#f5f5f5',
             padding: '20px',
-            borderRight: '1px solid #ddd',
+            borderLeft: '1px solid #ddd',
           }}
         >
           <Typography variant="h6" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
@@ -90,15 +90,16 @@ const ProductManagerPage = () => {
               marginBottom: '10px',
               color: activeSection === 'Product & Category Management' ? '#1976d2' : 'inherit',
               fontWeight: activeSection === 'Product & Category Management' ? 'bold' : 'normal',
+              fontSize: '1.3em',
             }}
             onClick={() => setActiveSection('Product & Category Management')}
           >
             Product & Category Management
           </div>
           <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
-            <ListItem>- Add or remove products</ListItem>
-            <ListItem>- Manage product categories</ListItem>
-            <ListItem>- Update stock quantities</ListItem>
+            <ListItem>Add or remove products</ListItem>
+            <ListItem>Manage product categories</ListItem>
+            <ListItem>Update stock quantities</ListItem>
           </List>
           <Divider style={{ marginBottom: '20px' }} />
           <div
@@ -107,14 +108,15 @@ const ProductManagerPage = () => {
               marginBottom: '10px',
               color: activeSection === 'Delivery Management' ? '#1976d2' : 'inherit',
               fontWeight: activeSection === 'Delivery Management' ? 'bold' : 'normal',
+              fontSize: '1.3em',
             }}
             onClick={() => setActiveSection('Delivery Management')}
           >
             Delivery Management
           </div>
           <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
-            <ListItem>- View all deliveries with status</ListItem>
-            <ListItem>- Update delivery status (pending, shipped, delivered)</ListItem>
+            <ListItem>View all deliveries with status</ListItem>
+            <ListItem>Update delivery status (pending, shipped, delivered)</ListItem>
           </List>
           <Divider style={{ marginBottom: '20px' }} />
           <div
@@ -123,13 +125,14 @@ const ProductManagerPage = () => {
               marginBottom: '10px',
               color: activeSection === 'Comment Moderation' ? '#1976d2' : 'inherit',
               fontWeight: activeSection === 'Comment Moderation' ? 'bold' : 'normal',
+              fontSize: '1.3em',
             }}
             onClick={() => setActiveSection('Comment Moderation')}
           >
             Comment Moderation
           </div>
           <List style={{ paddingLeft: '20px' }}>
-            <ListItem>- Approve or reject product comments</ListItem>
+            <ListItem>Approve or reject product comments</ListItem>
           </List>
         </div>
 
