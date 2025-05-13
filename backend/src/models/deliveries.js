@@ -28,16 +28,16 @@ const Deliveries = {
     // Start by updating the delivery status in the deliveries table
     await db.execute(
       'UPDATE deliveries SET delivery_status = ? WHERE delivery_id = ?', 
-      [delivery_status, delivery_id]
+      [delivery_status, id]
     );
 
     // Find the corresponding order_id for the given delivery_id
     const [rows] = await db.execute(
       'SELECT order_id FROM deliveries WHERE delivery_id = ?', 
-      [delivery_id]
+      [id]
     );
     if (rows.length === 0) {
-      throw new Error(`No delivery found with ID ${delivery_id}`);
+      throw new Error(`No delivery found with ID ${id}`);
     }
     const order_id = rows[0].order_id;
 
