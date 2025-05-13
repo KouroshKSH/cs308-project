@@ -23,7 +23,39 @@ const Deliveries = {
     return rows;
   },
   updateStatus: async (id, delivery_status) => {
-    await db.execute('UPDATE deliveries SET delivery_status = ? WHERE delivery_id = ?', [delivery_status, id]);
+    // updates both the `deliveries` table and the `orders` table
+    
+    // Start by updating the delivery status in the deliveries table
+    await db.execute(
+      'UPDATE deliveries SET delivery_status = ? WHERE delivery_id = ?', 
+      [delivery_status, id]
+    );
+
+    // Find the corresponding order_id for the given delivery_id
+    const [rows] = await db.execute(
+      'SELECT order_id FROM deliveries WHERE delivery_id = ?', 
+      [id]
+    );
+    if (rows.length === 0) {
+      throw new Error(`No delivery found with ID ${id}`);
+    }
+    const order_id = rows[0].order_id;
+
+    // Determine the corresponding order status based on the delivery status
+    let order_status = null;
+    if (delivery_status === 'shipped') {
+      order_status = 'in-transit';
+    } else if (delivery_status === 'delivered') {
+      order_status = 'delivered';
+    }
+
+    // Update the status in the orders table
+    if (order_status) {
+      await db.execute(
+        'UPDATE orders SET status = ? WHERE order_id = ?', 
+        [order_status, order_id]
+      );
+    }
   },
 
   updateTrackingNumberAndStatus: async (delivery_id, tracking_number, delivery_status) => {
