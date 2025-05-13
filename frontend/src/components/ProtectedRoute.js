@@ -1,9 +1,10 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate , useLocation} from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 const ProtectedRoute = ({ children, role }) => {
   const token = localStorage.getItem("token");
+  const location = useLocation();
 
   if (!token) {
     // Redirect based on the expected role
@@ -26,8 +27,11 @@ const ProtectedRoute = ({ children, role }) => {
       return <Navigate to="/login" />;
     }
 
+    // Use role from state or fallback to JWT
+    const expectedRole = location.state?.role || decodedToken.role;
+    
     // Check if the role matches
-    if (decodedToken.role !== role) {
+    if (decodedToken.role !== expectedRole) {
       return <Navigate to="/login" />;
     }
   } catch (error) {

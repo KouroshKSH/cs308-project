@@ -27,7 +27,7 @@ function App() {
         <Route
           path="/checkout"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute role="customer">
               <CheckoutPage />
             </ProtectedRoute>
           }
