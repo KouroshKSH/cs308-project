@@ -32,6 +32,33 @@ const ProductManagerPage = () => {
   // for filtering deliveries
   const [filterStatusDeliveries, setFilterStatusDeliveries] = useState('');
 
+  // for getting the manager info and displaying it
+  const [managerInfo, setManagerInfo] = useState(null); // State to store manager info
+
+  const fetchManagerProfile = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/user/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setManagerInfo(response.data.user); // Set manager info from the response
+    } catch (err) {
+      console.error('Failed to fetch manager profile:', err);
+      setError('Failed to load manager profile. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch manager profile on component mount
+  // useEffect(() => {
+  //   fetchManagerProfile();
+  // }, []);
+
   const handleLogout = () => {
     localStorage.removeItem("token"); // removethe token
     navigate("/"); // go to landing page
@@ -39,6 +66,7 @@ const ProductManagerPage = () => {
 
   // when "Delivery Management" is selected, get ALL the deliveries
   useEffect(() => {
+    fetchManagerProfile();
     if (activeSection === 'Delivery Management') {
       fetchDeliveries(filterStatusDeliveries);
     }
@@ -325,8 +353,36 @@ const ProductManagerPage = () => {
         </div>
 
         {/* Main Content Area */}
-        <div style={{padding: '20px', width: '90%'}}>
-          <Typography variant="h3" gutterBottom>
+        <div style={{padding: '20px', width: '80%', textAlign: 'center'}}>
+          {/* Manager Info Moved Here */}
+          {loading ? (
+            <CircularProgress />
+          ) : error ? (
+            <Typography color="error">{error}</Typography>
+          ) : managerInfo ? (
+            <div 
+              className="manager-profile-info" 
+              style={{ 
+                marginBottom: '30px', 
+                padding: '15px', 
+                border: '1px solid #eee', 
+                borderRadius: '8px', 
+                backgroundColor: '#f9f9f9',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                textAlign: 'left',
+              }}>
+              <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '10px' }}>
+                Hello Manager {managerInfo.username}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Role:</strong> Product Manager
+              </Typography>
+              <Typography variant="body1">
+                <strong>Email:</strong> {managerInfo.email}
+              </Typography>
+            </div>
+          ) : null}
+          <Typography variant="h4" gutterBottom>
             {activeSection}
           </Typography>
           {renderContent()}

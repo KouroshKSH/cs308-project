@@ -1,6 +1,6 @@
 /* Scrollable content container */
 .scrollable-content {
-  max-height: 75vh; /* Limit the height */
+  max-height: 70vh; /* Limit the height */
   overflow-y: auto; /* Enable vertical scrolling */
   padding-right: 10px; /* Add padding for scrollbar space */
   width: 80%; /* Set the desired width (adjust as needed) */
@@ -26,4 +26,13 @@
 
 .scrollable-content::-webkit-scrollbar-thumb:hover {
   background-color: #555;
+}
+
+/* Styling for the manager profile info */
+.manager-profile-info {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 2px solid #eee;
+  border-radius: 8px;
+  background-color: #f9f9f9;
 }
