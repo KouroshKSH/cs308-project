@@ -70,6 +70,27 @@ const ProductManagerPage = () => {
     }
   };
 
+  // Function to update delivery status (to shipped or delivered)
+  const updateDeliveryStatus = async (deliveryId, newStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        `${API_URL}/deliveries/${deliveryId}/status`,
+        { delivery_status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // Refresh the deliveries list after updating
+      fetchDeliveries(filterStatusDeliveries);
+    } catch (err) {
+      console.error('Failed to update delivery status:', err);
+      alert('Failed to update delivery status. Please try again.');
+    }
+  };
+
   const handleFilterChange = (event) => {
     setFilterStatusDeliveries(event.target.value);
   };
@@ -152,6 +173,26 @@ const ProductManagerPage = () => {
                             }
                             style={{ fontSize: '1.2em' }}
                           />
+                          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                            {/* Ship Button */}
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              disabled={delivery.delivery_status !== 'pending'}
+                              onClick={() => updateDeliveryStatus(delivery.delivery_id, 'shipped')}
+                            >
+                              Ship
+                            </Button>
+                            {/* Deliver Button */}
+                            <Button
+                              variant="contained"
+                              color="success"
+                              disabled={delivery.delivery_status === 'delivered'}
+                              onClick={() => updateDeliveryStatus(delivery.delivery_id, 'delivered')}
+                            >
+                              Deliver
+                            </Button>
+                          </div>
                         </ListItem>
                       ))
                     )}
