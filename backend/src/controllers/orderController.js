@@ -19,10 +19,12 @@ exports.createOrder = async (req, res) => {
     const orderId = await Order.create({ user_id, delivery_address, total_price });
 
     // Creating delivery
+    // create random tracking number that starts with "TRK" and is followed by date as yyyy-mm-dd-hh-mm
+    const tracking_number = `TRK-${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}`;
     await Deliveries.create({
       order_id: orderId,
       delivery_status: 'pending',
-      tracking_number: null,
+      tracking_number: tracking_number,
       delivery_address: delivery_address
     });
 
