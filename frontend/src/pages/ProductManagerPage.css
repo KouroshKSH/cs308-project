@@ -1,8 +1,10 @@
 /* Scrollable content container */
 .scrollable-content {
-  max-height: 75vh; /* Limit the height to 70% of the viewport */
+  max-height: 75vh; /* Limit the height */
   overflow-y: auto; /* Enable vertical scrolling */
   padding-right: 10px; /* Add padding for scrollbar space */
+  width: 80%; /* Set the desired width (adjust as needed) */
+  margin: 0 auto; /* Center the content horizontally */
 }
 
 /* Style for the scrollbar */

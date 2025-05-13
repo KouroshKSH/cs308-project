@@ -106,6 +106,7 @@ const ProductManagerPage = () => {
                                 <div><strong>Shipped Date:</strong> {new Date(delivery.shipped_date).toLocaleString()}</div>
                               </>
                             }
+                            style={{ fontSize: '1.2em' }}
                           />
                         </ListItem>
                       ))
@@ -145,13 +146,13 @@ const ProductManagerPage = () => {
         {/* Right Vertical Navbar */}
         <div
           style={{
-            width: '350px',
+            width: '450px',
             backgroundColor: '#f5f5f5',
             padding: '20px',
             borderLeft: '1px solid #ddd',
           }}
         >
-          <Typography variant="h6" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
+          <Typography variant="h4" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
             Product Manager Dashboard
           </Typography>
           <Divider style={{ marginBottom: '20px' }} />
@@ -208,8 +209,8 @@ const ProductManagerPage = () => {
         </div>
 
         {/* Main Content Area */}
-        <div style={{ flex: 1, padding: '20px' }}>
-          <Typography variant="h4" gutterBottom>
+        <div style={{padding: '20px', width: '90%'}}>
+          <Typography variant="h3" gutterBottom>
             {activeSection}
           </Typography>
           {renderContent()}
