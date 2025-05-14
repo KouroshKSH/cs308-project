@@ -182,3 +182,44 @@ exports.getOrderWithItems = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };  
+
+exports.getProductSalesStats = async (req, res) => {
+  try {
+    if (req.user.role !== 'salesManager') {
+      return res.status(403).json({ message: "Only sales managers can access product sales stats." });
+    }
+
+    const stats = await Order.getProductSalesStats();
+    res.status(200).json(stats);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch product sales stats" });
+  }
+};
+
+exports.getVariationSalesStats = async (req, res) => {
+  try {
+    if (req.user.role !== 'salesManager') {
+      return res.status(403).json({ message: "Only sales managers can access variation sales stats." });
+    }
+
+    const stats = await Order.getVariationSalesStats();
+    res.status(200).json(stats);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch variation sales stats" });
+  }
+};
+
+exports.getVariationSalesStatsByProduct = async (req, res) => {
+  try {
+    if (req.user.role !== 'salesManager') {
+      return res.status(403).json({ message: "Only sales managers can access variation sales stats." });
+    }
+
+    const productId = req.params.productId;
+    const stats = await Order.getVariationSalesStatsByProductId(productId);
+    res.status(200).json(stats);
+  } catch (err) {
+    console.error("Variation stats error:", err);
+    res.status(500).json({ error: "Failed to fetch variation stats for product" });
+  }
+};
