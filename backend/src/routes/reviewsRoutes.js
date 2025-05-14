@@ -5,5 +5,6 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 router.get("/", authMiddleware, reviewsController.getAllReviews); // ?status=approved/pending/rejected
 router.patch("/:reviewId/status", authMiddleware, reviewsController.updateReviewStatus);
+router.patch('/:id', authMiddleware, reviewsController.updateReview);
 
 module.exports = router;
