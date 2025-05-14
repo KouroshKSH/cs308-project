@@ -1,45 +1,81 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ProtectedRoute from "./ProtectedRoute";
-import Login from "./Login";
-import SignUp from "./Signup";
-import LandingPage from "./LandingPage";
-import CheckoutPage from "./CheckoutPage";
-import ProfilePage from "./ProfilePage";
-import ProductPage from "./ProductPage";
-import OrderStatusPage from "./OrderStatusPage";
-import ContactPage from "./ContactPage";
-import TempProductPage from "./tempProductPage"; // we'll change this later @ArifSari-maker
+import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./pages/Login";
+import SignUp from "./pages/Signup";
+import LandingPage from "./pages/LandingPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import ProfilePage from "./pages/ProfilePage";
+import ProductPage from "./pages/ProductPage";
+import OrderStatusPage from "./pages/OrderStatusPage";
+import ContactPage from "./pages/ContactPage";
+import InvoicePage from "./pages/InvoicePage";
+import ProductManagerPage from "./pages/ProductManagerPage";
+import SalesManagerPage from "./pages/SalesManagerPage";
+import ManagerLogin from "./pages/ManagerLogin";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/tempProductPage/:productId" element={<TempProductPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/product/:productId" element={<ProductPage />} />
         <Route path="/order/:orderId" element={<OrderStatusPage />}
-        // type `http://localhost:3000/order/12345` in URL bar to visit
         />
         <Route
           path="/checkout"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute role="customer">
               <CheckoutPage />
             </ProtectedRoute>
           }
         />
+
+        {/* Customer routes for their profile page */}
         <Route
           path="/profile"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute role="customer">
               <ProfilePage />
             </ProtectedRoute>
           }
         />
+
         <Route path="/contact" element={<ContactPage />} />
+
+        <Route
+          path="/invoice/:orderId"
+          element={
+            <ProtectedRoute role="customer">
+              <InvoicePage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* protecting the product manager page via manager login page */}
+        <Route
+          path="/manager-login"
+          element={<ManagerLogin />}
+        />
+        <Route
+          path="/product-manager"
+          element={
+            <ProtectedRoute role="productManager">
+              <ProductManagerPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/sales-manager"
+          element={
+            <ProtectedRoute role="salesManager">
+              <SalesManagerPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

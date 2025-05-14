@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Drawer, List, ListItem, ListItemText, IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const DrawerMenu = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -9,6 +10,37 @@ const DrawerMenu = () => {
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
+  };
+
+  // for accessing manager page easily
+  const handleManagerNavigation = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // If no token, redirect to manager login
+      navigate("/manager-login");
+    } else {
+      try {
+        const decodedToken = jwtDecode(token);
+        const role = decodedToken.role;
+
+        // Redirect based on the manager's role
+        if (role === "productManager") {
+          navigate("/product-manager");
+        } else if (role === "salesManager") {
+          navigate("/sales-manager");
+        } else {
+          // If the role is not a manager, redirect to manager login
+          navigate("/manager-login");
+        }
+      } catch (error) {
+        console.error("Invalid token:", error);
+        // If token is invalid, redirect to manager login
+        navigate("/manager-login");
+      }
+    }
+
+    setDrawerOpen(false);
   };
 
   return (
@@ -51,6 +83,15 @@ const DrawerMenu = () => {
             }}
           >
             <ListItemText primary="Contact" />
+          </ListItem>
+
+          {/* the button for going to manager page easier */}
+          <ListItem
+            button
+            sx={{ cursor: "pointer" }}
+            onClick={handleManagerNavigation}
+          >
+            <ListItemText primary="Manager?" />
           </ListItem>
         </List>
       </Drawer>

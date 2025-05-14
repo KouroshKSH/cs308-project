@@ -1,5 +1,4 @@
-// require('dotenv').config();
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
@@ -17,7 +16,7 @@ async function registerUser() {
 
         const [result] = await connection.execute(
             'INSERT INTO users (username, email, password_hash, role, address, phone_number) VALUES (?, ?, ?, ?, ?, ?)',
-            ['Arif', 'arif@email.com', hashedPassword, 'customer', 'Istanbul, Turkey', '9876543210']
+            ['SalesMan1', 'salesmanager1@email.com', hashedPassword, 'salesManager', 'Sales Branch', '444-555-6666']
         );
 
         console.log('User inserted:', result);

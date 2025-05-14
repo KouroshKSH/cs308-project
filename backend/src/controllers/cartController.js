@@ -29,12 +29,18 @@ exports.addToCart = async (req, res) => {
   try {
     const user_id = req.user?.user_id || null;
     const session_id = req.headers["x-session-id"];
-    const { product_id, quantity } = req.body; // what product and how many
+
+    // what product, which variation and how many
+    const { product_id, variation_id, quantity } = req.body;
 
     // for logging purposes
     console.log("Session ID:", session_id);
     console.log("User ID:", user_id);
-    console.log("Product ID:", product_id, "Quantity:", quantity);
+    console.log(
+      "Product ID:", product_id,
+      "Variation ID:", variation_id,
+      "Quantity:", quantity
+    );
 
 
     if (!session_id && !user_id) {
@@ -45,9 +51,10 @@ exports.addToCart = async (req, res) => {
       return res.status(400).json({ error: "User ID or session ID is required" });
     }
 
-    await Cart.addOrUpdateCartItem(user_id, session_id, product_id, quantity);
+    await Cart.addOrUpdateCartItem(user_id, session_id, product_id, variation_id, quantity);
     // logging for debugging
     console.log("Product ID:", product_id);
+    console.log("Variation ID", variation_id);
     console.log("Quantity:", quantity);
     console.log("User ID:", user_id);
     console.log("Session ID:", session_id);
@@ -65,13 +72,23 @@ exports.updateCartItem = async (req, res) => {
   try {
     const user_id = req.user?.user_id || null;
     const session_id = req.headers["x-session-id"];
-    const { product_id, quantity } = req.body;
+    const { product_id, variation_id, quantity } = req.body;
+
+    // for logging purposes
+    console.log("Session ID:", session_id);
+    console.log("User ID:", user_id);
+    console.log(
+      "Product ID:", product_id,
+      "Variation ID:", variation_id,
+      "Quantity:", quantity
+    );
+
 
     if (!session_id && !user_id) {
       return res.status(400).json({ error: "User ID or session ID is required" });
     }
 
-    await Cart.updateCartItem(user_id, session_id, product_id, quantity);
+    await Cart.updateCartItem(user_id, session_id, product_id, variation_id, quantity);
 
     res.status(200).json({ message: "Cart item updated successfully." });
   } catch (err) {
@@ -85,18 +102,24 @@ exports.removeFromCart = async (req, res) => {
   try {
     const user_id = req.user?.user_id || null;
     const session_id = req.headers["x-session-id"];
-    const { product_id } = req.body;
+    const { product_id, variation_id } = req.body;
 
     // for logging purposes
     console.log("Session ID:", session_id);
     console.log("User ID:", user_id);
-    console.log("Product ID:", product_id);
+    console.log(
+      "Product ID:", product_id,
+      "Variation ID:", variation_id,
+    );
+    // here, we don't have quantity because the user wants to delete the item from cart
+    // also, the user might delete one variation from cart, but not the other, hence the distinction
+    // example: user wants to keep Medium size t-shirt but remove teh Large size from cart
 
     if (!session_id && !user_id) {
       return res.status(400).json({ error: "User ID or session ID is required" });
     }
 
-    await Cart.removeCartItem(user_id, session_id, product_id);
+    await Cart.removeCartItem(user_id, session_id, product_id, variation_id);
 
     res.status(200).json({ message: "Product removed from cart." });
   } catch (err) {
@@ -104,4 +127,3 @@ exports.removeFromCart = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-

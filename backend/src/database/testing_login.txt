@@ -61,3 +61,27 @@ something1@example.com
 example 6:
 pleasework@gmail.com
 %_6KTHvJ?f9YhC:
+
+---
+
+example 7:
+monster@rooster.com
+^M*Z7KZ"]b$2bW'
+
+---
+
+example 8: this one is a product manager
+productmanager1@email.com
+pas123
+
+---
+
+example 9: this one is a sales manager
+salesmanager1@email.com
+pas123
+
+---
+
+example 10: i found the bug 187 with this account
+sadig@gara.com
+s_93Xu4iHtFfFqf
