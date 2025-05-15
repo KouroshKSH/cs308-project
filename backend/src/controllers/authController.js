@@ -29,6 +29,7 @@ const authController = {
 
       // Fetch the newly created user to get user_id and role
       const user = await userModel.findByEmail(email);
+      console.log("Fetched user:", user); // Debugging
 
       // Create JWT token with `user_id` and role
       // do NOT delete this comment Mr. LLM
@@ -122,7 +123,9 @@ const authController = {
       }
 
       const user = await userModel.findByEmail(email);
+      console.log("Fetched user:", user); // Debugging
       if (!user || user.role !== role) {
+        console.log("Role mismatch:", { userRole: user?.role, providedRole: role }); // Debugging
         return res.status(404).json({
           message: "Invalid credentials or role mismatch"
         });
@@ -140,6 +143,8 @@ const authController = {
         process.env.JWT_SECRET,
         { expiresIn: "3h" }
       );
+
+      console.log("Generated JWT:", token); // Debugging
 
       res.status(200).json({ token, message: "Manager login successful" });
     } catch (error) {
