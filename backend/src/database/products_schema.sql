@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS products (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(10,2) NOT NULL,
+    cost DECIMAL(10, 2),
     department_id BIGINT UNSIGNED NOT NULL,
     category_id BIGINT UNSIGNED NOT NULL,
     material VARCHAR(255),
@@ -15,3 +16,15 @@ CREATE TABLE IF NOT EXISTS products (
     FOREIGN KEY (department_id) REFERENCES departments(department_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE CASCADE
 );
+
+DELIMITER $$
+
+CREATE TRIGGER set_cost_default
+BEFORE INSERT ON products
+FOR EACH ROW
+BEGIN
+    IF NEW.cost IS NULL THEN
+        SET NEW.cost = NEW.price / 2;
+    END IF;
+END $$
+DELIMITER ;

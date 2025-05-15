@@ -10,5 +10,8 @@ router.get("/with-items/:id", authMiddleware, orderController.getOrderWithItems)
 router.get("/:id", orderController.getOrderById);
 router.patch("/:id/status", orderController.updateOrderStatus);
 router.delete("/:id", orderController.deleteOrder);
+router.get("/stats/products", authMiddleware, orderController.getProductSalesStats);
+router.get("/stats/variations", authMiddleware, orderController.getVariationSalesStats);
+router.get("/stats/variations/product/:productId", authMiddleware, orderController.getVariationSalesStatsByProduct);
 
 module.exports = router;
