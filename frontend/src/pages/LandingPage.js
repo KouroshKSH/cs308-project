@@ -314,6 +314,11 @@ const LandingPage = () => {
         ))}
       </div>
 
+      {/* Add a gap before the footer */}
+      <Box sx={{
+        marginBottom: "70px",
+      }} />
+
       { /* Footer component */}
       <Footer />
 
