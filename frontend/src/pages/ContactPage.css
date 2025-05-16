@@ -1,7 +1,11 @@
 .contact-container {
     text-align: center;
     padding: 20px;
+    min-height: 85vh;
+    justify-content: space-between;
 }
+
+
 
 .drawer-icon {
     position: absolute;
@@ -12,4 +16,30 @@
 .contact-content {
     margin-top: 100px;
     font-size: 24px;
+}
+
+/* Styling for the contact image */
+.contact-image {
+    margin: 40px auto;
+    text-align: center;
+}
+
+.contact-us-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for the contact form */
+.contact-form {
+    margin: 40px auto;
+    max-width: 600px;
+    text-align: left;
+}
+
+.contact-content {
+    margin-top: 100px;
+    font-size: 24px;
+    flex-grow: 1; /* Allow the content to grow and push the footer down */
 }

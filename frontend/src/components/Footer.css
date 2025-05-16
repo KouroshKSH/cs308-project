@@ -34,14 +34,15 @@
 
 /* Footer container for additional spacing */
 .footer-container {
-  padding-top: 30px;
-  padding-bottom: 40px;
-  width: 100%; /* Ensure the footer spans the full width */
-  position: relative; /* Ensure it stays within the flow of the page */
-  background-color: white; /* Dark background */
-  color: #555; /* White text */
-  border-top: 1px solid #747474; /* Top border for separation */
-  box-sizing: border-box; /* Include padding and border in width/height */
+    text-align: center;
+    padding-top: 30px;
+    padding-bottom: 40px;
+    width: 100%; /* Ensure the footer spans the full width */
+    position: relative; /* Ensure it stays within the flow of the page */
+    background-color: white; /* Dark background */
+    color: #555; /* White text */
+    border-top: 1px solid #747474; /* Top border for separation */
+    box-sizing: border-box; /* Include padding and border in width/height */
 }
 
 /* Footer text */
