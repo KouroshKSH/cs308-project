@@ -12,6 +12,7 @@ import "./LandingPage.css";
 import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import { Rating } from "@mui/material";
+import Footer from "../components/Footer";
 
 // icons for the filters and sorting
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -311,7 +312,10 @@ const LandingPage = () => {
             {/* TODO: let's add a heart icon for wishlisting */}
           </div>
         ))}
-      </div>;
+      </div>
+
+      { /* Footer component */}
+      <Footer />
     </div>
   );
 };
