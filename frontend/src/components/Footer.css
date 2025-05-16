@@ -1,0 +1,27 @@
+/* Styling for the footer links */
+.footer-link {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+  color: white; /* White text */
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #ddd; /* Slightly lighter color on hover */
+}
+
+/* Styling for the icons */
+.footer-icon {
+  font-size: 1.2rem; /* Slightly larger icon size */
+}
+
+/* Footer container for additional spacing */
+.footer-container {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
