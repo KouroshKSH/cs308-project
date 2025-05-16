@@ -5,7 +5,14 @@ import {
   Card,
   CardContent,
   List,
-  ListItem
+  ListItem,
+  ListItemText,
+  Divider,
+  CircularProgress,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import DrawerMenu from '../components/DrawerMenu';
@@ -121,15 +128,39 @@ const SalesManagerPage = () => {
           >
             Invoice and Reports
           </div>
+
+          <Divider style={{ marginBottom: '20px' }} />
+          
+          <Typography
+            variant="body1"
+            style={{
+              fontSize: '1.2em',
+              marginTop: '20px',
+              marginBottom: '15px',
+              textAlign: 'center',
+              color: 'rgba(0, 0, 0, 0.7)',
+            }}
+          >
+            Would you like to log out?
+          </Typography>
+
           <Button
             variant="contained"
             color="secondary"
             onClick={handleLogout}
-            style={{ marginTop: '20px' }}
+            style={{
+              backgroundColor: '#f44336',
+              color: '#fff',
+              padding: '10px 20px',
+              fontSize: '16px',
+              width: 'calc(100% - 40px)',
+            }}
           >
             Logout
           </Button>
         </div>
+
+
 
         {/* Main Content Area */}
         <div className="main-content">
