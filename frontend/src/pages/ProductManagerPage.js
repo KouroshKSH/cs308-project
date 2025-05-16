@@ -194,7 +194,7 @@ const ProductManagerPage = () => {
                                 <div><strong>Status:</strong> {delivery.delivery_status}</div>
                                 <div><strong>Address:</strong> {delivery.delivery_address}</div>
                                 <div><strong>Tracking Number:</strong> {delivery.tracking_number || 'N/A'}</div>
-                                <div><strong>Shipped Date:</strong> {new Date(delivery.shipped_date).toLocaleString()}</div>
+                                <div><strong>Issued Date:</strong> {new Date(delivery.shipped_date).toLocaleString()}</div>
                               </>
                             }
                             style={{ fontSize: '1.2em' }}
