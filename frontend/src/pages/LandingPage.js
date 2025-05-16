@@ -316,6 +316,7 @@ const LandingPage = () => {
 
       { /* Footer component */}
       <Footer />
+
     </div>
   );
 };

@@ -1,5 +1,10 @@
 import React from 'react';
-import { Box, Typography, Link } from '@mui/material';
+import { 
+  Box, 
+  Typography, 
+  Link,
+  Divider,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import HomeIcon from '@mui/icons-material/Home';
@@ -36,19 +41,11 @@ const Footer = () => {
   };
 
   return (
-    <Box
-      sx={{
-        mt: 8,
-        py: 4, // Slightly increased padding for vertical height
-        px: 2,
-        borderTop: '1px solid #444',
-        backgroundColor: '#222', // Dark background
-        textAlign: 'center',
-        color: 'white', // White text
-      }}
-      className="footer-container"
-    >
-      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, flexWrap: 'wrap', mb: 2 }}>
+    <>
+    
+    {/* Footer content */}
+    <Box className="footer-container">
+      <Box className="footer-links">
         <Link
           component="button"
           underline="hover"
@@ -82,10 +79,15 @@ const Footer = () => {
           <AdminPanelSettingsIcon className="footer-icon" /> Manager?
         </Link>
       </Box>
-      <Typography variant="body2" color="inherit">
+      <Typography 
+        variant="body2" 
+        className='footer-text' 
+        color="inherit"
+      >
         © {new Date().getFullYear()} CS308 Project — All rights reserved.
       </Typography>
     </Box>
+    </>
   );
 };
 
