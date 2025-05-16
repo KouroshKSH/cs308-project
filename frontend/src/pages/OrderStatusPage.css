@@ -1,0 +1,9 @@
+/* Add spacing between the content and the footer */
+.order-status-container {
+  margin-bottom: 40px; /* Add space at the bottom of the content */
+}
+
+.order-status-paper {
+  padding: 20px;
+  margin-bottom: 20px; /* Add space between the paper and the footer */
+}

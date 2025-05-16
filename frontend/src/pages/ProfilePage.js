@@ -6,6 +6,7 @@ import axios from 'axios';
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import DrawerMenu from '../components/DrawerMenu';
+import Footer from '../components/Footer';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -290,6 +291,8 @@ const ProfilePage = () => {
         Logout
       </Button>
     </div>
+
+    <Footer />
     </>
   );
 };

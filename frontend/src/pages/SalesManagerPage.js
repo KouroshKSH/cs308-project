@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import DrawerMenu from '../components/DrawerMenu';
+import Footer from '../components/Footer';
 
 // Chart imports:
 import {
@@ -107,27 +108,77 @@ const SalesManagerPage = () => {
       <div style={{ display: 'flex', height: '100vh', flexDirection: 'row-reverse' }}>
         {/* Right Vertical Navbar */}
         <div className="right-navbar">
-          <Typography variant="h4" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
+          <Typography 
+            variant="h4" 
+            style={
+              { 
+                marginBottom: '20px', 
+                fontWeight: 'bold' 
+              }
+            }>
             Sales Manager Dashboard
           </Typography>
+
+          <Divider style={{ marginBottom: '20px' }} />
+
           <div
-            className={`nav-item ${activeSection === 'Sales per Product' ? 'active' : ''}`}
+            style={{
+              cursor: 'pointer',
+              marginBottom: '10px',
+              color: activeSection === 'Sales per Product' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Sales per Product' ? 'bold' : 'normal',
+              fontSize: '1.3em',
+            }}
             onClick={() => setActiveSection('Sales per Product')}
           >
             Sales per Product
           </div>
+
+          <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
+            <ListItem>View sales data</ListItem>
+            <ListItem>Analyze product performance</ListItem>
+          </List>
+
+          <Divider style={{ marginBottom: '20px' }} />
+
           <div
-            className={`nav-item ${activeSection === 'Price & Discount Management' ? 'active' : ''}`}
+            style={{
+              cursor: 'pointer',
+              marginBottom: '10px',
+              color: activeSection === 'Price & Discount Management' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Price & Discount Management' ? 'bold' : 'normal',
+              fontSize: '1.3em',
+            }}
             onClick={() => setActiveSection('Price & Discount Management')}
           >
             Price & Discount Management
           </div>
+
+          <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
+            <ListItem>Set prices for new products</ListItem>
+            <ListItem>Apply discounts to items</ListItem>
+            <ListItem>Notify users about discounts</ListItem>
+          </List>
+
+          <Divider style={{ marginBottom: '20px' }} />
+
           <div
-            className={`nav-item ${activeSection === 'Invoice and Reports' ? 'active' : ''}`}
+            style={{
+              cursor: 'pointer',
+              marginBottom: '10px',
+              color: activeSection === 'Invoice and Reports' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Invoice and Reports' ? 'bold' : 'normal',
+              fontSize: '1.3em',
+            }}
             onClick={() => setActiveSection('Invoice and Reports')}
           >
             Invoice and Reports
           </div>
+
+          <List style={{ paddingLeft: '20px' }}>
+            <ListItem>View and manage invoices</ListItem>
+            <ListItem>Analyze profit/loss charts</ListItem>
+          </List>
 
           <Divider style={{ marginBottom: '20px' }} />
           
@@ -160,13 +211,13 @@ const SalesManagerPage = () => {
           </Button>
         </div>
 
-
-
         {/* Main Content Area */}
         <div className="main-content">
           {renderContent()}
         </div>
       </div>
+
+      <Footer />
     </>
   );
 };

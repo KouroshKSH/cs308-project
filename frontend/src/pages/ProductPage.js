@@ -19,6 +19,7 @@ import axios from "axios";
 import CloseIcon from "@mui/icons-material/Close";
 import Header from "../components/Header";
 import { getOrCreateSessionId } from "../utils/sessionStorage";
+import Footer from "../components/Footer";
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
@@ -182,195 +183,213 @@ const ProductPage = () => {
   if (!product) {
     return (
       <>
+      <div className="product-page-container">
         <Header category="Error" cart={cart} onCheckout={() => {}} />
         <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
           <Typography>Product not found.</Typography>
         </Box>
+
+        {/* Add a gap before the footer */}
+        <Box sx={{
+          marginBottom: "500px",
+        }} />
+      </div>
+
+      <Footer />
       </>
     );
   }
 
   return (
-    <Box>
-      <Header category={product.department_name || "Home"} 
-      cart={cart} 
-      onCheckout={() => {}} 
-      navigateToDepartment = {navigateToDepartment}
-      />
+    <>
+    <div className="product-page-container">
+        <Box>
+          <Header category={product.department_name || "Home"} 
+            cart={cart} 
+            onCheckout={() => {}} 
+            navigateToDepartment = {navigateToDepartment}
+          />
 
-      <Box sx={{ maxWidth: "1200px", mx: "auto", p: 4 }}>
-        <Button
-          variant="text"
-          onClick={() => {
-            const deptId = departmentMap[product.department_name];
-            navigate("/", { state: { departmentId: deptId } });
-          }}
-          sx={{ mb: 2, textTransform: "none", fontWeight: 600 }}
-        >
-          ← Back to Home
-        </Button>
+          <Box sx={{ maxWidth: "1200px", mx: "auto", p: 4 }}>
+            <Button
+              variant="text"
+              onClick={() => {
+                const deptId = departmentMap[product.department_name];
+                navigate("/", { state: { departmentId: deptId } });
+              }}
+              sx={{ mb: 2, textTransform: "none", fontWeight: 600 }}
+            >
+              ← Back to Home
+            </Button>
 
-        <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 4 }}>
-          {/* Image Section */}
-          <Box sx={{ flex: 1 }}>
-            <img
-              src={`${process.env.PUBLIC_URL}/assets/images/${product.image_url}.jpg`}
-              alt={product.name}
-              onClick={() => handleImageClick(selectedIndex)}
-              onError={(e) =>
-                (e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`)
-              }
-              style={{ width: "100%", borderRadius: "10px", cursor: "pointer" }}
-            />
-          </Box>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 4 }}>
+              {/* Image Section */}
+              <Box sx={{ flex: 1 }}>
+                <img
+                  src={`${process.env.PUBLIC_URL}/assets/images/${product.image_url}.jpg`}
+                  alt={product.name}
+                  onClick={() => handleImageClick(selectedIndex)}
+                  onError={(e) =>
+                    (e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`)
+                  }
+                  style={{ width: "100%", borderRadius: "10px", cursor: "pointer" }}
+                />
+              </Box>
 
-          {/* Product Details */}
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h5" fontWeight="bold">{product.name}</Typography>
-            <Typography variant="h6" color="primary" sx={{ mt: 1 }}>${product.price}</Typography>
-            
-            {/* to show the popularity of product via stars */}
-            <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
-            <Rating
-              value={getStarsForPopularity(product.popularity_score)}
-              readOnly
-              precision={1}
-            />
-              <Typography variant="body2">({reviews.length} reviews)</Typography>
+              {/* Product Details */}
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h5" fontWeight="bold">{product.name}</Typography>
+                <Typography variant="h6" color="primary" sx={{ mt: 1 }}>${product.price}</Typography>
+                
+                {/* to show the popularity of product via stars */}
+                <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
+                <Rating
+                  value={getStarsForPopularity(product.popularity_score)}
+                  readOnly
+                  precision={1}
+                />
+                  <Typography variant="body2">({reviews.length} reviews)</Typography>
+                </Box>
+
+                {/* to show the material */}
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Material: <strong>{product.material || "N/A"}</strong>
+                </Typography>
+                <Typography variant="body1" sx={{ my: 2 }}>{product.description}</Typography>
+
+                {/* Select Size */}
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel>Select Size</InputLabel>
+    
+                  {/* set the default quantity if variation is chosen */}
+                  <Select
+                    value={selectedVariation}
+                    label="Select Size"
+                    onChange={(e) => {
+                      setSelectedVariation(e.target.value);
+                      if (!quantity) setQuantity("1");
+                    }}
+                  >
+                    {variations.map((v) => (
+                      <MenuItem key={v.variation_id} value={v.variation_id} disabled={v.stock_quantity === 0}>
+                        {v.size} {v.stock_quantity === 0 ? "(Out of Stock)" : ""}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                {/* Quantity */}
+                <TextField
+                  type="number"
+                  label="Quantity"
+                  fullWidth
+                  value={quantity}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    // Allow empty string or positive integers only
+                    if (val === "" || (/^\d+$/.test(val) && Number(val) > 0)) {
+                      setQuantity(val);
+                      setQuantityError(""); // clear error on change
+                    }
+                  }}
+                  error={!!quantityError}
+                  helperText={quantityError}
+                />
+
+                {/* Add to Cart */}
+                <Button
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                  sx={{ py: 1.5 }}
+                  onClick={handleAddToCart}
+                  disabled={!selectedVariation}
+                >
+                  Add to Cart
+                </Button>
+              </Box>
             </Box>
 
-            {/* to show the material */}
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Material: <strong>{product.material || "N/A"}</strong>
-            </Typography>
-            <Typography variant="body1" sx={{ my: 2 }}>{product.description}</Typography>
+            {/* Zoom Image Modal */}
+            <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md">
+              <DialogContent sx={{ position: "relative", p: 0 }}>
+                <IconButton
+                  onClick={() => setDialogOpen(false)}
+                  sx={{ position: "absolute", top: 8, right: 8, color: "#fff", zIndex: 1 }}
+                >
+                  <CloseIcon />
+                </IconButton>
+                <img
+                  src={`${process.env.PUBLIC_URL}/assets/images/${product.image_url}.jpg`}
+                  alt="Zoomed"
+                  onError={(e) =>
+                    (e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`)
+                  }
+                  style={{ width: "100%", borderRadius: "8px" }}
+                />
+              </DialogContent>
+            </Dialog>
 
-            {/* Select Size */}
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Select Size</InputLabel>
- 
-              {/* set the default quantity if variation is chosen */}
-              <Select
-                value={selectedVariation}
-                label="Select Size"
-                onChange={(e) => {
-                  setSelectedVariation(e.target.value);
-                  if (!quantity) setQuantity("1");
-                }}
-              >
-                {variations.map((v) => (
-                  <MenuItem key={v.variation_id} value={v.variation_id} disabled={v.stock_quantity === 0}>
-                    {v.size} {v.stock_quantity === 0 ? "(Out of Stock)" : ""}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            {/* Reviews Section */}
+            <Box mt={6}>
+              <Typography variant="h6" gutterBottom>Customer Reviews</Typography>
+              {reviews.filter(
+                (review) =>
+                  review.rating !== null || review.comment_approval === "approved"
+              ).length === 0 ? (
+                <Typography variant="body2" color="text.secondary">No reviews yet.</Typography>
+              ) : (
+                reviews
+                  .filter(
+                    (review) =>
+                      review.rating !== null || review.comment_approval === "approved"
+                  )
+                  .map((review) => (
+                    <Box key={review.review_id} sx={{ mb: 2 }}>
+                      {(review.rating !== null || review.comment_approval === "approved") && (
+                        <Typography variant="subtitle2">{review.username}</Typography>
+                      )}
+                      {review.rating !== null && (
+                        <Rating value={review.rating} readOnly size="small" />
+                      )}
+                      {review.comment_approval === "approved" && review.comment && (
+                        <Typography variant="body2">{review.comment}</Typography>
+                      )}
+                    </Box>
+                  ))
+              )}
+            </Box>
 
-            {/* Quantity */}
-            <TextField
-              type="number"
-              label="Quantity"
-              fullWidth
-              value={quantity}
-              onChange={(e) => {
-                const val = e.target.value;
-                // Allow empty string or positive integers only
-                if (val === "" || (/^\d+$/.test(val) && Number(val) > 0)) {
-                  setQuantity(val);
-                  setQuantityError(""); // clear error on change
-                }
-              }}
-              error={!!quantityError}
-              helperText={quantityError}
-            />
-
-            {/* Add to Cart */}
-            <Button
-              variant="contained"
-              size="large"
-              fullWidth
-              sx={{ py: 1.5 }}
-              onClick={handleAddToCart}
-              disabled={!selectedVariation}
-            >
-              Add to Cart
-            </Button>
+            {/* Add a Review */}
+            <Box mt={4}>
+              <Typography variant="h6" gutterBottom>Leave a Review</Typography>
+              <Rating
+                value={reviewRating}
+                onChange={(e, newValue) => setReviewRating(newValue)}
+              />
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Write your review..."
+                variant="outlined"
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                sx={{ my: 2 }}
+              />
+              <Button variant="contained" onClick={handleReviewSubmit}>
+                Submit
+              </Button>
+            </Box>
           </Box>
         </Box>
 
-        {/* Zoom Image Modal */}
-        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md">
-          <DialogContent sx={{ position: "relative", p: 0 }}>
-            <IconButton
-              onClick={() => setDialogOpen(false)}
-              sx={{ position: "absolute", top: 8, right: 8, color: "#fff", zIndex: 1 }}
-            >
-              <CloseIcon />
-            </IconButton>
-            <img
-              src={`${process.env.PUBLIC_URL}/assets/images/${product.image_url}.jpg`}
-              alt="Zoomed"
-              onError={(e) =>
-                (e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`)
-              }
-              style={{ width: "100%", borderRadius: "8px" }}
-            />
-          </DialogContent>
-        </Dialog>
+        {/* Add a gap before the footer */}
+        <Box sx={{ marginBottom: "40px" }} />
+      </div>
 
-        {/* Reviews Section */}
-        <Box mt={6}>
-          <Typography variant="h6" gutterBottom>Customer Reviews</Typography>
-          {reviews.filter(
-            (review) =>
-              review.rating !== null || review.comment_approval === "approved"
-          ).length === 0 ? (
-            <Typography variant="body2" color="text.secondary">No reviews yet.</Typography>
-          ) : (
-            reviews
-              .filter(
-                (review) =>
-                  review.rating !== null || review.comment_approval === "approved"
-              )
-              .map((review) => (
-                <Box key={review.review_id} sx={{ mb: 2 }}>
-                  {(review.rating !== null || review.comment_approval === "approved") && (
-                    <Typography variant="subtitle2">{review.username}</Typography>
-                  )}
-                  {review.rating !== null && (
-                    <Rating value={review.rating} readOnly size="small" />
-                  )}
-                  {review.comment_approval === "approved" && review.comment && (
-                    <Typography variant="body2">{review.comment}</Typography>
-                  )}
-                </Box>
-              ))
-          )}
-        </Box>
-
-        {/* Add a Review */}
-        <Box mt={4}>
-          <Typography variant="h6" gutterBottom>Leave a Review</Typography>
-          <Rating
-            value={reviewRating}
-            onChange={(e, newValue) => setReviewRating(newValue)}
-          />
-          <TextField
-            fullWidth
-            multiline
-            rows={4}
-            label="Write your review..."
-            variant="outlined"
-            value={reviewText}
-            onChange={(e) => setReviewText(e.target.value)}
-            sx={{ my: 2 }}
-          />
-          <Button variant="contained" onClick={handleReviewSubmit}>
-            Submit
-          </Button>
-        </Box>
-      </Box>
-    </Box>
+      <Footer />
+    </>
   );
 };
 

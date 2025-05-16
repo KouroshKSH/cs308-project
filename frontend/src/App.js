@@ -14,6 +14,8 @@ import ProductManagerPage from "./pages/ProductManagerPage";
 import SalesManagerPage from "./pages/SalesManagerPage";
 import ManagerLogin from "./pages/ManagerLogin";
 
+import "./App.css";
+
 function App() {
   return (
     <BrowserRouter>

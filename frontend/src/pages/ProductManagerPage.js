@@ -19,6 +19,7 @@ import axios from 'axios';
 import DrawerMenu from '../components/DrawerMenu';
 import './ProductManagerPage.css';
 import FilterListIcon from "@mui/icons-material/FilterList";
+import Footer from '../components/Footer';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -386,6 +387,8 @@ const ProductManagerPage = () => {
           {renderContent()}
         </div>
       </div>
+
+      <Footer />
     </>
   );
 };

@@ -1,6 +1,16 @@
 .landing-container {
     text-align: center;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.landing-content {
+    margin-top: 50px;
+    font-size: 20px;
+    line-height: 1.5;
+    flex-grow: 1; /* makes the content expand to fill space */
 }
 
 .category-options {
@@ -22,12 +32,6 @@
 .right-icons {
     position: absolute;
     right: 20px;
-}
-
-.landing-content {
-    margin-top: 50px;
-    font-size: 20px;
-    line-height: 1.5;
 }
 
 /* Ensure the product grid has a max width and centers items */
