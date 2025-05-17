@@ -5,6 +5,7 @@ import {
   Typography,
   Rating,
   Dialog,
+  Divider,
   DialogContent,
   IconButton,
   TextField,
@@ -395,7 +396,18 @@ const ProductPage = () => {
             
             {/* Reviews Section */}
             <Box mt={6}>
-              <Typography variant="h6" gutterBottom>Customer Reviews</Typography>
+              <Typography 
+                variant="h5" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: "bold",  
+                  gap: 1,
+                  marginBottom: 2,
+                }}
+              >
+                Customer Reviews
+              </Typography>
+              
               {reviews.filter(
                 (review) =>
                   review.rating !== null || review.comment_approval === "approved"
@@ -409,7 +421,14 @@ const ProductPage = () => {
                   )
                   .map((review) => (
                     <Box key={review.review_id} sx={{ mb: 2 }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box 
+                        sx={{ 
+                            display: "flex", 
+                            alignItems: "center",
+                            mb: 1,
+                            gap: 4,
+                          }}
+                        >
                         <Typography 
                           variant="subtitle2"
                           sx = {{
@@ -418,23 +437,6 @@ const ProductPage = () => {
                         >
                           {review.username}
                         </Typography>
-                        {currentUserId === review.user_id && (
-                          <Button 
-                            size="small" 
-                            onClick={() => handleEditClick(review)}
-                            sx={{
-                              border: "1px solid blue",
-                              color: "blue",
-                              textTransform: "none",
-                              fontWeight: "bold",
-                              "&:hover": {
-                                backgroundColor: "rgba(0, 0, 255, 0.1)",
-                              },
-                          }}
-                          >
-                            Edit
-                          </Button>
-                        )}
                       </Box>
                       {review.rating !== null && (
                         <Rating value={review.rating} readOnly size="small" />
@@ -442,6 +444,32 @@ const ProductPage = () => {
                       {review.comment_approval === "approved" && review.comment && (
                         <Typography variant="body2">{review.comment}</Typography>
                       )}
+                      {currentUserId === review.user_id && (
+                        <Button 
+                          size="small" 
+                          onClick={() => handleEditClick(review)}
+                          sx={{
+                            border: "1px solid blue",
+                            color: "blue",
+                            textTransform: "none",
+                            fontWeight: "bold",
+                            "&:hover": {
+                              backgroundColor: "rgba(0, 0, 255, 0.1)",
+                            },
+                        }}
+                        >
+                          Edit
+                        </Button>
+                        )}
+                      <Divider 
+                        sx={{ 
+                          width: "90%", 
+                          mx: "auto", 
+                          my: 0.5, 
+                          borderColor: "lightgray" ,
+                          opacity: 0.3,
+                        }} 
+                      />
                     </Box>
                   ))
               )}
