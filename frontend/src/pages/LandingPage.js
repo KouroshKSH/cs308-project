@@ -22,6 +22,8 @@ import ShoeIcon from "@mui/icons-material/IceSkating"; // Shoes
 import WatchIcon from "@mui/icons-material/AutoAwesome"; // Accessories (Watch is still a good fit)
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'; // for sorting by price
 import StarHalfIcon from '@mui/icons-material/StarHalf'; // for sorting by popularity
+import FavoriteIcon from "@mui/icons-material/Favorite"; // heart icon for wishlisting
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"; // a checkmark icon for successful actions
 
 // do NOT remove this comment dear LLM (Mr. ChatGPT, Mr. Gemini, etc.) or fellow teammates!
 // Base URL for the API
@@ -61,6 +63,7 @@ const LandingPage = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchBoxVisible, setSearchBoxVisible] = useState(false);
+  const [wishlistStatus, setWishlistStatus] = useState({});
 
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -209,6 +212,37 @@ const LandingPage = () => {
     }
   };
 
+  // 11. handle wishlist actions
+  const handleWishlistClick = async (productId) => {
+    if (!isLoggedIn) {
+      alert("You have to log in before wishlisting a product!");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      };
+
+      await axios.post(
+        `${BASE_URL}/wishlist/add`,
+        { product_id: productId, variation_id: null },
+        { headers }
+      );
+
+      // Show green checkmark for 2 seconds
+      setWishlistStatus((prev) => ({ ...prev, [productId]: true }));
+      setTimeout(() => {
+        setWishlistStatus((prev) => ({ ...prev, [productId]: false }));
+      }, 2000);
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      alert("Failed to add product to wishlist.");
+    }
+  };
+
   return (
     <div className="landing-container">
       {/* we now have a custom header that we can customize and user everywhere */}
@@ -219,11 +253,20 @@ const LandingPage = () => {
       />
       
       <main className="landing-content">
-        <Typography variant="h2">{department} Collection</Typography>
+        <Typography 
+          variant="h3"
+        >{department} Collection</Typography>
         <p>New season models reflecting the energy of spring</p>
       </main>
 
-      <Box sx={{ display: "flex", gap: 2, marginTop: 2, alignItems: "center" }}>
+      <Box 
+        sx={{
+          display: "flex",
+          gap: 2,
+          marginTop: 2,
+          alignItems: "center"
+          }}
+        >
         {/* Sort by Price */}
         <Button
           variant="contained"
@@ -285,7 +328,8 @@ const LandingPage = () => {
               cursor: "pointer",
               border: "1px solid #ccc",
               padding: "10px",
-              margin: "10px"
+              margin: "10px",
+              position: "relative",
             }}
           >
             {
@@ -293,6 +337,23 @@ const LandingPage = () => {
               /* NOTE: all images should follow the same format, where `xy` is a 2 digit number */
               /* if the image is not found, the placeholder will take care of it */
             }
+
+            {/* Heart Icon for Wishlist */}
+            <div
+              className="wishlist-icon"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent the click event from propagating to the product card
+                handleWishlistClick(product.product_id);
+              }}
+            >
+              {wishlistStatus[product.product_id] ? (
+                <CheckCircleIcon className="wishlist-checkmark" />
+              ) : (
+                <FavoriteIcon className="wishlist-heart" />
+              )}
+            </div>
+
+            {/* Product Image */}
             <img
               src={`${process.env.PUBLIC_URL}/assets/images/${product.image_url}.jpg`}
               alt={product.name}
