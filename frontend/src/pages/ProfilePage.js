@@ -116,6 +116,35 @@ const ProfilePage = () => {
     }
   };
 
+  const handleRemoveFromWishlist = async (productId, variationId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      };
+
+      // Call the backend to remove the item from the wishlist
+      await axios.delete(`${API_URL}/wishlist/remove`, {
+        headers,
+        data: { product_id: productId, variation_id: variationId },
+      });
+
+      // Update the wishlist state to remove the item locally
+      setWishlist((prevWishlist) =>
+        prevWishlist.filter(
+          (item) =>
+            item.product_id !== productId || item.variation_id !== variationId
+        )
+      );
+
+      alert('Item removed from wishlist!');
+    } catch (error) {
+      console.error('Error removing item from wishlist:', error);
+      alert('Failed to remove item from wishlist.');
+    }
+  };
+
   // Navigate to the Order Status page, passing the orderId in the URL
   const handleOrderClick = (orderId) => {
     navigate(`/order/${orderId}`);
@@ -217,7 +246,7 @@ const ProfilePage = () => {
 
         {/* Orders */}
         <Collapse in={openOrders}>
-          <Typography variant="h6" mb={2}>Order History</Typography>
+          <Typography variant="h5" mb={2}>Order History</Typography>
           {orders.length === 0 ? (
             <Typography>No orders yet.</Typography>
           ) : (
@@ -238,14 +267,20 @@ const ProfilePage = () => {
 
         {/* Cart */}
         <Collapse in={openCart}>
-          <Typography variant="h6" mt={4} mb={2}>Your Cart</Typography>
+          <Typography variant="h5" mt={4} mb={2}>Your Cart</Typography>
           {cart.items.length === 0 ? (
             <Typography>Your cart is empty.</Typography>
           ) : (
             <List>
               {cart.items.map((item, idx) => (
                 <Card key={idx} sx={{ mb: 2 }}>
-                  <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <CardContent 
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                      }}
+                    >
                     <Box>
                       <Typography fontWeight="bold">{item.name}</Typography>
                       <Typography>Size: {item.size_name} | Color: {item.color_name}</Typography>
@@ -282,7 +317,7 @@ const ProfilePage = () => {
 
         {/* Wishlist */}
         <Collapse in={openWishlist}>
-          <Typography variant="h6" mt={4} mb={2}>
+          <Typography variant="h5" mt={4} mb={2}>
             Your Wishlist
           </Typography>
           {wishlist.length === 0 ? (
@@ -291,17 +326,58 @@ const ProfilePage = () => {
             <List>
               {wishlist.map((item, idx) => (
                 <Card key={idx} sx={{ mb: 2 }}>
-                  <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <CardContent 
+                    sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center'
+                    }}
+                  >
+                    {/* left section for product info in the wishlist */}
                     <Box>
                       <Typography fontWeight="bold">{item.name}</Typography>
                       <Typography>Price: ${item.price}</Typography>
                     </Box>
-                    <img
-                      src={`${process.env.PUBLIC_URL}/assets/images/${item.image_url}.jpg`}
-                      alt={item.name}
-                      onError={(e) => (e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`)}
-                      style={{ width: 80, height: 100, objectFit: 'cover', borderRadius: 4 }}
-                    />
+
+                    {/* Right Section: Product Image and Remove Button */}
+                    <Box 
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: 1,
+                        }}
+                      >
+                      <img
+                        src={`${process.env.PUBLIC_URL}/assets/images/${item.image_url}.jpg`}
+                        alt={item.name}
+                        onError={(e) =>
+                          (e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`)
+                        }
+                        style={{
+                          width: 100,
+                          height: 100,
+                          objectFit: 'cover',
+                          borderRadius: 6,
+                        }}
+                      />
+                      <Button
+                        variant="contained"
+                        color="error"
+                        size="small"
+                        onClick={() =>
+                          handleRemoveFromWishlist(item.product_id, item.variation_id)
+                        }
+                        sx={{
+                          textTransform: 'none',
+                          fontWeight: 'bold',
+                          borderRadius: 1,
+                          minWidth: 100,
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </Box>
                   </CardContent>
                 </Card>
               ))}
@@ -310,7 +386,15 @@ const ProfilePage = () => {
         </Collapse>
 
         <Box mt={5} textAlign="center">
-          <Button variant="contained" color="secondary" onClick={handleLogout} sx={{ borderRadius: 10, minWidth: 120 }}>
+          <Button 
+            variant="contained"
+            color="secondary"
+            onClick={handleLogout} 
+            sx={{
+              borderRadius: 1,
+              minWidth: 180
+              }}
+            >
             Logout
           </Button>
         </Box>
