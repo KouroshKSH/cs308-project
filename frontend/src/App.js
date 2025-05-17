@@ -13,6 +13,7 @@ import InvoicePage from "./pages/InvoicePage";
 import ProductManagerPage from "./pages/ProductManagerPage";
 import SalesManagerPage from "./pages/SalesManagerPage";
 import ManagerLogin from "./pages/ManagerLogin";
+import AboutPage from "./pages/AboutPage";
 
 import "./App.css";
 
@@ -78,7 +79,11 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* the about us page */}
+        <Route path="/about" element={<AboutPage />} />
       </Routes>
+
     </BrowserRouter>
   );
 }
