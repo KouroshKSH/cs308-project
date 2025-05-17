@@ -23,6 +23,7 @@ import Header from "../components/Header";
 import { getOrCreateSessionId } from "../utils/sessionStorage";
 import Footer from "../components/Footer";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { toast } from "react-toastify"; // gives better user feedback
 import "./ProductPage.css";
 
@@ -412,10 +413,17 @@ const ProductPage = () => {
                   variant="contained"
                   size="large"
                   fullWidth
-                  sx={{ py: 1.5 }}
+                  sx={{ 
+                    py: 1.5,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 1, 
+                  }}
                   onClick={handleAddToCart}
                   disabled={!selectedVariation}
                 >
+                  <ShoppingCartIcon />
                   Add to Cart
                 </Button>
 
