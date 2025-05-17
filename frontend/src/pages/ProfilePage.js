@@ -27,9 +27,13 @@ const API_URL = process.env.REACT_APP_API_URL;
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
+  
+  // for showing the orders
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState(null);
   const [openOrders, setOpenOrders] = useState(false);
+  
+  // for showing the cart items
   const [cart, setCart] = useState({ items: [], total_price: 0 });
   const [openCart, setOpenCart] = useState(false);
 
@@ -55,6 +59,7 @@ const ProfilePage = () => {
     }
   };
 
+  // for showing the cart items
   const fetchCart = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -84,6 +89,7 @@ const ProfilePage = () => {
     if (!openCart) setOpenOrders(false);
   };
 
+  // Navigate to the Order Status page, passing the orderId in the URL
   const handleOrderClick = (orderId) => {
     navigate(`/order/${orderId}`);
   };
