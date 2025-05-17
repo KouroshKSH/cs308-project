@@ -1,9 +1,11 @@
+import { jwtDecode } from "jwt-decode";
 import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
   Rating,
   Dialog,
+  Divider,
   DialogContent,
   IconButton,
   TextField,
@@ -57,6 +59,25 @@ const ProductPage = () => {
   const [reviews, setReviews] = useState([]);
   const [variations, setVariations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  const [editReviewData, setEditReviewData] = useState({
+    rating: 0,
+    comment: "",
+    reviewId: null,
+  });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setCurrentUserId(decoded.user_id);
+      } catch (err) {
+        console.error("Token decode error:", err);
+      }
+    }
+  }, []);
 
   // for navigating from product page to any department we want
   const navigateToDepartment = (department) => {
@@ -168,6 +189,49 @@ const ProductPage = () => {
       alert('Failed to add to cart');
     }
   };
+
+  const handleEditClick = (review) => {
+    setEditReviewData({
+      rating: review.rating,
+      comment: review.comment,
+      reviewId: review.review_id,
+    });
+  };
+  
+  const handleEditSubmit = async () => {
+    if (!editReviewData.comment && editReviewData.rating == null) return;
+  
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in.");
+      return;
+    }
+  
+    try {
+      const response = await axios.patch(
+        `${BASE_URL}/reviews/${editReviewData.reviewId}`,
+        {
+          rating: editReviewData.rating,
+          comment: editReviewData.comment,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      alert("Review updated and marked as pending.");
+      setEditReviewData({ rating: 0, comment: "", reviewId: null });
+  
+      // Refetch reviews
+      const res = await axios.get(`${BASE_URL}/products/${productId}/reviews`);
+      setReviews(res.data);
+    } catch (error) {
+      console.error("Error editing review:", error.response?.data || error.message);
+      alert("Failed to update review.");
+    }
+  };  
 
   if (loading) {
     return (
@@ -329,10 +393,21 @@ const ProductPage = () => {
                 />
               </DialogContent>
             </Dialog>
-
+            
             {/* Reviews Section */}
             <Box mt={6}>
-              <Typography variant="h6" gutterBottom>Customer Reviews</Typography>
+              <Typography 
+                variant="h5" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: "bold",  
+                  gap: 1,
+                  marginBottom: 2,
+                }}
+              >
+                Customer Reviews
+              </Typography>
+              
               {reviews.filter(
                 (review) =>
                   review.rating !== null || review.comment_approval === "approved"
@@ -346,44 +421,123 @@ const ProductPage = () => {
                   )
                   .map((review) => (
                     <Box key={review.review_id} sx={{ mb: 2 }}>
-                      {(review.rating !== null || review.comment_approval === "approved") && (
-                        <Typography variant="subtitle2">{review.username}</Typography>
-                      )}
+                      <Box 
+                        sx={{ 
+                            display: "flex", 
+                            alignItems: "center",
+                            mb: 1,
+                            gap: 4,
+                          }}
+                        >
+                        <Typography 
+                          variant="subtitle2"
+                          sx = {{
+                            fontWeight: currentUserId === review.user_id ? "bold" : "normal",
+                          }}
+                        >
+                          {review.username}
+                        </Typography>
+                      </Box>
                       {review.rating !== null && (
                         <Rating value={review.rating} readOnly size="small" />
                       )}
                       {review.comment_approval === "approved" && review.comment && (
                         <Typography variant="body2">{review.comment}</Typography>
                       )}
+                      {currentUserId === review.user_id && (
+                        <Button 
+                          size="small" 
+                          onClick={() => handleEditClick(review)}
+                          sx={{
+                            border: "1px solid blue",
+                            color: "blue",
+                            textTransform: "none",
+                            fontWeight: "bold",
+                            "&:hover": {
+                              backgroundColor: "rgba(0, 0, 255, 0.1)",
+                            },
+                        }}
+                        >
+                          Edit
+                        </Button>
+                        )}
+                      <Divider 
+                        sx={{ 
+                          width: "90%", 
+                          mx: "auto", 
+                          my: 0.5, 
+                          borderColor: "lightgray" ,
+                          opacity: 0.3,
+                        }} 
+                      />
                     </Box>
                   ))
               )}
+
+              
             </Box>
 
-            {/* Add a Review */}
-            <Box mt={4}>
-              <Typography variant="h6" gutterBottom>Leave a Review</Typography>
-              <Rating
-                value={reviewRating}
-                onChange={(e, newValue) => setReviewRating(newValue)}
-              />
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                label="Write your review..."
-                variant="outlined"
-                value={reviewText}
-                onChange={(e) => setReviewText(e.target.value)}
-                sx={{ my: 2 }}
-              />
-              <Button variant="contained" onClick={handleReviewSubmit}>
-                Submit
-              </Button>
-            </Box>
+            {editReviewData.reviewId ? (
+              // Edit Review Form (your code snippet)
+              <Box mt={4}>
+                <Typography variant="h6" gutterBottom>Edit Your Review</Typography>
+                <Rating
+                  value={editReviewData.rating}
+                  onChange={(e, newValue) =>
+                    setEditReviewData((prev) => ({ ...prev, rating: newValue }))
+                  }
+                />
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  label="Update your review..."
+                  variant="outlined"
+                  value={editReviewData.comment}
+                  onChange={(e) =>
+                    setEditReviewData((prev) => ({ ...prev, comment: e.target.value }))
+                  }
+                  sx={{ my: 2 }}
+                />
+                <Button variant="contained" onClick={handleEditSubmit}>
+                  Save Changes
+                </Button>
+                <Button
+                  variant="text"
+                  sx={{ ml: 2 }}
+                  onClick={() =>
+                    setEditReviewData({ rating: 0, comment: "", reviewId: null })
+                  }
+                >
+                  Cancel
+                </Button>
+              </Box>
+            ) : (
+              // Leave a Review Form (your existing leave review JSX)
+              <Box mt={4}>
+                <Typography variant="h6" gutterBottom>Leave a Review</Typography>
+                <Rating
+                  value={reviewRating}
+                  onChange={(e, newValue) => setReviewRating(newValue)}
+                />
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  label="Write your review..."
+                  variant="outlined"
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  sx={{ my: 2 }}
+                />
+                <Button variant="contained" onClick={handleReviewSubmit}>
+                  Submit
+                </Button>
+              </Box>
+            )}
           </Box>
-        </Box>
-
+          </Box>
+        
         {/* Add a gap before the footer */}
         <Box sx={{ marginBottom: "40px" }} />
       </div>
