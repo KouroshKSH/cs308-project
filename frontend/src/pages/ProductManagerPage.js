@@ -151,6 +151,27 @@ const ProductManagerPage = () => {
     }
   };
 
+  // Function to update comment status
+  const updateCommentStatus = async (reviewId, newStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        `${API_URL}/reviews/${reviewId}/status`,
+        { newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // Refresh the comments list after updating
+      fetchComments();
+    } catch (err) {
+      console.error('Failed to update comment status:', err);
+      alert('Failed to update comment status. Please try again.');
+    }
+  };
+
   // Handle filter change
   const handleCommentFilterChange = (event) => {
     setFilterStatusComments(event.target.value);
@@ -320,6 +341,26 @@ const ProductManagerPage = () => {
                             </>
                           }
                         />
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                          {/* Approve Button */}
+                          <Button
+                            variant="contained"
+                            color="success"
+                            disabled={comment.comment_approval === 'approved'}
+                            onClick={() => updateCommentStatus(comment.review_id, 'approved')}
+                          >
+                            Approve
+                          </Button>
+                          {/* Reject Button */}
+                          <Button
+                            variant="contained"
+                            color="error"
+                            disabled={comment.comment_approval === 'rejected'}
+                            onClick={() => updateCommentStatus(comment.review_id, 'rejected')}
+                          >
+                            Reject
+                          </Button>
+                        </div>
                       </ListItem>
                     ))
                   )}
