@@ -34,6 +34,9 @@ const ProductManagerPage = () => {
   // for filtering deliveries
   const [filterStatusDeliveries, setFilterStatusDeliveries] = useState('');
 
+  // for filtering comments
+  const [filterStatusComments, setFilterStatusComments] = useState('');
+
   // for getting the manager info and displaying it
   const [managerInfo, setManagerInfo] = useState(null); // State to store manager info
 
@@ -70,11 +73,14 @@ const ProductManagerPage = () => {
     if (activeSection === 'Delivery Management') {
       fetchDeliveries(filterStatusDeliveries); // Fetch deliveries when activeSection or filter changes
     }
-
-    if (activeSection === 'Comment Moderation') {
-      fetchComments(); // Fetch comments when activeSection changes
-    }
   }, [activeSection, filterStatusDeliveries]); // Dependencies for fetching deliveries
+
+  // Update useEffect to refetch comments when filter changes
+  useEffect(() => {
+    if (activeSection === 'Comment Moderation') {
+      fetchComments();
+    }
+  }, [activeSection, filterStatusComments]);
 
   const fetchDeliveries = async () => {
     setLoading(true);
@@ -89,11 +95,6 @@ const ProductManagerPage = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      // const response = await axios.get(`${API_URL}/deliveries`, {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      // });
       setDeliveries(response.data);
     } catch (err) {
       setError('Failed to fetch deliveries. Please try again.');
@@ -133,18 +134,26 @@ const ProductManagerPage = () => {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/reviews`, {
+      const endpoint = filterStatusComments
+        ? `${API_URL}/reviews?status=${filterStatusComments}` // Fetch comments by status
+        : `${API_URL}/reviews`; // Fetch all comments
+      const response = await axios.get(endpoint, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setComments(response.data); // Set comments from the response
+      setComments(response.data);
     } catch (err) {
       console.error('Failed to fetch comments:', err);
       setError('Failed to load comments. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle filter change
+  const handleCommentFilterChange = (event) => {
+    setFilterStatusComments(event.target.value);
   };
 
   const renderContent = () => {
@@ -257,48 +266,67 @@ const ProductManagerPage = () => {
       case 'Comment Moderation':
         return (
           <div className="scrollable-content">
-            <Card variant="outlined" style={{ marginBottom: '20px' }}>
-              <CardContent>
-                <Typography variant="h6" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
-                  Comment Moderation
-                </Typography>
-                {loading ? (
-                  <CircularProgress />
-                ) : error ? (
-                  <Typography color="error">{error}</Typography>
-                ) : (
-                  <List>
-                    {comments.length === 0 ? (
-                      <Typography>No comments found.</Typography>
-                    ) : (
-                      comments.map((comment) => (
-                        <ListItem
-                          key={comment.review_id}
-                          style={{
-                            padding: '15px',
-                            border: '1px solid #ddd',
-                            marginBottom: '10px',
-                            borderRadius: '8px',
-                          }}
-                        >
-                          <ListItemText
-                            primary={`Product ID: ${comment.product_id}`}
-                            secondary={
-                              <>
-                                <div><strong>Comment:</strong> {comment.comment || 'No comment provided'}</div>
-                                <div><strong>Rating:</strong> {comment.rating}</div>
-                                <div><strong>Status:</strong> {comment.comment_approval}</div>
-                                <div><strong>Created At:</strong> {new Date(comment.created_at).toLocaleString()}</div>
-                              </>
-                            }
-                          />
-                        </ListItem>
-                      ))
-                    )}
-                  </List>
-                )}
-              </CardContent>
-            </Card>
+          <Card variant="outlined" style={{ marginBottom: '20px' }}>
+            <CardContent>
+              <Typography variant="h6" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
+                Comment Moderation
+              </Typography>
+
+              {/* Filter Dropdown */}
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                <FilterListIcon style={{ marginRight: '8px', color: 'rgba(0, 0, 0, 0.54)' }} />
+                <FormControl style={{ minWidth: 200 }}>
+                  <InputLabel id="comment-filter-label">Comment Status</InputLabel>
+                  <Select
+                    labelId="comment-filter-label"
+                    value={filterStatusComments}
+                    onChange={handleCommentFilterChange}
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="approved">Approved</MenuItem>
+                    <MenuItem value="rejected">Rejected</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+
+              {loading ? (
+                <CircularProgress />
+              ) : error ? (
+                <Typography color="error">{error}</Typography>
+              ) : (
+                <List>
+                  {comments.length === 0 ? (
+                    <Typography>No comments found.</Typography>
+                  ) : (
+                    comments.map((comment) => (
+                      <ListItem
+                        key={comment.review_id}
+                        style={{
+                          padding: '15px',
+                          border: '1px solid #ddd',
+                          marginBottom: '10px',
+                          borderRadius: '8px',
+                        }}
+                      >
+                        <ListItemText
+                          primary={`Product ID: ${comment.product_id}`}
+                          secondary={
+                            <>
+                              <div><strong>Comment:</strong> {comment.comment || 'No comment provided'}</div>
+                              <div><strong>Rating:</strong> {comment.rating}</div>
+                              <div><strong>Status:</strong> {comment.comment_approval}</div>
+                              <div><strong>Created At:</strong> {new Date(comment.created_at).toLocaleString()}</div>
+                            </>
+                          }
+                        />
+                      </ListItem>
+                    ))
+                  )}
+                </List>
+              )}
+            </CardContent>
+          </Card>
         </div>
         );
       default:
