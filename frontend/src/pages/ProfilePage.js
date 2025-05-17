@@ -21,6 +21,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DrawerMenu from '../components/DrawerMenu';
+import Footer from '../components/Footer';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -245,6 +246,12 @@ const ProfilePage = () => {
           </Button>
         </Box>
       </Box>
+   
+
+      {/* Add a gap before the footer */}
+      <Box sx={{ marginBottom: "200px" }} />
+
+      <Footer />
     </>
   );
 };

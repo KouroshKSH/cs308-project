@@ -1,0 +1,51 @@
+/* Styling for the footer links */
+.footer-link {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text */
+  color: #555; /* Dark gray text */
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+/* Footer links container */
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  margin-top: 10px;
+}
+
+.footer-link:hover {
+  color: #333; /* Slightly lighter color on hover */
+}
+
+/* Styling for the icons */
+.footer-icon {
+    font-size: 1.2rem; /* Slightly larger icon size */
+    color: #555; /* Icon color */
+    transition: color 0.3s ease;
+}
+
+/* Footer container for additional spacing */
+.footer-container {
+    text-align: center;
+    padding-top: 30px;
+    padding-bottom: 40px;
+    width: 100%; /* Ensure the footer spans the full width */
+    position: relative; /* Ensure it stays within the flow of the page */
+    background-color: white; /* Dark background */
+    color: #555; /* White text */
+    border-top: 1px solid #747474; /* Top border for separation */
+    box-sizing: border-box; /* Include padding and border in width/height */
+}
+
+/* Footer text */
+.footer-text {
+  color: #555; /* Dark gray text */
+}
