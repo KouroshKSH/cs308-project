@@ -1,0 +1,11 @@
+/* Add spacing at the bottom of the page */
+.product-page-container {
+  margin-bottom: 40px; /* Space between the last content and the footer */
+}
+
+/* let's NOT use this because it breaks everything !!! */
+/* .product-page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+} */
