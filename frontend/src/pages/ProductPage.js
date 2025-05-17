@@ -22,6 +22,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import Header from "../components/Header";
 import { getOrCreateSessionId } from "../utils/sessionStorage";
 import Footer from "../components/Footer";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import { toast } from "react-toastify"; // gives better user feedback
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
@@ -47,6 +49,9 @@ const ProductPage = () => {
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
   const [selectedVariation, setSelectedVariation] = useState("");
+
+  // needed for wishlisting
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // allow empty string
   const [quantity, setQuantity] = useState("");
@@ -77,6 +82,13 @@ const ProductPage = () => {
         console.error("Token decode error:", err);
       }
     }
+  }, []);
+
+  // this use effect is for checking if the user is logged in
+  // if the user is logged in, we can show the wishlist button
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
   }, []);
 
   // for navigating from product page to any department we want
@@ -231,7 +243,38 @@ const ProductPage = () => {
       console.error("Error editing review:", error.response?.data || error.message);
       alert("Failed to update review.");
     }
-  };  
+  }; 
+  
+  // handle everything related to clicking the wishlist button
+  const handleWishlistClick = async () => {
+    // can't wishlist if you're not logged in
+    if (!isLoggedIn) {
+      toast.warning("You can only wishlist if you're logged in."); // replace this with alert if not using toast
+      return;
+    }
+
+    // the user is logged in
+    try {
+      const token = localStorage.getItem("token");
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      };
+
+      // we decided to not pass variation ID for wishlisting due to complexity
+      // so i pass everything as null for the variation
+      await axios.post(
+        `${BASE_URL}/wishlist/add`,
+        { product_id: productId, variation_id: null },
+        { headers }
+      );
+
+      toast.success("Product added to your wishlist!");
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      toast.error("Failed to add product to wishlist.");
+    }
+  };
 
   if (loading) {
     return (
@@ -370,6 +413,25 @@ const ProductPage = () => {
                   disabled={!selectedVariation}
                 >
                   Add to Cart
+                </Button>
+
+                {/* Wishlist Button */}
+                <Button
+                  variant="outlined"
+                  size="large"
+                  fullWidth
+                  sx={{
+                    py: 1.5,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 1,
+                  }}
+                  onClick={handleWishlistClick}
+                  disabled={!isLoggedIn}
+                >
+                  <FavoriteIcon color={isLoggedIn ? "error" : "disabled"} />
+                  Add to Wishlist
                 </Button>
               </Box>
             </Box>
