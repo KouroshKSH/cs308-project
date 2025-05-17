@@ -14,6 +14,8 @@ import {
   CircularProgress,
 } from "@mui/material";
 import axios from "axios";
+import Footer from "../components/Footer";
+import "./OrderStatusPage.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -91,76 +93,82 @@ const OrderStatusPage = () => {
   const currentStep = statusSteps.indexOf(order.status.toLowerCase());
 
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", p: 4 }}>
-      <Paper elevation={3} sx={{ p: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Order Details
-        </Typography>
-        <Typography>Order Number: {order.order_id}</Typography>
-        <Typography>Order Date: {formatDate(order.order_date)}</Typography>
-        <Typography>Total Price: ${order.total_price}</Typography>
+    <>
+    <div className="order-status-container"> 
+      <Box sx={{ maxWidth: 800, mx: "auto", p: 4 }}>
+        <Paper elevation={3} className="order-status-paper">
+          <Typography variant="h6" gutterBottom>
+            Order Details
+          </Typography>
+          <Typography>Order Number: {order.order_id}</Typography>
+          <Typography>Order Date: {formatDate(order.order_date)}</Typography>
+          <Typography>Total Price: ${order.total_price}</Typography>
 
-        <Box sx={{ my: 4 }}>
-          <Stepper activeStep={currentStep} alternativeLabel>
-            {statusSteps.map((label) => (
-              <Step key={label}>
-                <StepLabel>{label.charAt(0).toUpperCase() + label.slice(1)}</StepLabel>
-              </Step>
+          <Box sx={{ my: 4 }}>
+            <Stepper activeStep={currentStep} alternativeLabel>
+              {statusSteps.map((label) => (
+                <Step key={label}>
+                  <StepLabel>{label.charAt(0).toUpperCase() + label.slice(1)}</StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+          </Box>
+
+          <Typography variant="h6" gutterBottom>
+            Shipping Information
+          </Typography>
+          <Typography>Delivery Address: {order.delivery_address}</Typography>
+
+          <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
+            Items in Order
+          </Typography>
+          <List>
+            {items.map((item) => (
+              <ListItem key={item.order_item_id}>
+                <ListItemText
+                  primary={`${item.product_name} (x${item.quantity})`}
+                  secondary={`Price at Purchase: $${item.price_at_purchase}`}
+                />
+              </ListItem>
             ))}
-          </Stepper>
-        </Box>
+          </List>
 
-        <Typography variant="h6" gutterBottom>
-          Shipping Information
-        </Typography>
-        <Typography>Delivery Address: {order.delivery_address}</Typography>
+          <Typography variant="h6" gutterBottom>
+            Estimated Delivery
+          </Typography>
+          <Typography>
+            {estimatedDelivery ? formatDate(estimatedDelivery) : "N/A"}
+          </Typography>
 
-        <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-          Items in Order
-        </Typography>
-        <List>
-          {items.map((item) => (
-            <ListItem key={item.order_item_id}>
-              <ListItemText
-                primary={`${item.product_name} (x${item.quantity})`}
-                secondary={`Price at Purchase: $${item.price_at_purchase}`}
-              />
-            </ListItem>
-          ))}
-        </List>
+          {/* navigation buttons to landing page and/or profile page */}
+          <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate("/")}
+              sx={{ flex: 1 }}
+            >
+              Back to Home
+            </Button>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "#9c27b0", // MUI purple[500]
+                color: "#fff",
+                flex: 1,
+                "&:hover": { backgroundColor: "#7b1fa2" }, // MUI purple[700]
+              }}
+              onClick={() => navigate("/profile")}
+            >
+              Back to Profile
+            </Button>
+          </Box>
+        </Paper>
+      </Box>
+    </div>
 
-        <Typography variant="h6" gutterBottom>
-          Estimated Delivery
-        </Typography>
-        <Typography>
-          {estimatedDelivery ? formatDate(estimatedDelivery) : "N/A"}
-        </Typography>
-
-        {/* navigation buttons to landing page and/or profile page */}
-        <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => navigate("/")}
-            sx={{ flex: 1 }}
-          >
-            Back to Home
-          </Button>
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: "#9c27b0", // MUI purple[500]
-              color: "#fff",
-              flex: 1,
-              "&:hover": { backgroundColor: "#7b1fa2" }, // MUI purple[700]
-            }}
-            onClick={() => navigate("/profile")}
-          >
-            Back to Profile
-          </Button>
-        </Box>
-      </Paper>
-    </Box>
+    <Footer />
+    </>
   );
 };
 

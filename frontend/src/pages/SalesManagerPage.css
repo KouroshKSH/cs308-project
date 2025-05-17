@@ -1,0 +1,32 @@
+/* Right Navbar Styling */
+.right-navbar {
+  width: 300px;
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-left: 1px solid #ddd;
+}
+
+.right-navbar .nav-item {
+  cursor: pointer;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+  color: rgba(0, 0, 0, 0.7);
+  font-weight: normal;
+  transition: color 0.3s, font-weight 0.3s;
+}
+
+.right-navbar .nav-item:hover {
+  color: #1976d2;
+}
+
+.right-navbar .nav-item.active {
+  color: #1976d2;
+  font-weight: bold;
+}
+
+/* Main Content Styling */
+.main-content {
+  padding: 20px;
+  width: calc(100% - 300px);
+  overflow-y: auto;
+}
