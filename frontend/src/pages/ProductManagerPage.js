@@ -27,6 +27,7 @@ const ProductManagerPage = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('Product & Category Management');
   const [deliveries, setDeliveries] = useState([]);
+  const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -64,10 +65,14 @@ const ProductManagerPage = () => {
     fetchManagerProfile(); // Fetch manager profile only once
   }, []); // Runs only on component mount
 
-  // when "Delivery Management" is selected, get ALL the deliveries
+  // for fetching the info of the items
   useEffect(() => {
     if (activeSection === 'Delivery Management') {
       fetchDeliveries(filterStatusDeliveries); // Fetch deliveries when activeSection or filter changes
+    }
+
+    if (activeSection === 'Comment Moderation') {
+      fetchComments(); // Fetch comments when activeSection changes
     }
   }, [activeSection, filterStatusDeliveries]); // Dependencies for fetching deliveries
 
@@ -120,6 +125,26 @@ const ProductManagerPage = () => {
 
   const handleFilterChange = (event) => {
     setFilterStatusDeliveries(event.target.value);
+  };
+
+  // Fetch all comments
+  const fetchComments = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/reviews`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setComments(response.data); // Set comments from the response
+    } catch (err) {
+      console.error('Failed to fetch comments:', err);
+      setError('Failed to load comments. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderContent = () => {
@@ -234,13 +259,47 @@ const ProductManagerPage = () => {
           <div className="scrollable-content">
             <Card variant="outlined" style={{ marginBottom: '20px' }}>
               <CardContent>
-                <Typography variant="h6">Comment Moderation</Typography>
-                <List>
-                  <ListItem>- Approve or reject product comments</ListItem>
-                </List>
+                <Typography variant="h6" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
+                  Comment Moderation
+                </Typography>
+                {loading ? (
+                  <CircularProgress />
+                ) : error ? (
+                  <Typography color="error">{error}</Typography>
+                ) : (
+                  <List>
+                    {comments.length === 0 ? (
+                      <Typography>No comments found.</Typography>
+                    ) : (
+                      comments.map((comment) => (
+                        <ListItem
+                          key={comment.review_id}
+                          style={{
+                            padding: '15px',
+                            border: '1px solid #ddd',
+                            marginBottom: '10px',
+                            borderRadius: '8px',
+                          }}
+                        >
+                          <ListItemText
+                            primary={`Product ID: ${comment.product_id}`}
+                            secondary={
+                              <>
+                                <div><strong>Comment:</strong> {comment.comment || 'No comment provided'}</div>
+                                <div><strong>Rating:</strong> {comment.rating}</div>
+                                <div><strong>Status:</strong> {comment.comment_approval}</div>
+                                <div><strong>Created At:</strong> {new Date(comment.created_at).toLocaleString()}</div>
+                              </>
+                            }
+                          />
+                        </ListItem>
+                      ))
+                    )}
+                  </List>
+                )}
               </CardContent>
             </Card>
-          </div>
+        </div>
         );
       default:
         return null;
