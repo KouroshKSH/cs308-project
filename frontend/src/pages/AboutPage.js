@@ -29,9 +29,9 @@ const About = () => {
       <ul>
         <li>Kourosh Sharifi</li>
         <li>Zeynep Merve Yaman</li>
-        <li>Reyhan Turhan</li>
-        <li>Nur Ayca İlhan</li>
         <li>Arif Kemal Sarı</li>
+        <li>Nur Ayca İlhan</li>
+        <li>Reyhan Turhan</li>
         <li>Mervan Yusuf Gür</li>
       </ul>
     </Box>

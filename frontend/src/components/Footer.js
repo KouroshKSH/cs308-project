@@ -57,7 +57,7 @@ const Footer = () => {
         <Link
           component="button"
           underline="hover"
-          onClick={() => window.open("https://github.com/KouroshKSH/cs308-project", "_blank")}
+          onClick={() => navigate("/about")}
           className="footer-link"
         >
           <InfoIcon className="footer-icon" /> About

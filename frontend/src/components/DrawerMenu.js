@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { Drawer, List, ListItem, ListItemText, IconButton } from "@mui/material";
+import { 
+  Drawer, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  IconButton,
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -61,18 +67,20 @@ const DrawerMenu = () => {
           >
             <ListItemText primary="Home" />
           </ListItem>
+          
+          {/* the about page */}
+
           <ListItem
             button
             sx={{ cursor: "pointer" }}
             onClick={() => {
-              // I chose our project's GitHub link as the "About" page
-              // because we don't have a dedicated About page yet.
-              window.open("https://github.com/KouroshKSH/cs308-project", "_blank");
+              navigate("/about");
               setDrawerOpen(false); // Close the drawer
             }}
           >
             <ListItemText primary="About" />
           </ListItem>
+          
           <ListItem
             button
             sx={{ cursor: "pointer" }}
