@@ -1,3 +1,4 @@
+import { jwtDecode } from "jwt-decode";
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -57,6 +58,25 @@ const ProductPage = () => {
   const [reviews, setReviews] = useState([]);
   const [variations, setVariations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  const [editReviewData, setEditReviewData] = useState({
+    rating: 0,
+    comment: "",
+    reviewId: null,
+  });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setCurrentUserId(decoded.user_id);
+      } catch (err) {
+        console.error("Token decode error:", err);
+      }
+    }
+  }, []);
 
   // for navigating from product page to any department we want
   const navigateToDepartment = (department) => {
@@ -168,6 +188,49 @@ const ProductPage = () => {
       alert('Failed to add to cart');
     }
   };
+
+  const handleEditClick = (review) => {
+    setEditReviewData({
+      rating: review.rating,
+      comment: review.comment,
+      reviewId: review.review_id,
+    });
+  };
+  
+  const handleEditSubmit = async () => {
+    if (!editReviewData.comment && editReviewData.rating == null) return;
+  
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in.");
+      return;
+    }
+  
+    try {
+      const response = await axios.patch(
+        `${BASE_URL}/reviews/${editReviewData.reviewId}`,
+        {
+          rating: editReviewData.rating,
+          comment: editReviewData.comment,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      alert("Review updated and marked as pending.");
+      setEditReviewData({ rating: 0, comment: "", reviewId: null });
+  
+      // Refetch reviews
+      const res = await axios.get(`${BASE_URL}/products/${productId}/reviews`);
+      setReviews(res.data);
+    } catch (error) {
+      console.error("Error editing review:", error.response?.data || error.message);
+      alert("Failed to update review.");
+    }
+  };  
 
   if (loading) {
     return (
@@ -384,6 +447,99 @@ const ProductPage = () => {
           </Box>
         </Box>
 
+        {/* Reviews Section */}
+        <Box mt={6}>
+          <Typography variant="h6" gutterBottom>Customer Reviews</Typography>
+          {reviews.filter(
+            (review) =>
+              review.rating !== null || review.comment_approval === "approved"
+          ).length === 0 ? (
+            <Typography variant="body2" color="text.secondary">No reviews yet.</Typography>
+          ) : (
+            reviews
+              .filter(
+                (review) =>
+                  review.rating !== null || review.comment_approval === "approved"
+              )
+              .map((review) => (
+                <Box key={review.review_id} sx={{ mb: 2 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography variant="subtitle2">{review.username}</Typography>
+                    {currentUserId === review.user_id && (
+                      <Button size="small" onClick={() => handleEditClick(review)}>
+                        Edit
+                      </Button>
+                    )}
+                  </Box>
+                  {review.rating !== null && (
+                    <Rating value={review.rating} readOnly size="small" />
+                  )}
+                  {review.comment_approval === "approved" && review.comment && (
+                    <Typography variant="body2">{review.comment}</Typography>
+                  )}
+                </Box>
+              ))
+          )}
+        </Box>
+
+        {editReviewData.reviewId ? (
+          // Edit Review Form (your code snippet)
+          <Box mt={4}>
+            <Typography variant="h6" gutterBottom>Edit Your Review</Typography>
+            <Rating
+              value={editReviewData.rating}
+              onChange={(e, newValue) =>
+                setEditReviewData((prev) => ({ ...prev, rating: newValue }))
+              }
+            />
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="Update your review..."
+              variant="outlined"
+              value={editReviewData.comment}
+              onChange={(e) =>
+                setEditReviewData((prev) => ({ ...prev, comment: e.target.value }))
+              }
+              sx={{ my: 2 }}
+            />
+            <Button variant="contained" onClick={handleEditSubmit}>
+              Save Changes
+            </Button>
+            <Button
+              variant="text"
+              sx={{ ml: 2 }}
+              onClick={() =>
+                setEditReviewData({ rating: 0, comment: "", reviewId: null })
+              }
+            >
+              Cancel
+            </Button>
+          </Box>
+        ) : (
+          // Leave a Review Form (your existing leave review JSX)
+          <Box mt={4}>
+            <Typography variant="h6" gutterBottom>Leave a Review</Typography>
+            <Rating
+              value={reviewRating}
+              onChange={(e, newValue) => setReviewRating(newValue)}
+            />
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="Write your review..."
+              variant="outlined"
+              value={reviewText}
+              onChange={(e) => setReviewText(e.target.value)}
+              sx={{ my: 2 }}
+            />
+            <Button variant="contained" onClick={handleReviewSubmit}>
+              Submit
+            </Button>
+          </Box>
+        )}
         {/* Add a gap before the footer */}
         <Box sx={{ marginBottom: "40px" }} />
       </div>

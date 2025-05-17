@@ -11,6 +11,7 @@ const Review = {
         pr.comment,
         pr.comment_approval,
         pr.created_at,
+        pr.user_id,
         u.username
       FROM product_reviews pr
       JOIN users u ON pr.user_id = u.user_id
