@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-    Typography, 
-    TextField, 
-    Button, 
-    MenuItem, 
-    Select, 
-    FormControl, 
-    InputLabel, 
-    Box 
+import {
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Box,
 } from "@mui/material";
 import axios from "axios";
 
@@ -23,14 +23,8 @@ const ManagerLogin = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${
-            process.env.REACT_APP_API_URL
-        }/auth/manager-login`, 
-        {
-            email,
-            password,
-            role,
-        }
+        `${process.env.REACT_APP_API_URL}/auth/manager-login`,
+        { email, password, role }
       );
 
       if (response.data.token) {
@@ -47,25 +41,30 @@ const ManagerLogin = () => {
   };
 
   const handleBackToHome = () => {
-    navigate("/"); // Redirect to the landing page
+    navigate("/");
   };
 
   return (
-    <Box sx={{ maxWidth: '40%', margin: "auto", padding: 4 }}>
-    {/* Back to Home Button */}
+    <Box sx={{ maxWidth: "40%", mx: "auto", p: 4 }}>
       <Button
         variant="outlined"
         color="primary"
         onClick={handleBackToHome}
-        sx={{ position: "absolute", top: 20, left: 20 }}
+        sx={{ mb: 3 }}
       >
         Back to Home
-
       </Button>
+
       <Typography variant="h4" gutterBottom>
         Manager Login
       </Typography>
-      {errorMessage && <Typography color="error">{errorMessage}</Typography>}
+
+      {errorMessage && (
+        <Box sx={{ mb: 2 }}>
+          <Typography color="error">{errorMessage}</Typography>
+        </Box>
+      )}
+
       <form onSubmit={handleSubmit}>
         <TextField
           label="Email"
@@ -87,7 +86,11 @@ const ManagerLogin = () => {
         />
         <FormControl fullWidth margin="normal">
           <InputLabel>Role</InputLabel>
-          <Select value={role} onChange={(e) => setRole(e.target.value)} required>
+          <Select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            required
+          >
             <MenuItem value="productManager">Product Manager</MenuItem>
             <MenuItem value="salesManager">Sales Manager</MenuItem>
           </Select>
