@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DrawerMenu from '../components/DrawerMenu';
 import Footer from '../components/Footer';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -38,9 +39,14 @@ const ProfilePage = () => {
   const [cart, setCart] = useState({ items: [], total_price: 0 });
   const [openCart, setOpenCart] = useState(false);
 
+  // for wishlist
+  const [wishlist, setWishlist] = useState([]);
+  const [openWishlist, setOpenWishlist] = useState(false);
+
   useEffect(() => {
     fetchUserProfile();
     fetchCart();
+    fetchWishlist();
   }, []);
 
   const fetchUserProfile = async () => {
@@ -73,6 +79,18 @@ const ProfilePage = () => {
     }
   };
 
+  const fetchWishlist = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${API_URL}/wishlist`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setWishlist(res.data); // Set wishlist data
+    } catch {
+      setWishlist([]); // Default to empty if error occurs
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/');
@@ -88,6 +106,14 @@ const ProfilePage = () => {
   const handleToggleCart = () => {
     setOpenCart(!openCart);
     if (!openCart) setOpenOrders(false);
+  };
+
+  const handleToggleWishlist = () => {
+    setOpenWishlist(!openWishlist);
+    if (!openWishlist) {
+      setOpenOrders(false);
+      setOpenCart(false);
+    }
   };
 
   // Navigate to the Order Status page, passing the orderId in the URL
@@ -157,6 +183,8 @@ const ProfilePage = () => {
 
         {/* Toggle Buttons */}
         <Box display="flex" justifyContent="center" gap={3} mb={3}>
+          
+          {/* order toggle */}
           <Button
             variant={openOrders ? 'contained' : 'outlined'}
             startIcon={<ReceiptLongIcon />}
@@ -165,6 +193,8 @@ const ProfilePage = () => {
           >
             Orders
           </Button>
+
+          {/* cart toggle */}
           <Button
             variant={openCart ? 'contained' : 'outlined'}
             startIcon={<ShoppingCartIcon />}
@@ -172,6 +202,16 @@ const ProfilePage = () => {
             sx={{ borderRadius: 10, minWidth: 140 }}
           >
             Cart
+          </Button>
+
+          {/* wishlist toggle */}
+          <Button
+            variant={openWishlist ? 'contained' : 'outlined'}
+            startIcon={<FavoriteIcon />}
+            onClick={handleToggleWishlist}
+            sx={{ borderRadius: 10, minWidth: 140 }}
+          >
+            Wishlist
           </Button>
         </Box>
 
@@ -236,6 +276,35 @@ const ProfilePage = () => {
               >
                 <ListItemText primary={<strong>Total: ${cart.total_price}</strong>} />
               </ListItem>
+            </List>
+          )}
+        </Collapse>
+
+        {/* Wishlist */}
+        <Collapse in={openWishlist}>
+          <Typography variant="h6" mt={4} mb={2}>
+            Your Wishlist
+          </Typography>
+          {wishlist.length === 0 ? (
+            <Typography>Your wishlist is empty.</Typography>
+          ) : (
+            <List>
+              {wishlist.map((item, idx) => (
+                <Card key={idx} sx={{ mb: 2 }}>
+                  <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box>
+                      <Typography fontWeight="bold">{item.name}</Typography>
+                      <Typography>Price: ${item.price}</Typography>
+                    </Box>
+                    <img
+                      src={`${process.env.PUBLIC_URL}/assets/images/${item.image_url}.jpg`}
+                      alt={item.name}
+                      onError={(e) => (e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`)}
+                      style={{ width: 80, height: 100, objectFit: 'cover', borderRadius: 4 }}
+                    />
+                  </CardContent>
+                </Card>
+              ))}
             </List>
           )}
         </Collapse>
