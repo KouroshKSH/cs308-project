@@ -3,6 +3,29 @@
   margin-bottom: 40px; /* Space between the last content and the footer */
 }
 
+.wishlist-button {
+  border: 2px solid red; /* Red border */
+  color: red; /* Red text */
+  background-color: white; /* White background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 0;
+  font-size: 16px;
+  text-transform: none; /* Prevent uppercase text */
+}
+
+.wishlist-button:hover {
+  background-color: #ffe6e6; /* Light red hover effect */
+  border-color: darkred; /* Dark red border on hover */
+}
+
+.wishlist-button:disabled {
+  color: gray; /* Gray text when disabled */
+  border-color: gray; /* Gray border when disabled */
+}
+
 /* let's NOT use this because it breaks everything !!! */
 /* .product-page-content {
   max-width: 1200px;

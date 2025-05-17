@@ -24,6 +24,7 @@ import { getOrCreateSessionId } from "../utils/sessionStorage";
 import Footer from "../components/Footer";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { toast } from "react-toastify"; // gives better user feedback
+import "./ProductPage.css";
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
@@ -403,6 +404,9 @@ const ProductPage = () => {
                   helperText={quantityError}
                 />
 
+                {/* Add about 10px vertical space between quantity and buttons */}
+                <Box sx={{ my: 1 }} />
+
                 {/* Add to Cart */}
                 <Button
                   variant="contained"
@@ -415,6 +419,9 @@ const ProductPage = () => {
                   Add to Cart
                 </Button>
 
+                {/* add about 10px vertical space between cart and wishlist buttons */}
+                <Box sx={{ my: 1 }} />
+
                 {/* Wishlist Button */}
                 <Button
                   variant="outlined"
@@ -426,6 +433,13 @@ const ProductPage = () => {
                     alignItems: "center",
                     justifyContent: "center",
                     gap: 1,
+                    color: "red", // Red text
+                    borderColor: "red", // Red border
+                    backgroundColor: "white", // White background
+                    "&:hover": {
+                      backgroundColor: "#ffe6e6", // Light red hover effect
+                      borderColor: "darkred", // Dark red border on hover
+                    },
                   }}
                   onClick={handleWishlistClick}
                   disabled={!isLoggedIn}
