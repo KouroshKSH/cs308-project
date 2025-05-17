@@ -27,11 +27,15 @@ const ProductManagerPage = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('Product & Category Management');
   const [deliveries, setDeliveries] = useState([]);
+  const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // for filtering deliveries
   const [filterStatusDeliveries, setFilterStatusDeliveries] = useState('');
+
+  // for filtering comments
+  const [filterStatusComments, setFilterStatusComments] = useState('');
 
   // for getting the manager info and displaying it
   const [managerInfo, setManagerInfo] = useState(null); // State to store manager info
@@ -64,12 +68,19 @@ const ProductManagerPage = () => {
     fetchManagerProfile(); // Fetch manager profile only once
   }, []); // Runs only on component mount
 
-  // when "Delivery Management" is selected, get ALL the deliveries
+  // for fetching the info of the items
   useEffect(() => {
     if (activeSection === 'Delivery Management') {
       fetchDeliveries(filterStatusDeliveries); // Fetch deliveries when activeSection or filter changes
     }
   }, [activeSection, filterStatusDeliveries]); // Dependencies for fetching deliveries
+
+  // Update useEffect to refetch comments when filter changes
+  useEffect(() => {
+    if (activeSection === 'Comment Moderation') {
+      fetchComments();
+    }
+  }, [activeSection, filterStatusComments]);
 
   const fetchDeliveries = async () => {
     setLoading(true);
@@ -84,11 +95,6 @@ const ProductManagerPage = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      // const response = await axios.get(`${API_URL}/deliveries`, {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      // });
       setDeliveries(response.data);
     } catch (err) {
       setError('Failed to fetch deliveries. Please try again.');
@@ -120,6 +126,55 @@ const ProductManagerPage = () => {
 
   const handleFilterChange = (event) => {
     setFilterStatusDeliveries(event.target.value);
+  };
+
+  // Fetch all comments
+  const fetchComments = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('token');
+      const endpoint = filterStatusComments
+        ? `${API_URL}/reviews?status=${filterStatusComments}` // Fetch comments by status
+        : `${API_URL}/reviews`; // Fetch all comments
+      const response = await axios.get(endpoint, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setComments(response.data);
+    } catch (err) {
+      console.error('Failed to fetch comments:', err);
+      setError('Failed to load comments. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to update comment status
+  const updateCommentStatus = async (reviewId, newStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        `${API_URL}/reviews/${reviewId}/status`,
+        { newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // Refresh the comments list after updating
+      fetchComments();
+    } catch (err) {
+      console.error('Failed to update comment status:', err);
+      alert('Failed to update comment status. Please try again.');
+    }
+  };
+
+  // Handle filter change
+  const handleCommentFilterChange = (event) => {
+    setFilterStatusComments(event.target.value);
   };
 
   const renderContent = () => {
@@ -232,15 +287,88 @@ const ProductManagerPage = () => {
       case 'Comment Moderation':
         return (
           <div className="scrollable-content">
-            <Card variant="outlined" style={{ marginBottom: '20px' }}>
-              <CardContent>
-                <Typography variant="h6">Comment Moderation</Typography>
+          <Card variant="outlined" style={{ marginBottom: '20px' }}>
+            <CardContent>
+              <Typography variant="h6" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
+                Comment Moderation
+              </Typography>
+
+              {/* Filter Dropdown */}
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                <FilterListIcon style={{ marginRight: '8px', color: 'rgba(0, 0, 0, 0.54)' }} />
+                <FormControl style={{ minWidth: 200 }}>
+                  <InputLabel id="comment-filter-label">Comment Status</InputLabel>
+                  <Select
+                    labelId="comment-filter-label"
+                    value={filterStatusComments}
+                    onChange={handleCommentFilterChange}
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="approved">Approved</MenuItem>
+                    <MenuItem value="rejected">Rejected</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+
+              {loading ? (
+                <CircularProgress />
+              ) : error ? (
+                <Typography color="error">{error}</Typography>
+              ) : (
                 <List>
-                  <ListItem>- Approve or reject product comments</ListItem>
+                  {comments.length === 0 ? (
+                    <Typography>No comments found.</Typography>
+                  ) : (
+                    comments.map((comment) => (
+                      <ListItem
+                        key={comment.review_id}
+                        style={{
+                          padding: '15px',
+                          border: '1px solid #ddd',
+                          marginBottom: '10px',
+                          borderRadius: '8px',
+                        }}
+                      >
+                        <ListItemText
+                          primary={`Product ID: ${comment.product_id}`}
+                          secondary={
+                            <>
+                              <div><strong>Comment:</strong> {comment.comment || 'No comment provided'}</div>
+                              <div><strong>Rating:</strong> {comment.rating}</div>
+                              <div><strong>Status:</strong> {comment.comment_approval}</div>
+                              <div><strong>Created At:</strong> {new Date(comment.created_at).toLocaleString()}</div>
+                            </>
+                          }
+                        />
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                          {/* Approve Button */}
+                          <Button
+                            variant="contained"
+                            color="success"
+                            disabled={comment.comment_approval === 'approved'}
+                            onClick={() => updateCommentStatus(comment.review_id, 'approved')}
+                          >
+                            Approve
+                          </Button>
+                          {/* Reject Button */}
+                          <Button
+                            variant="contained"
+                            color="error"
+                            disabled={comment.comment_approval === 'rejected'}
+                            onClick={() => updateCommentStatus(comment.review_id, 'rejected')}
+                          >
+                            Reject
+                          </Button>
+                        </div>
+                      </ListItem>
+                    ))
+                  )}
                 </List>
-              </CardContent>
-            </Card>
-          </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
         );
       default:
         return null;
