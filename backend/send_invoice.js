@@ -1,19 +1,19 @@
-#!/usr/bin/env node
+require('dotenv').config();
+
+console.log('Using API Key:', process.env.SENDGRID_API_KEY);
+console.log('Using Sender Email:', process.env.SENDER_EMAIL);
+
+const sgMail = require('@sendgrid/mail');
+const path       = require('path');
+const fs         = require('fs');
+
+
 /**
  * send_invoice.js
  *
  * Usage:
  *   node send_invoice.js <pdfFileName> <recipientEmail>
- *
- * Example:
- *   node send_invoice.js invoice999999.pdf customer@example.com
  */
-
-require('dotenv').config();
-
-const nodemailer = require('nodemailer');
-const path       = require('path');
-const fs         = require('fs');
 
 // 1) Parse CLI arguments
 if (process.argv.length < 4) {
@@ -32,21 +32,15 @@ if (!fs.existsSync(pdfPath)) {
   process.exit(1);
 }
 
-// 4) Create the transporter using Gmail + App Password
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS
-  }
-});
+// 4) Configure SendGrid
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // 5) Prepare the email
-const mailOptions = {
-  from: `"CS308 Team" <${process.env.GMAIL_USER}>`,
+const msg = {
   to: recipientEmail,
+  from: process.env.SENDER_EMAIL,
   subject: `Your Invoice: ${pdfFileName}`,
-  text:    `Hello,
+  text: `Hello,
 
 Please find your invoice attached.
 
@@ -54,19 +48,21 @@ Thank you,
 CS308 Team`,
   attachments: [
     {
-      filename:    pdfFileName,
-      path:        pdfPath,
-      contentType: 'application/pdf'
-    }
-  ]
+      content: fs.readFileSync(pdfPath).toString('base64'),
+      filename: pdfFileName,
+      type: 'application/pdf',
+      disposition: 'attachment',
+    },
+  ],
 };
 
 // 6) Send it!
-transporter.sendMail(mailOptions, (err, info) => {
-  if (err) {
-    console.error('❌ Error sending email:', err);
+sgMail
+  .send(msg)
+  .then(() => {
+    console.log('✅ Email sent successfully!');
+  })
+  .catch((error) => {
+    console.error('❌ Error sending email:', error);
     process.exit(1);
-  }
-  console.log('✅ Email sent successfully!');
-  console.log('   SMTP response:', info.response);
-});
+  });
