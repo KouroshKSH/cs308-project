@@ -96,6 +96,9 @@ const authController = {
 
       // for logging purposes
       console.log("Session ID:", session_id);
+      console.log("User ID:", user.user_id);
+      console.log("User Role:", user.role);
+      console.log("JWT:\n", token);
 
       // if we have a session ID, we need to update the cart for the user
       if (session_id) {
