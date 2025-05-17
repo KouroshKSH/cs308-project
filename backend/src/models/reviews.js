@@ -110,6 +110,40 @@ const Review = {
 
    return result.insertId;
   },
+
+  async updateReview(reviewId, userId, rating, comment) {
+    const fields = [];
+    const values = [];
+  
+    if (rating !== undefined) {
+      fields.push("rating = ?");
+      values.push(rating);
+    }
+  
+    if (comment !== undefined) {
+      fields.push("comment = ?");
+      values.push(comment);
+    }
+  
+    if (fields.length === 0) {
+      throw new Error("Nothing to update.");
+    }
+  
+    // Set approval back to pending and update timestamp
+    fields.push("comment_approval = 'pending'");
+    fields.push("created_at = CURRENT_TIMESTAMP");
+  
+    const query = `
+      UPDATE product_reviews
+      SET ${fields.join(", ")}
+      WHERE review_id = ? AND user_id = ?
+    `;
+  
+    values.push(reviewId, userId);
+  
+    const [result] = await pool.query(query, values);
+    return result;
+  }  
 };
 
 module.exports = Review;
