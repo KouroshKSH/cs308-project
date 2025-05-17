@@ -54,6 +54,7 @@ const ProductPage = () => {
 
   // needed for wishlisting
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [wishlistMessage, setWishlistMessage] = useState("");
 
   // allow empty string
   const [quantity, setQuantity] = useState("");
@@ -251,7 +252,8 @@ const ProductPage = () => {
   const handleWishlistClick = async () => {
     // can't wishlist if you're not logged in
     if (!isLoggedIn) {
-      toast.warning("You can only wishlist if you're logged in."); // replace this with alert if not using toast
+      // toast.warning("You can only wishlist if you're logged in."); // replace this with alert if not using toast
+      alert("You can only wishlist if you're logged in.");
       return;
     }
 
@@ -271,10 +273,18 @@ const ProductPage = () => {
         { headers }
       );
 
+      // i think this toast thing is not working honestly
       toast.success("Product added to your wishlist!");
+
+      // Set the success message
+      setWishlistMessage("Added this product to your wishlist!");
+
+      // Clear the message after 3 seconds
+      setTimeout(() => setWishlistMessage(""), 3000);
     } catch (error) {
       console.error("Error adding to wishlist:", error);
-      toast.error("Failed to add product to wishlist.");
+      // toast.error("Failed to add product to wishlist.");
+      alert("Failed to add product to wishlist.");
     }
   };
 
@@ -455,6 +465,21 @@ const ProductPage = () => {
                   <FavoriteIcon color={isLoggedIn ? "error" : "disabled"} />
                   Add to Wishlist
                 </Button>
+
+                {/* Wishlist Success Message */}
+                {wishlistMessage && (
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: "green",
+                      mt: 2,
+                      textAlign: "center",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {wishlistMessage}
+                  </Typography>
+                )}
               </Box>
             </Box>
 
