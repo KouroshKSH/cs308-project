@@ -22,6 +22,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import Header from "../components/Header";
 import { getOrCreateSessionId } from "../utils/sessionStorage";
 import Footer from "../components/Footer";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { toast } from "react-toastify"; // gives better user feedback
+import "./ProductPage.css";
 
 const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
@@ -47,6 +51,10 @@ const ProductPage = () => {
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
   const [selectedVariation, setSelectedVariation] = useState("");
+
+  // needed for wishlisting
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [wishlistMessage, setWishlistMessage] = useState("");
 
   // allow empty string
   const [quantity, setQuantity] = useState("");
@@ -77,6 +85,13 @@ const ProductPage = () => {
         console.error("Token decode error:", err);
       }
     }
+  }, []);
+
+  // this use effect is for checking if the user is logged in
+  // if the user is logged in, we can show the wishlist button
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
   }, []);
 
   // for navigating from product page to any department we want
@@ -231,7 +246,47 @@ const ProductPage = () => {
       console.error("Error editing review:", error.response?.data || error.message);
       alert("Failed to update review.");
     }
-  };  
+  }; 
+  
+  // handle everything related to clicking the wishlist button
+  const handleWishlistClick = async () => {
+    // can't wishlist if you're not logged in
+    if (!isLoggedIn) {
+      // toast.warning("You can only wishlist if you're logged in."); // replace this with alert if not using toast
+      alert("You can only wishlist if you're logged in.");
+      return;
+    }
+
+    // the user is logged in
+    try {
+      const token = localStorage.getItem("token");
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      };
+
+      // we decided to not pass variation ID for wishlisting due to complexity
+      // so i pass everything as null for the variation
+      await axios.post(
+        `${BASE_URL}/wishlist/add`,
+        { product_id: productId, variation_id: null },
+        { headers }
+      );
+
+      // i think this toast thing is not working honestly
+      toast.success("Product added to your wishlist!");
+
+      // Set the success message
+      setWishlistMessage("Added this product to your wishlist!");
+
+      // Clear the message after 3 seconds
+      setTimeout(() => setWishlistMessage(""), 3000);
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      // toast.error("Failed to add product to wishlist.");
+      alert("Failed to add product to wishlist.");
+    }
+  };
 
   if (loading) {
     return (
@@ -360,17 +415,71 @@ const ProductPage = () => {
                   helperText={quantityError}
                 />
 
+                {/* Add about 10px vertical space between quantity and buttons */}
+                <Box sx={{ my: 1 }} />
+
                 {/* Add to Cart */}
                 <Button
                   variant="contained"
                   size="large"
                   fullWidth
-                  sx={{ py: 1.5 }}
+                  sx={{ 
+                    py: 1.5,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 1, 
+                  }}
                   onClick={handleAddToCart}
                   disabled={!selectedVariation}
                 >
+                  <ShoppingCartIcon />
                   Add to Cart
                 </Button>
+
+                {/* add about 10px vertical space between cart and wishlist buttons */}
+                <Box sx={{ my: 1 }} />
+
+                {/* Wishlist Button */}
+                <Button
+                  variant="outlined"
+                  size="large"
+                  fullWidth
+                  sx={{
+                    py: 1.5,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 1,
+                    color: "red", // Red text
+                    borderColor: "red", // Red border
+                    backgroundColor: "white", // White background
+                    "&:hover": {
+                      backgroundColor: "#ffe6e6", // Light red hover effect
+                      borderColor: "darkred", // Dark red border on hover
+                    },
+                  }}
+                  onClick={handleWishlistClick}
+                  disabled={!isLoggedIn}
+                >
+                  <FavoriteIcon color={isLoggedIn ? "error" : "disabled"} />
+                  Add to Wishlist
+                </Button>
+
+                {/* Wishlist Success Message */}
+                {wishlistMessage && (
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: "green",
+                      mt: 2,
+                      textAlign: "center",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {wishlistMessage}
+                  </Typography>
+                )}
               </Box>
             </Box>
 

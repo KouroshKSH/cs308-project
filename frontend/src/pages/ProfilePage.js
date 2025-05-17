@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DrawerMenu from '../components/DrawerMenu';
 import Footer from '../components/Footer';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -38,9 +39,14 @@ const ProfilePage = () => {
   const [cart, setCart] = useState({ items: [], total_price: 0 });
   const [openCart, setOpenCart] = useState(false);
 
+  // for wishlist
+  const [wishlist, setWishlist] = useState([]);
+  const [openWishlist, setOpenWishlist] = useState(false);
+
   useEffect(() => {
     fetchUserProfile();
     fetchCart();
+    fetchWishlist();
   }, []);
 
   const fetchUserProfile = async () => {
@@ -73,6 +79,18 @@ const ProfilePage = () => {
     }
   };
 
+  const fetchWishlist = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${API_URL}/wishlist`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setWishlist(res.data); // Set wishlist data
+    } catch {
+      setWishlist([]); // Default to empty if error occurs
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/');
@@ -88,6 +106,43 @@ const ProfilePage = () => {
   const handleToggleCart = () => {
     setOpenCart(!openCart);
     if (!openCart) setOpenOrders(false);
+  };
+
+  const handleToggleWishlist = () => {
+    setOpenWishlist(!openWishlist);
+    if (!openWishlist) {
+      setOpenOrders(false);
+      setOpenCart(false);
+    }
+  };
+
+  const handleRemoveFromWishlist = async (productId, variationId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      };
+
+      // Call the backend to remove the item from the wishlist
+      await axios.delete(`${API_URL}/wishlist/remove`, {
+        headers,
+        data: { product_id: productId, variation_id: variationId },
+      });
+
+      // Update the wishlist state to remove the item locally
+      setWishlist((prevWishlist) =>
+        prevWishlist.filter(
+          (item) =>
+            item.product_id !== productId || item.variation_id !== variationId
+        )
+      );
+
+      alert('Item removed from wishlist!');
+    } catch (error) {
+      console.error('Error removing item from wishlist:', error);
+      alert('Failed to remove item from wishlist.');
+    }
   };
 
   // Navigate to the Order Status page, passing the orderId in the URL
@@ -157,6 +212,8 @@ const ProfilePage = () => {
 
         {/* Toggle Buttons */}
         <Box display="flex" justifyContent="center" gap={3} mb={3}>
+          
+          {/* order toggle */}
           <Button
             variant={openOrders ? 'contained' : 'outlined'}
             startIcon={<ReceiptLongIcon />}
@@ -165,6 +222,8 @@ const ProfilePage = () => {
           >
             Orders
           </Button>
+
+          {/* cart toggle */}
           <Button
             variant={openCart ? 'contained' : 'outlined'}
             startIcon={<ShoppingCartIcon />}
@@ -173,11 +232,21 @@ const ProfilePage = () => {
           >
             Cart
           </Button>
+
+          {/* wishlist toggle */}
+          <Button
+            variant={openWishlist ? 'contained' : 'outlined'}
+            startIcon={<FavoriteIcon />}
+            onClick={handleToggleWishlist}
+            sx={{ borderRadius: 10, minWidth: 140 }}
+          >
+            Wishlist
+          </Button>
         </Box>
 
         {/* Orders */}
         <Collapse in={openOrders}>
-          <Typography variant="h6" mb={2}>Order History</Typography>
+          <Typography variant="h5" mb={2}>Order History</Typography>
           {orders.length === 0 ? (
             <Typography>No orders yet.</Typography>
           ) : (
@@ -198,14 +267,20 @@ const ProfilePage = () => {
 
         {/* Cart */}
         <Collapse in={openCart}>
-          <Typography variant="h6" mt={4} mb={2}>Your Cart</Typography>
+          <Typography variant="h5" mt={4} mb={2}>Your Cart</Typography>
           {cart.items.length === 0 ? (
             <Typography>Your cart is empty.</Typography>
           ) : (
             <List>
               {cart.items.map((item, idx) => (
                 <Card key={idx} sx={{ mb: 2 }}>
-                  <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <CardContent 
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                      }}
+                    >
                     <Box>
                       <Typography fontWeight="bold">{item.name}</Typography>
                       <Typography>Size: {item.size_name} | Color: {item.color_name}</Typography>
@@ -240,8 +315,86 @@ const ProfilePage = () => {
           )}
         </Collapse>
 
+        {/* Wishlist */}
+        <Collapse in={openWishlist}>
+          <Typography variant="h5" mt={4} mb={2}>
+            Your Wishlist
+          </Typography>
+          {wishlist.length === 0 ? (
+            <Typography>Your wishlist is empty.</Typography>
+          ) : (
+            <List>
+              {wishlist.map((item, idx) => (
+                <Card key={idx} sx={{ mb: 2 }}>
+                  <CardContent 
+                    sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center'
+                    }}
+                  >
+                    {/* left section for product info in the wishlist */}
+                    <Box>
+                      <Typography fontWeight="bold">{item.name}</Typography>
+                      <Typography>Price: ${item.price}</Typography>
+                    </Box>
+
+                    {/* Right Section: Product Image and Remove Button */}
+                    <Box 
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: 1,
+                        }}
+                      >
+                      <img
+                        src={`${process.env.PUBLIC_URL}/assets/images/${item.image_url}.jpg`}
+                        alt={item.name}
+                        onError={(e) =>
+                          (e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`)
+                        }
+                        style={{
+                          width: 100,
+                          height: 100,
+                          objectFit: 'cover',
+                          borderRadius: 6,
+                        }}
+                      />
+                      <Button
+                        variant="contained"
+                        color="error"
+                        size="small"
+                        onClick={() =>
+                          handleRemoveFromWishlist(item.product_id, item.variation_id)
+                        }
+                        sx={{
+                          textTransform: 'none',
+                          fontWeight: 'bold',
+                          borderRadius: 1,
+                          minWidth: 100,
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </Box>
+                  </CardContent>
+                </Card>
+              ))}
+            </List>
+          )}
+        </Collapse>
+
         <Box mt={5} textAlign="center">
-          <Button variant="contained" color="secondary" onClick={handleLogout} sx={{ borderRadius: 10, minWidth: 120 }}>
+          <Button 
+            variant="contained"
+            color="secondary"
+            onClick={handleLogout} 
+            sx={{
+              borderRadius: 1,
+              minWidth: 180
+              }}
+            >
             Logout
           </Button>
         </Box>

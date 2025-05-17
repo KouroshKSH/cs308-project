@@ -14,6 +14,7 @@ import ProductManagerPage from "./pages/ProductManagerPage";
 import SalesManagerPage from "./pages/SalesManagerPage";
 import ManagerLogin from "./pages/ManagerLogin";
 import AboutPage from "./pages/AboutPage";
+import "react-toastify/dist/ReactToastify.css";
 
 import "./App.css";
 

@@ -134,3 +134,33 @@
 .MuiMenuItem-root:hover {
     background-color: #f0f0f0;
 }
+
+/* Position the heart icon in the top-right corner of the product card */
+.wishlist-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+  z-index: 10; /* Ensure it's above other elements to avoid the jump to product page */
+  background-color: rgb(255, 255, 255);
+  border-radius: 100%;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.wishlist-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Heart icon styling */
+.wishlist-heart {
+  color: red;
+  font-size: 24px;
+}
+
+/* Green checkmark styling */
+.wishlist-checkmark {
+  color: green;
+  font-size: 24px;
+}

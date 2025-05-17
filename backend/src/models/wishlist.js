@@ -34,7 +34,7 @@ const Wishlist = {
   removeFromWishlist: async (userId, productId, variationId) => {
     const [result] = await db.execute(`
       DELETE FROM wishlists
-      WHERE user_id = ? AND product_id = ? AND variation_id = ?
+      WHERE user_id = ? AND product_id = ? AND variation_id <=> ?
     `, [userId, productId, variationId]);
     return result.affectedRows;
   }
