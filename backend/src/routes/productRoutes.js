@@ -57,4 +57,7 @@ router.get(
 );
 router.get("/category/:categoryId", getProductsByCategory);
 
+// Route to fetch all products
+router.get("/", productController.getAllProducts);
+
 module.exports = router;

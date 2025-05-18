@@ -148,8 +148,8 @@ const SalesManagerPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(`${API_URL}/products`); // Assuming a products endpoint exists
-        setProducts(response.data);
+        const response = await axios.get(`${API_URL}/products`); // Fetch products from the new endpoint
+        setProducts(response.data); // Set the products in state
       } catch (err) {
         console.error("Failed to fetch products:", err);
       }

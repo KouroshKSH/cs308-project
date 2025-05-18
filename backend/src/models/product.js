@@ -137,7 +137,17 @@ const Product = {
     `;
     const [rows] = await pool.query(query, [categoryId, departmentId]);
     return rows;
-  }
+  },
+
+  // fetching for the sales campaigns basically (very niche i know)
+  async getAllProducts() {
+    const query = `
+      SELECT product_id, name
+      FROM products;
+    `;
+    const [rows] = await pool.query(query);
+    return rows;
+  },
 };
 
 module.exports = Product;
