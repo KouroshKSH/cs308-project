@@ -370,15 +370,20 @@ const LandingPage = () => {
             </h3>
 
             {/* Product Prices with Discounts */}
-            {product.discount_percent ? (
+            <div className="price-container">
               <div className="product-prices">
-                <span className="original-price">${product.original_price}</span>
-                <span className="discounted-price">${product.discounted_price}</span>
-                <span className="discount-percent">{product.discount_percent}%</span>
+                {product.discount_percent ? (
+                  <>
+                    <span className="original-price"> ${product.original_price} </span>
+                    <span className="discounted-price">${product.discounted_price}</span>
+                    <span className="discount-percent">{product.discount_percent}%</span>
+                  </>
+                ) : (
+                  <span className="discounted-price">${product.original_price}</span>
+                )}
               </div>
-            ) : (
-              <h4 className="product-price">${product.original_price}</h4>
-            )}
+            </div>
+
             
             {/* <p className="product-popularity">Popularity: {product.popularity_score}</p> */}
             <p className="product-popularity">

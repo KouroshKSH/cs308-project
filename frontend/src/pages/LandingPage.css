@@ -184,3 +184,8 @@
   font-size: 15px;
   margin-left: 7px;
 }
+
+/* Ensure consistent spacing between price and stars */
+.price-container {
+  margin-bottom: 10px; /* Add consistent spacing below the price section */
+}
