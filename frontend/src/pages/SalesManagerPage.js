@@ -13,6 +13,7 @@ import {
   Select,
   FormControl,
   InputLabel,
+  TextField,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import DrawerMenu from '../components/DrawerMenu';
@@ -51,6 +52,16 @@ const SalesManagerPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState(""); // Default to no filter
+
+  // for creating new sales campaigns
+  const [newCampaign, setNewCampaign] = useState({
+    productId: "",
+    discountPercent: "",
+    startDate: new Date().toISOString().split("T")[0], // Default to today
+    endDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0], // Default to tomorrow
+  });
+
+  const [products, setProducts] = useState([]); // For the product dropdown
 
   // State for manager profile
   const [managerInfo, setManagerInfo] = useState(null);
@@ -133,6 +144,67 @@ const SalesManagerPage = () => {
     }
   };
 
+  // Fetch products for the dropdown
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/products`); // Assuming a products endpoint exists
+        setProducts(response.data);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Handle form submission
+  const handleCreateCampaign = async () => {
+    try {
+      const { productId, discountPercent, startDate, endDate } = newCampaign;
+
+      // Validate inputs
+      if (!productId || !discountPercent || !startDate || !endDate) {
+        alert("Please fill in all fields.");
+        return;
+      }
+      if (discountPercent < 1 || discountPercent > 99) {
+        alert("Discount percent must be between 1 and 99.");
+        return;
+      }
+      if (new Date(endDate) < new Date(startDate)) {
+        alert("End date cannot be before start date.");
+        return;
+      }
+
+      await axios.post(`${API_URL}/sales-campaigns`, {
+        productId,
+        discountPercent,
+        startDate,
+        endDate,
+      });
+
+      // Refresh the sales campaigns list
+      const response = await axios.get(`${API_URL}/sales-campaigns/details`, {
+        params: { filter },
+      });
+      setSalesCampaigns(response.data);
+
+      // Reset the form
+      setNewCampaign({
+        productId: "",
+        discountPercent: "",
+        startDate: new Date().toISOString().split("T")[0],
+        endDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0],
+      });
+
+      alert("Sales campaign created successfully!");
+    } catch (err) {
+      console.error("Failed to create sales campaign:", err);
+      alert(err.response?.data?.message || "Failed to create sales campaign. Please try again.");
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
@@ -171,6 +243,126 @@ const SalesManagerPage = () => {
               <Typography variant="h5">
                 Sales Campaigns
               </Typography>
+
+
+              {/* making a new sales campaign */}
+              <Card variant="outlined" style={{ marginBottom: "20px", padding: "20px" }}>
+                <Typography variant="h5" gutterBottom>
+                  Create New Sales Campaign
+                </Typography>
+                <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                  {/* Product Dropdown */}
+                  <FormControl style={{ minWidth: 200 }}>
+                    <InputLabel id="product-label">Select Product</InputLabel>
+                    <Select
+                      labelId="product-label"
+                      value={newCampaign.productId}
+                      onChange={(event) => setNewCampaign({ ...newCampaign, productId: event.target.value })}
+                    >
+                      {products.map((product) => (
+                        <MenuItem key={product.product_id} value={product.product_id}>
+                          {product.product_id} - {product.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* Discount Percent Input */}
+                  <TextField
+                    label="Discount Percent"
+                    type="number"
+                    value={newCampaign.discountPercent}
+                    onChange={(event) => setNewCampaign({ ...newCampaign, discountPercent: event.target.value })}
+                    inputProps={{ min: 1, max: 99 }}
+                  />
+
+                  {/* Date Inputs for Start and End Dates */}
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <Typography>Start Date:</Typography>
+                    <TextField
+                      label="Year"
+                      type="number"
+                      value={newCampaign.startDate.split("-")[0]} // Extract year
+                      onChange={(event) => {
+                        const year = event.target.value;
+                        const [_, month, day] = newCampaign.startDate.split("-");
+                        setNewCampaign({ ...newCampaign, startDate: `${year}-${month}-${day}` });
+                      }}
+                      inputProps={{ min: 1900, max: 2100 }}
+                      style={{ width: "80px" }}
+                    />
+                    <TextField
+                      label="Month"
+                      type="number"
+                      value={newCampaign.startDate.split("-")[1]} // Extract month
+                      onChange={(event) => {
+                        const month = event.target.value.padStart(2, "0");
+                        const [year, _, day] = newCampaign.startDate.split("-");
+                        setNewCampaign({ ...newCampaign, startDate: `${year}-${month}-${day}` });
+                      }}
+                      inputProps={{ min: 1, max: 12 }}
+                      style={{ width: "60px" }}
+                    />
+                    <TextField
+                      label="Day"
+                      type="number"
+                      value={newCampaign.startDate.split("-")[2]} // Extract day
+                      onChange={(event) => {
+                        const day = event.target.value.padStart(2, "0");
+                        const [year, month, _] = newCampaign.startDate.split("-");
+                        setNewCampaign({ ...newCampaign, startDate: `${year}-${month}-${day}` });
+                      }}
+                      inputProps={{ min: 1, max: 31 }}
+                      style={{ width: "60px" }}
+                    />
+                  </div>
+
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center", marginTop: "10px" }}>
+                    <Typography>End Date:</Typography>
+                    <TextField
+                      label="Year"
+                      type="number"
+                      value={newCampaign.endDate.split("-")[0]} // Extract year
+                      onChange={(event) => {
+                        const year = event.target.value;
+                        const [_, month, day] = newCampaign.endDate.split("-");
+                        setNewCampaign({ ...newCampaign, endDate: `${year}-${month}-${day}` });
+                      }}
+                      inputProps={{ min: 1900, max: 2100 }}
+                      style={{ width: "80px" }}
+                    />
+                    <TextField
+                      label="Month"
+                      type="number"
+                      value={newCampaign.endDate.split("-")[1]} // Extract month
+                      onChange={(event) => {
+                        const month = event.target.value.padStart(2, "0");
+                        const [year, _, day] = newCampaign.endDate.split("-");
+                        setNewCampaign({ ...newCampaign, endDate: `${year}-${month}-${day}` });
+                      }}
+                      inputProps={{ min: 1, max: 12 }}
+                      style={{ width: "60px" }}
+                    />
+                    <TextField
+                      label="Day"
+                      type="number"
+                      value={newCampaign.endDate.split("-")[2]} // Extract day
+                      onChange={(event) => {
+                        const day = event.target.value.padStart(2, "0");
+                        const [year, month, _] = newCampaign.endDate.split("-");
+                        setNewCampaign({ ...newCampaign, endDate: `${year}-${month}-${day}` });
+                      }}
+                      inputProps={{ min: 1, max: 31 }}
+                      style={{ width: "60px" }}
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <Button variant="contained" color="primary" onClick={handleCreateCampaign}>
+                    Create Campaign
+                  </Button>
+                </div>
+              </Card>
 
               {/* filter */}
               <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
