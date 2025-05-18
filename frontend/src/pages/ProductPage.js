@@ -357,8 +357,23 @@ const ProductPage = () => {
 
               {/* Product Details */}
               <Box sx={{ flex: 1 }}>
-                <Typography variant="h5" fontWeight="bold">{product.name}</Typography>
-                <Typography variant="h6" color="primary" sx={{ mt: 1 }}>${product.price}</Typography>
+                <Typography variant="h4" fontWeight="bold">
+                  {product.name}
+                </Typography>
+
+                {/* Product Prices with Discounts */}
+                {product.discount_percent ? (
+                  <div className="product-prices">
+                    <span className="original-price">${product.original_price}</span>
+                    <span className="discounted-price">${product.discounted_price}</span>
+                    <span className="discount-percent">{product.discount_percent}% Discount</span>
+                  </div>
+                ) : (
+                  <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
+                    ${product.original_price}
+                  </Typography>
+                )}
+                {/* <Typography variant="h6" color="primary" sx={{ mt: 1 }}>${product.price}</Typography> */}
                 
                 {/* to show the popularity of product via stars */}
                 <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>

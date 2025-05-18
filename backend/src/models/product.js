@@ -5,11 +5,6 @@ const pool = require("../config/database"); // Use the MySQL connection pool
 const Product = {
   // Fetch products by department
   async getProductsByDepartment(departmentId) {
-    // const query = `
-    //   SELECT product_id, name, description, price, image_url, stock_quantity, warranty_status, popularity_score
-    //   FROM products
-    //   WHERE department_id = ?;
-    // `;
     const query = `
       SELECT 
         p.product_id,
@@ -86,11 +81,29 @@ const Product = {
 
   // Get product info given its ID
   async getProductById(productId) {
-    const sql = `
-      SELECT *
-      FROM products
-      WHERE product_id = ?;
-    `;
+    // const sql = `
+    //   SELECT *
+    //   FROM products
+    //   WHERE product_id = ?;
+    // `;
+      const sql = `
+        SELECT 
+          p.product_id,
+          p.name,
+          p.description,
+          p.price AS original_price,
+          p.image_url,
+          p.popularity_score,
+          p.stock_quantity,
+          p.material,
+          s.discount_percent,
+          CAST((p.price * (100 - s.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price
+        FROM products p
+        LEFT JOIN sales_campaigns s 
+          ON p.product_id = s.product_id
+          AND CURDATE() BETWEEN s.start_date AND s.end_date
+        WHERE p.product_id = ?;
+      `;
     const [rows] = await pool.query(sql, [productId]);
     return rows[0];
   },
