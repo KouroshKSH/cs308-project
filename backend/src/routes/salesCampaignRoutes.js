@@ -11,4 +11,7 @@ router.post("/", salesCampaignController.createSalesCampaign);
 // Route to delete a sales campaign
 router.delete("/:salesId", salesCampaignController.deleteSalesCampaign);
 
+// Route to fetch all sales campaigns with details
+router.get("/details", salesCampaignController.getAllSalesCampaignsWithDetails);
+
 module.exports = router;

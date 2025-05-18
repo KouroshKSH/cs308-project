@@ -15,27 +15,51 @@ const SalesCampaign = {
     return rows;
   },
 
-  // Insert a new sales campaign
-  async createSalesCampaign(productId, discountPercent, startDate, endDate) {
-    const query = `
-      INSERT INTO sales_campaigns (product_id, discount_percent, start_date, end_date)
-      VALUES (?, ?, ?, ?);
-    `;
-    const [result] = await pool.query(query, [
-      productId,
-      discountPercent,
-      startDate,
-      endDate,
-    ]);
-    return result.insertId;
+    // Insert a new sales campaign
+    async createSalesCampaign(productId, discountPercent, startDate, endDate) {
+        const query = `
+            INSERT INTO sales_campaigns (product_id, discount_percent, start_date, end_date)
+            VALUES (?, ?, ?, ?);
+        `;
+        const [result] = await pool.query(query, [
+            productId,
+            discountPercent,
+            startDate,
+            endDate,
+        ]);
+        return result.insertId;
   },
 
-  // Delete a sales campaign by ID
-  async deleteSalesCampaign(salesId) {
-    const query = `DELETE FROM sales_campaigns WHERE sales_id = ?;`;
-    const [result] = await pool.query(query, [salesId]);
-    return result.affectedRows;
-  },
+    // Delete a sales campaign by ID
+    async deleteSalesCampaign(salesId) {
+        const query = `DELETE FROM sales_campaigns WHERE sales_id = ?;`;
+        const [result] = await pool.query(query, [salesId]);
+        return result.affectedRows;
+    },
+
+    // Fetch all sales campaigns with product details
+    async getAllSalesCampaignsWithDetails() {
+        const query = `
+            SELECT 
+            s.sales_id,
+            s.product_id,
+            s.discount_percent,
+            s.start_date,
+            s.end_date,
+            p.name AS product_name,
+            p.price AS original_price,
+            (p.price * (100 - s.discount_percent) / 100) AS discounted_price,
+            CASE
+                WHEN CURDATE() BETWEEN s.start_date AND s.end_date THEN 'On-going'
+                WHEN CURDATE() < s.start_date THEN 'Not Started'
+                ELSE 'Ended'
+            END AS campaign_status
+            FROM sales_campaigns s
+            JOIN products p ON s.product_id = p.product_id;
+        `;
+        const [rows] = await pool.query(query);
+        return rows;
+    },
 };
 
 module.exports = SalesCampaign;
