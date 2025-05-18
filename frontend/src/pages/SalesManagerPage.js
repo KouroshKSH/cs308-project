@@ -20,6 +20,7 @@ import DrawerMenu from '../components/DrawerMenu';
 import Footer from '../components/Footer';
 import axios from 'axios';
 import "./SalesManagerPage.css";
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 // Chart imports:
 import {
@@ -232,27 +233,19 @@ const SalesManagerPage = () => {
         );
       case 'Sales Campaigns':
         return (
-          <Card 
-            variant="outlined" 
-            style={{ 
-              marginBottom: '20px',
-              padding: '20px'
-            }}
-          >
+          <Card variant="outlined" style={{ marginBottom: '20px', padding: '20px' }}>
             <CardContent>
-              <Typography variant="h5">
-                Sales Campaigns
-              </Typography>
+              <Typography variant="h5">Sales Campaigns</Typography>
 
-
-              {/* making a new sales campaign */}
+              {/* Create Campaign */}
               <Card variant="outlined" style={{ marginBottom: "20px", padding: "20px" }}>
-                <Typography variant="h5" gutterBottom>
+                <Typography variant="h6" gutterBottom>
                   Create New Sales Campaign
                 </Typography>
-                <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                  {/* Product Dropdown */}
-                  <FormControl style={{ minWidth: 200 }}>
+
+                {/* Inputs Row 1: Product & Discount */}
+                <div style={{ display: "flex", gap: "20px", marginBottom: "15px" }}>
+                  <FormControl fullWidth>
                     <InputLabel id="product-label">Select Product</InputLabel>
                     <Select
                       labelId="product-label"
@@ -267,105 +260,81 @@ const SalesManagerPage = () => {
                     </Select>
                   </FormControl>
 
-                  {/* Discount Percent Input */}
                   <TextField
+                    fullWidth
                     label="Discount Percent"
                     type="number"
                     value={newCampaign.discountPercent}
                     onChange={(event) => setNewCampaign({ ...newCampaign, discountPercent: event.target.value })}
                     inputProps={{ min: 1, max: 99 }}
                   />
+                </div>
 
-                  {/* Date Inputs for Start and End Dates */}
+                {/* Inputs Row 2: Start & End Date */}
+                <div style={{ display: "flex", gap: "40px", marginBottom: "20px" }}>
                   <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                    <Typography>Start Date:</Typography>
-                    <TextField
-                      label="Year"
-                      type="number"
-                      value={newCampaign.startDate.split("-")[0]} // Extract year
-                      onChange={(event) => {
-                        const year = event.target.value;
-                        const [_, month, day] = newCampaign.startDate.split("-");
-                        setNewCampaign({ ...newCampaign, startDate: `${year}-${month}-${day}` });
-                      }}
-                      inputProps={{ min: 1900, max: 2100 }}
-                      style={{ width: "80px" }}
-                    />
-                    <TextField
-                      label="Month"
-                      type="number"
-                      value={newCampaign.startDate.split("-")[1]} // Extract month
-                      onChange={(event) => {
-                        const month = event.target.value.padStart(2, "0");
-                        const [year, _, day] = newCampaign.startDate.split("-");
-                        setNewCampaign({ ...newCampaign, startDate: `${year}-${month}-${day}` });
-                      }}
-                      inputProps={{ min: 1, max: 12 }}
-                      style={{ width: "60px" }}
-                    />
-                    <TextField
-                      label="Day"
-                      type="number"
-                      value={newCampaign.startDate.split("-")[2]} // Extract day
-                      onChange={(event) => {
-                        const day = event.target.value.padStart(2, "0");
-                        const [year, month, _] = newCampaign.startDate.split("-");
-                        setNewCampaign({ ...newCampaign, startDate: `${year}-${month}-${day}` });
-                      }}
-                      inputProps={{ min: 1, max: 31 }}
-                      style={{ width: "60px" }}
-                    />
+                    <Typography><strong>Start Date:</strong></Typography>
+                    {["Year", "Month", "Day"].map((label, index) => (
+                      <TextField
+                        key={label}
+                        label={label}
+                        type="number"
+                        value={newCampaign.startDate.split("-")[index]}
+                        onChange={(e) => {
+                          const [y, m, d] = newCampaign.startDate.split("-");
+                          const values = [y, m, d];
+                          values[index] = e.target.value.padStart(2, "0");
+                          setNewCampaign({ ...newCampaign, startDate: values.join("-") });
+                        }}
+                        style={{ width: "120px", height: "40px" }}
+                        inputProps={{ min: 1 }}
+                      />
+                    ))}
                   </div>
 
-                  <div style={{ display: "flex", gap: "10px", alignItems: "center", marginTop: "10px" }}>
-                    <Typography>End Date:</Typography>
-                    <TextField
-                      label="Year"
-                      type="number"
-                      value={newCampaign.endDate.split("-")[0]} // Extract year
-                      onChange={(event) => {
-                        const year = event.target.value;
-                        const [_, month, day] = newCampaign.endDate.split("-");
-                        setNewCampaign({ ...newCampaign, endDate: `${year}-${month}-${day}` });
-                      }}
-                      inputProps={{ min: 1900, max: 2100 }}
-                      style={{ width: "80px" }}
-                    />
-                    <TextField
-                      label="Month"
-                      type="number"
-                      value={newCampaign.endDate.split("-")[1]} // Extract month
-                      onChange={(event) => {
-                        const month = event.target.value.padStart(2, "0");
-                        const [year, _, day] = newCampaign.endDate.split("-");
-                        setNewCampaign({ ...newCampaign, endDate: `${year}-${month}-${day}` });
-                      }}
-                      inputProps={{ min: 1, max: 12 }}
-                      style={{ width: "60px" }}
-                    />
-                    <TextField
-                      label="Day"
-                      type="number"
-                      value={newCampaign.endDate.split("-")[2]} // Extract day
-                      onChange={(event) => {
-                        const day = event.target.value.padStart(2, "0");
-                        const [year, month, _] = newCampaign.endDate.split("-");
-                        setNewCampaign({ ...newCampaign, endDate: `${year}-${month}-${day}` });
-                      }}
-                      inputProps={{ min: 1, max: 31 }}
-                      style={{ width: "60px" }}
-                    />
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <Typography><strong>End Date:</strong></Typography>
+                    {["Year", "Month", "Day"].map((label, index) => (
+                      <TextField
+                        key={label}
+                        label={label}
+                        type="number"
+                        value={newCampaign.endDate.split("-")[index]}
+                        onChange={(e) => {
+                          const [y, m, d] = newCampaign.endDate.split("-");
+                          const values = [y, m, d];
+                          values[index] = e.target.value.padStart(2, "0");
+                          setNewCampaign({ ...newCampaign, endDate: values.join("-") });
+                        }}
+                        style={{ width: "120px", height: "40px" }}
+                        inputProps={{ min: 1 }}
+                      />
+                    ))}
                   </div>
 
-                  {/* Submit Button */}
-                  <Button variant="contained" color="primary" onClick={handleCreateCampaign}>
+                  {/* Button */}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="medium"
+                    style={{ 
+                      alignSelf: "flex-start", 
+                      width: "fit-content", 
+                      padding: "5px 19px",
+                      fontSize: "16px",
+                      height: "45px",
+                    }}
+                    onClick={handleCreateCampaign}
+                  >
                     Create Campaign
                   </Button>
                 </div>
+
               </Card>
 
-              {/* filter */}
-              <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
+              {/* Filter Section */}
+              <div style={{ display: "flex", alignItems: "center", marginBottom: "20px", gap: "10px" }}>
+                <FilterListIcon />
                 <FormControl style={{ minWidth: 200 }}>
                   <InputLabel id="filter-label">Filter Campaigns</InputLabel>
                   <Select
@@ -379,8 +348,9 @@ const SalesManagerPage = () => {
                     <MenuItem value="ended">Ended</MenuItem>
                   </Select>
                 </FormControl>
-              </div>              
-              
+              </div>
+
+              {/* Current Campaigns */}
               <Typography variant="h6" gutterBottom>
                 Current Sales Campaigns
               </Typography>
@@ -397,50 +367,46 @@ const SalesManagerPage = () => {
                       key={campaign.sales_id}
                       variant="outlined"
                       style={{
-                        marginBottom: "20px",
-                        padding: "15px",
+                        marginBottom: "12px",
+                        padding: "12px 16px",
                         border: "1px solid #ddd",
                         borderRadius: "8px",
+                        backgroundColor: "#fafafa",
                       }}
                     >
-                      <CardContent>
-                        <Typography variant="h6">
+                      <CardContent style={{ padding: 0 }}>
+                        <Typography variant="subtitle1" style={{ fontWeight: 600 }}>
                           Campaign ID: {campaign.sales_id}
                         </Typography>
-                        <ListItem>
-                          <strong>Product: </strong> {campaign.product_name} (ID: {campaign.product_id})
-                        </ListItem>
-                        <ListItem>
-                          <strong>Original Price: </strong> ${campaign.original_price.toFixed(2)}
-                          <strong>, Discounted Price: </strong> ${campaign.discounted_price.toFixed(2)}
-                          <strong>, Discount Percent: </strong> {campaign.discount_percent}%
-                        </ListItem>
-                        <ListItem>
-                          <strong>Start Date: </strong> {new Date(campaign.start_date).toLocaleDateString()}
-                          <strong>, End Date: </strong> {new Date(campaign.end_date).toLocaleDateString()}
-                          <strong>, Status: </strong> {campaign.campaign_status}
-                        </ListItem>
-                        
-                        <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-                        {/* Delete Button */}
-                        <Button
-                          variant="contained"
-                          color="error"
-                          onClick={() => deleteSalesCampaign(campaign.sales_id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                      
+                        <Typography variant="body2">
+                          <strong>Product:</strong> {campaign.product_name} (ID: {campaign.product_id})
+                        </Typography>
+                        <Typography variant="body2">
+                          <strong>Original Price:</strong> ${campaign.original_price.toFixed(2)}, <strong>Discounted Price:</strong> ${campaign.discounted_price.toFixed(2)}, <strong>Discount Percent:</strong> {campaign.discount_percent}%
+                        </Typography>
+                        <Typography variant="body2">
+                          <strong>Start Date:</strong> {new Date(campaign.start_date).toLocaleDateString()},
+                          <strong> End Date:</strong> {new Date(campaign.end_date).toLocaleDateString()},
+                          <strong> Status:</strong> {campaign.campaign_status}
+                        </Typography>
+                        <div style={{ marginTop: "10px" }}>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            onClick={() => deleteSalesCampaign(campaign.sales_id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
                 </List>
               )}
-
             </CardContent>
           </Card>
-        );
+          );
       case 'Price & Discounts':
         return (
           <Card variant="outlined" style={{ marginBottom: '20px' }}>
