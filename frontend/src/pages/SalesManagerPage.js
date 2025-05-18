@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Typography,
   Button,
@@ -17,6 +17,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import DrawerMenu from '../components/DrawerMenu';
 import Footer from '../components/Footer';
+import axios from 'axios';
+import "./SalesManagerPage.css";
 
 // Chart imports:
 import {
@@ -28,7 +30,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import './SalesManagerPage.css';
 
 // Static sales data
 // TODO: I'll change this to use Zeynep's backend API
@@ -39,9 +40,34 @@ const salesData = [
   { name: 'Product 4', sales: 8 },
 ];
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const SalesManagerPage = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('Sales per Product');
+
+  // for sales campaigns
+  const [salesCampaigns, setSalesCampaigns] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchSalesCampaigns = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get(`${API_URL}/sales-campaigns/details`);
+        setSalesCampaigns(response.data);
+      } catch (err) {
+        console.error("Failed to fetch sales campaigns:", err);
+        setError("Failed to load sales campaigns. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSalesCampaigns();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -70,14 +96,68 @@ const SalesManagerPage = () => {
         );
       case 'Price & Discount Management':
         return (
-          <Card variant="outlined" style={{ marginBottom: '20px' }}>
+          <Card 
+            variant="outlined" 
+            style={{ 
+              marginBottom: '20px',
+              padding: '20px'
+            }}
+          >
             <CardContent>
-              <Typography variant="h6">Price & Discount Management</Typography>
+              <Typography variant="h6">
+                Price & Discount Management
+              </Typography>
               <List>
                 <ListItem>- Set product prices</ListItem>
                 <ListItem>- Apply discounts to selected items</ListItem>
                 <ListItem>- Notify users with items in their wishlist</ListItem>
               </List>
+
+              <Divider style={{ marginBottom: '20px' }} />
+              <Typography variant="h6" gutterBottom>
+                Current Sales Campaigns
+              </Typography>
+              {loading ? (
+                <CircularProgress />
+              ) : error ? (
+                <Typography color="error">{error}</Typography>
+              ) : salesCampaigns.length === 0 ? (
+                <Typography>No sales campaigns found.</Typography>
+              ) : (
+                <List>
+                  {salesCampaigns.map((campaign) => (
+                    <Card
+                      key={campaign.sales_id}
+                      variant="outlined"
+                      style={{
+                        marginBottom: '20px',
+                        padding: '15px',
+                        border: '1px solid #ddd',
+                        borderRadius: '8px',
+                      }}
+                    >
+                      <CardContent>
+                        <Typography variant="h6">
+                          Campaign ID: {campaign.sales_id}
+                        </Typography>
+                        <ListItem>
+                          <strong>Product: </strong> {campaign.product_name} (ID: {campaign.product_id})
+                        </ListItem>
+                        <ListItem>
+                          <strong>Original Price: </strong> ${campaign.original_price.toFixed(2)}
+                          <strong>, Discounted Price: </strong> ${campaign.discounted_price.toFixed(2)}
+                          <strong>, Discount Percent: </strong> {campaign.discount_percent}%
+                        </ListItem>
+                        <ListItem>
+                          <strong>Start Date: </strong> {campaign.start_date}
+                          <strong>, End Date: </strong> {campaign.end_date}
+                          <strong>, Status: </strong> {campaign.campaign_status}
+                        </ListItem>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </List>
+              )}
             </CardContent>
           </Card>
         );

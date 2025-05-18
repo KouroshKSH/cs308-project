@@ -1,8 +1,7 @@
 import React , { useState } from "react";
 import { Box, Typography, Divider } from "@mui/material";
 import Footer from "../components/Footer";
-
-// please DO NOT include a header or drawer for this page because it'll introduce bugs about cart and suchs
+import DrawerMenu from "../components/DrawerMenu";
 
 const About = () => {
 
@@ -17,7 +16,10 @@ const About = () => {
 
   return (
     <>
-    {/* do NOT include header or drawer here please */}
+        <div style={{ padding: '10px 20px 0 30px' }}>
+            <DrawerMenu />
+        </div>
+    
         <div>
             <Box sx={{ padding: "2rem" }}>
             <Typography variant="h4" gutterBottom>

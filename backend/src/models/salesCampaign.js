@@ -47,8 +47,8 @@ const SalesCampaign = {
             s.start_date,
             s.end_date,
             p.name AS product_name,
-            p.price AS original_price,
-            (p.price * (100 - s.discount_percent) / 100) AS discounted_price,
+            CAST(p.price AS DECIMAL(10, 2)) AS original_price,
+            CAST((p.price * (100 - s.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price,
             CASE
                 WHEN CURDATE() BETWEEN s.start_date AND s.end_date THEN 'On-going'
                 WHEN CURDATE() < s.start_date THEN 'Not Started'
@@ -58,7 +58,13 @@ const SalesCampaign = {
             JOIN products p ON s.product_id = p.product_id;
         `;
         const [rows] = await pool.query(query);
-        return rows;
+
+        // Convert prices to numbers
+        return rows.map(row => ({
+            ...row,
+            original_price: parseFloat(row.original_price),
+            discounted_price: parseFloat(row.discounted_price),
+        }));
     },
 };
 
