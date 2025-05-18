@@ -14,4 +14,13 @@ router.delete("/:salesId", salesCampaignController.deleteSalesCampaign);
 // Route to fetch filtered sales campaigns (default is all)
 router.get("/details", salesCampaignController.getFilteredSalesCampaigns);
 
+// Route to fetch products with discounts
+router.get("/discounts", salesCampaignController.getProductsWithDiscounts);
+
+// Route to fetch products with discounts for a specific department
+router.get("/discounts/department/:departmentId", salesCampaignController.getProductsWithDiscountsByDepartment);
+
+// Route to fetch products with discounts for a specific department
+router.get("/products-with-discounts/:departmentId", salesCampaignController.getProductsWithDiscounts);
+
 module.exports = router;

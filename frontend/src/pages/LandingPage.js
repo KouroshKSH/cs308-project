@@ -86,8 +86,7 @@ const LandingPage = () => {
     window.addEventListener("storage", checkLogin);
     return () => window.removeEventListener("storage", checkLogin);
   }, []);
-
-  // 2. Fetch products from backend when department changes
+  
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -366,11 +365,25 @@ const LandingPage = () => {
             />
 
             { /* display the product's info */}
-            <h3 className="product-name">{product.name}</h3>
-            <h4 className="product-price">${product.price}</h4>
+            <h3 className="product-name">
+              {product.name}
+            </h3>
+
+            {/* Product Prices with Discounts */}
+            {product.discount_percent ? (
+              <div className="product-prices">
+                <span className="original-price">${product.original_price}</span>
+                <span className="discounted-price">${product.discounted_price}</span>
+                <span className="discount-percent">{product.discount_percent}%</span>
+              </div>
+            ) : (
+              <h4 className="product-price">${product.original_price}</h4>
+            )}
+            
             {/* <p className="product-popularity">Popularity: {product.popularity_score}</p> */}
-            <p className="product-popularity">{getStarsForPopularity(product.popularity_score)}</p>
-            {/* TODO: let's add a heart icon for wishlisting */}
+            <p className="product-popularity">
+              {getStarsForPopularity(product.popularity_score)}
+            </p>
           </div>
         ))}
       </div>

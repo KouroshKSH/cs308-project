@@ -136,7 +136,49 @@ const SalesCampaign = {
             startDate, endDate,
         ]);
         return rows[0].count > 0; // Return true if overlapping campaigns exist
-    }
+    },
+
+    // Fetch ongoing sales campaigns for products
+    async getOngoingSalesCampaignsByDepartment(departmentId) {
+        const query = `
+            SELECT 
+            s.product_id,
+            s.discount_percent,
+            p.price AS original_price,
+            CAST((p.price * (100 - s.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price
+            FROM sales_campaigns s
+            JOIN products p ON s.product_id = p.product_id
+            WHERE p.department_id = ?
+            AND CURDATE() BETWEEN s.start_date AND s.end_date;
+        `;
+        const [rows] = await pool.query(query, [departmentId]);
+        return rows;
+    },
+
+    // Fetch products with discounts for a specific department
+    async getProductsWithDiscounts(departmentId) {
+        const query = `
+            SELECT 
+            p.product_id,
+            p.name,
+            p.description,
+            p.price AS original_price,
+            p.image_url,
+            p.popularity_score,
+            s.discount_percent,
+            CAST((p.price * (100 - s.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price,
+            CASE
+                WHEN CURDATE() BETWEEN s.start_date AND s.end_date THEN 'On-going'
+                ELSE NULL
+            END AS campaign_status
+            FROM products p
+            LEFT JOIN sales_campaigns s ON p.product_id = s.product_id
+            AND CURDATE() BETWEEN s.start_date AND s.end_date
+            WHERE p.department_id = ?;
+        `;
+        const [rows] = await pool.query(query, [departmentId]);
+        return rows;
+    },
 };
 
 module.exports = SalesCampaign;

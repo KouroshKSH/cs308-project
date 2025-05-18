@@ -164,3 +164,25 @@
   color: green;
   font-size: 24px;
 }
+
+/* Original price (crossed out) */
+.original-price {
+  text-decoration: line-through;
+  color: rgb(79, 79, 79);
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+/* Discounted price (bold and prominent) */
+.discounted-price {
+  font-weight: bold;
+  color: #2c2c2c;
+  font-size: 18px;
+}
+
+/* Discount percentage (green) */
+.discount-percent {
+  color: green;
+  font-size: 14px;
+  margin-left: 7px;
+}
