@@ -96,6 +96,8 @@ const Product = {
           p.popularity_score,
           p.stock_quantity,
           p.material,
+          p.warranty_status,
+          p.distributor_info,
           s.discount_percent,
           CAST((p.price * (100 - s.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price
         FROM products p

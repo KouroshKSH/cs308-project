@@ -495,7 +495,28 @@ const ProductPage = () => {
                     {wishlistMessage}
                   </Typography>
                 )}
-              </Box>
+
+                {/* Product Additional Details */}
+                <Box 
+                  sx={{ 
+                    mt: 2, 
+                    p: 2, 
+                    border: "1px solid #ddd", 
+                    borderRadius: "8px", 
+                    backgroundColor: "white" 
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+                    Product Details
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    <strong>Warranty:</strong> {product.warranty_status || "N/A"}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    <strong>Distributor:</strong> {product.distributor_info || "N/A"}
+                  </Typography>
+                </Box>
+                </Box>
             </Box>
 
             {/* Zoom Image Modal */}

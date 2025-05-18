@@ -60,3 +60,22 @@
   font-size: 18px;
   margin-left: 10px;
 }
+
+/* Styling for the product details box */
+.product-details-box {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.product-details-box h6 {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.product-details-box p {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
