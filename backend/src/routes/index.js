@@ -12,6 +12,7 @@ const deliveriesRoutes = require("./deliveriesRoutes");
 const userRoutes = require("./userRoutes");
 const reviewsRoutes = require("./reviewsRoutes");
 const wishlistRoutes = require("./wishlistRoutes");
+const salesCampaignRoutes = require("./salesCampaignRoutes");
 
 // Mount authentication-related routes under /auth
 router.use("/auth", authRoutes);
@@ -42,5 +43,8 @@ router.use("/reviews", reviewsRoutes);
 
 // Mount wishlist-related routes under /wishlist
 router.use("/wishlist", wishlistRoutes);
+
+// Mount sales campaign-related routes under /sales-campaigns
+router.use("/sales-campaigns", salesCampaignRoutes);
 
 module.exports = router;
