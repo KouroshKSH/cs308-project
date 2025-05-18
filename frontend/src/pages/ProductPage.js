@@ -515,6 +515,17 @@ const ProductPage = () => {
                   <Typography variant="body2" sx={{ mb: 1 }}>
                     <strong>Distributor:</strong> {product.distributor_info || "N/A"}
                   </Typography>
+                  {product.start_date && product.end_date && (
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>Sales from:</strong> {new Date(product.start_date).toLocaleDateString()} until {new Date(product.end_date).toLocaleDateString()}
+                    </Typography>
+                  )}
+
+                  {product.discount_percent ? (
+                    <Typography variant="body2">
+                      <strong>Discount:</strong> {`${product.discount_percent}%`}
+                    </Typography>
+                  ) : null}
                 </Box>
                 </Box>
             </Box>
