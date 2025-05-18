@@ -50,6 +50,7 @@ const SalesManagerPage = () => {
   const [salesCampaigns, setSalesCampaigns] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [filter, setFilter] = useState(""); // Default to no filter
 
   // State for manager profile
   const [managerInfo, setManagerInfo] = useState(null);
@@ -78,6 +79,7 @@ const SalesManagerPage = () => {
     fetchManagerProfile();
   }, []);
 
+  // Fetch sales campaigns
   useEffect(() => {
     const fetchSalesCampaigns = async () => {
       setLoading(true);
@@ -95,6 +97,27 @@ const SalesManagerPage = () => {
 
     fetchSalesCampaigns();
   }, []);
+
+  // Fetch sales campaigns with filter
+  useEffect(() => {
+    const fetchSalesCampaigns = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get(`${API_URL}/sales-campaigns/details`, {
+          params: { filter }, // Pass the filter as a query parameter
+        });
+        setSalesCampaigns(response.data);
+      } catch (err) {
+        console.error("Failed to fetch sales campaigns:", err);
+        setError("Failed to load sales campaigns. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSalesCampaigns();
+  }, [filter]); // Re-fetch campaigns when the filter changes
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -135,6 +158,23 @@ const SalesManagerPage = () => {
                 Sales Campaigns
               </Typography>
 
+              {/* filter */}
+              <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
+                <FormControl style={{ minWidth: 200 }}>
+                  <InputLabel id="filter-label">Filter Campaigns</InputLabel>
+                  <Select
+                    labelId="filter-label"
+                    value={filter}
+                    onChange={(event) => setFilter(event.target.value)}
+                  >
+                    <MenuItem value="">All Campaigns</MenuItem>
+                    <MenuItem value="ongoing">Ongoing</MenuItem>
+                    <MenuItem value="not-started">Not Started</MenuItem>
+                    <MenuItem value="ended">Ended</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>              
+
               <Typography variant="h6" gutterBottom>
                 Set Product Prices
               </Typography>
@@ -157,10 +197,10 @@ const SalesManagerPage = () => {
                       key={campaign.sales_id}
                       variant="outlined"
                       style={{
-                        marginBottom: '20px',
-                        padding: '15px',
-                        border: '1px solid #ddd',
-                        borderRadius: '8px',
+                        marginBottom: "20px",
+                        padding: "15px",
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
                       }}
                     >
                       <CardContent>
@@ -176,8 +216,8 @@ const SalesManagerPage = () => {
                           <strong>, Discount Percent: </strong> {campaign.discount_percent}%
                         </ListItem>
                         <ListItem>
-                          <strong>Start Date: </strong> {new Date(campaign.start_date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })}
-                          <strong>, End Date: </strong> {new Date(campaign.end_date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                          <strong>Start Date: </strong> {new Date(campaign.start_date).toLocaleDateString()}
+                          <strong>, End Date: </strong> {new Date(campaign.end_date).toLocaleDateString()}
                           <strong>, Status: </strong> {campaign.campaign_status}
                         </ListItem>
                       </CardContent>

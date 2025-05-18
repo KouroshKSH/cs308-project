@@ -88,6 +88,20 @@ const salesCampaignController = {
             res.status(500).json({ message: "Failed to fetch sales campaigns" });
         }
     },
+
+    // Get filtered sales campaigns
+    getFilteredSalesCampaigns: async (req, res) => {
+        try {
+            const { filter } = req.query; // Get the filter query parameter
+            // for logging
+            console.log("Filter for sales campaigns:", filter);
+            const campaigns = await SalesCampaign.getFilteredSalesCampaigns(filter);
+            res.status(200).json(campaigns);
+        } catch (error) {
+            console.error("Error fetching filtered sales campaigns:", error);
+            res.status(500).json({ message: "Failed to fetch sales campaigns" });
+        }
+    },
 };
 
 module.exports = salesCampaignController;

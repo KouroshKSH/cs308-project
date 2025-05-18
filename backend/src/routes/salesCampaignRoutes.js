@@ -12,6 +12,9 @@ router.post("/", salesCampaignController.createSalesCampaign);
 router.delete("/:salesId", salesCampaignController.deleteSalesCampaign);
 
 // Route to fetch all sales campaigns with details
-router.get("/details", salesCampaignController.getAllSalesCampaignsWithDetails);
+// router.get("/details", salesCampaignController.getAllSalesCampaignsWithDetails);
+
+// Route to fetch filtered sales campaigns
+router.get("/details", salesCampaignController.getFilteredSalesCampaigns);
 
 module.exports = router;
