@@ -246,11 +246,6 @@ const SalesManagerPage = () => {
                 </List>
               )}
 
-              <Divider style={{ marginBottom: '20px' }} />
-
-              <Typography variant="h6" gutterBottom>
-                Notify Users
-              </Typography>
             </CardContent>
           </Card>
         );

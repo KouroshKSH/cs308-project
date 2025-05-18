@@ -116,6 +116,27 @@ const SalesCampaign = {
             discounted_price: parseFloat(row.discounted_price),
         }));
     },
+
+    // Check for overlapping sales campaigns
+    async checkOverlappingSalesCampaign(productId, startDate, endDate) {
+        const query = `
+            SELECT COUNT(*) AS count
+            FROM sales_campaigns
+            WHERE product_id = ?
+            AND (
+                (start_date <= ? AND end_date >= ?) OR
+                (start_date <= ? AND end_date >= ?) OR
+                (start_date >= ? AND end_date <= ?)
+            );
+        `;
+        const [rows] = await pool.query(query, [
+            productId,
+            startDate, startDate,
+            endDate, endDate,
+            startDate, endDate,
+        ]);
+        return rows[0].count > 0; // Return true if overlapping campaigns exist
+    }
 };
 
 module.exports = SalesCampaign;
