@@ -6,9 +6,21 @@ const Product = {
   // Fetch products by department
   async getProductsByDepartment(departmentId) {
     const query = `
-      SELECT product_id, name, description, price, image_url, stock_quantity, warranty_status, popularity_score
-      FROM products
-      WHERE department_id = ?;
+      SELECT 
+        p.product_id,
+        p.name,
+        p.description,
+        p.price AS original_price,
+        p.image_url,
+        p.popularity_score,
+        p.stock_quantity,
+        s.discount_percent,
+        CAST((p.price * (100 - s.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price
+      FROM products p
+      LEFT JOIN sales_campaigns s 
+        ON p.product_id = s.product_id
+        AND CURDATE() BETWEEN s.start_date AND s.end_date
+      WHERE p.department_id = ?;
     `;
     const [rows] = await pool.query(query, [departmentId]);
     return rows;
@@ -69,11 +81,33 @@ const Product = {
 
   // Get product info given its ID
   async getProductById(productId) {
-    const sql = `
-      SELECT *
-      FROM products
-      WHERE product_id = ?;
-    `;
+    // const sql = `
+    //   SELECT *
+    //   FROM products
+    //   WHERE product_id = ?;
+    // `;
+      const sql = `
+        SELECT 
+          p.product_id,
+          p.name,
+          p.description,
+          p.price AS original_price,
+          p.image_url,
+          p.popularity_score,
+          p.stock_quantity,
+          p.material,
+          p.warranty_status,
+          p.distributor_info,
+          s.discount_percent,
+          s.start_date,
+          s.end_date,
+          CAST((p.price * (100 - s.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price
+        FROM products p
+        LEFT JOIN sales_campaigns s 
+          ON p.product_id = s.product_id
+          AND CURDATE() BETWEEN s.start_date AND s.end_date
+        WHERE p.product_id = ?;
+      `;
     const [rows] = await pool.query(sql, [productId]);
     return rows[0];
   },
@@ -137,7 +171,17 @@ const Product = {
     `;
     const [rows] = await pool.query(query, [categoryId, departmentId]);
     return rows;
-  }
+  },
+
+  // fetching for the sales campaigns basically (very niche i know)
+  async getAllProducts() {
+    const query = `
+      SELECT product_id, name
+      FROM products;
+    `;
+    const [rows] = await pool.query(query);
+    return rows;
+  },
 };
 
 module.exports = Product;

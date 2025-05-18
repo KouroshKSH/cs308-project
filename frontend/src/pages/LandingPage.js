@@ -86,8 +86,7 @@ const LandingPage = () => {
     window.addEventListener("storage", checkLogin);
     return () => window.removeEventListener("storage", checkLogin);
   }, []);
-
-  // 2. Fetch products from backend when department changes
+  
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -244,7 +243,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="landing-container">
+    <div className="landing-page-container">
       {/* we now have a custom header that we can customize and user everywhere */}
       <Header 
         category={department} 
@@ -252,7 +251,7 @@ const LandingPage = () => {
         onSearchResults={setProducts}
       />
       
-      <main className="landing-content">
+      <main className="landing-page-content">
         <Typography 
           variant="h3"
         >{department} Collection</Typography>
@@ -366,11 +365,30 @@ const LandingPage = () => {
             />
 
             { /* display the product's info */}
-            <h3 className="product-name">{product.name}</h3>
-            <h4 className="product-price">${product.price}</h4>
+            <h3 className="product-name">
+              {product.name}
+            </h3>
+
+            {/* Product Prices with Discounts */}
+            <div className="price-container">
+              <div className="product-prices">
+                {product.discount_percent ? (
+                  <>
+                    <span className="original-price"> ${product.original_price} </span>
+                    <span className="discounted-price">${product.discounted_price}</span>
+                    <span className="discount-percent">{product.discount_percent}%</span>
+                  </>
+                ) : (
+                  <span className="discounted-price">${product.original_price}</span>
+                )}
+              </div>
+            </div>
+
+            
             {/* <p className="product-popularity">Popularity: {product.popularity_score}</p> */}
-            <p className="product-popularity">{getStarsForPopularity(product.popularity_score)}</p>
-            {/* TODO: let's add a heart icon for wishlisting */}
+            <p className="product-popularity">
+              {getStarsForPopularity(product.popularity_score)}
+            </p>
           </div>
         ))}
       </div>

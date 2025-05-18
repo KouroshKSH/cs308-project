@@ -250,6 +250,27 @@ const productController = {
         .json({ message: "Failed to fetch filtered products" });
     }
   },
+
+  // for getting all products (niche for sales campaigns)
+  getAllProducts: async (req, res) => {
+    try {
+      const products = await Product.getAllProducts();
+      res.status(200).json(products);
+    } catch (error) {
+      console.error("Error fetching all products:", error);
+      res.status(500).json({ message: "Failed to fetch products" });
+    }
+  },
+
+  getProductsWithDiscounts: async (req, res) => {
+    try {
+      const ongoingSales = await SalesCampaign.getOngoingSalesCampaigns();
+      res.status(200).json(ongoingSales);
+    } catch (error) {
+      console.error("Error fetching products with discounts:", error);
+      res.status(500).json({ message: "Failed to fetch products with discounts" });
+    }
+  },
 };
 
 module.exports = productController;

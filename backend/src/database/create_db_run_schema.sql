@@ -20,3 +20,4 @@ SOURCE deliveries_schema.sql;
 SOURCE order_items_schema.sql;
 SOURCE returns_schema.sql;
 SOURCE wishlist_schema.sql;
+SOURCE sales_campaigns_schema.sql;

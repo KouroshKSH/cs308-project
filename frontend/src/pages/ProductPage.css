@@ -32,3 +32,50 @@
   margin: 0 auto;
   padding: 20px;
 } */
+
+/* Original price (crossed out) */
+.original-price {
+  text-decoration: line-through;
+  color: gray;
+  font-size: 18px; /* Slightly larger for better readability */
+  margin-right: 10px; /* Add spacing between original and discounted price */
+}
+
+/* Discounted price (bold and prominent, styled like Material UI's default price) */
+.product-page-container .original-price {
+  text-decoration: line-through;
+  color: gray;
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.product-page-container .discounted-price {
+  font-weight: bold;
+  color: #1976d2;
+  font-size: 24px;
+}
+
+.product-page-container .discount-percent {
+  color: green;
+  font-size: 18px;
+  margin-left: 10px;
+}
+
+/* Styling for the product details box */
+.product-details-box {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.product-details-box h6 {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.product-details-box p {
+  margin-bottom: 8px;
+  font-size: 14px;
+}

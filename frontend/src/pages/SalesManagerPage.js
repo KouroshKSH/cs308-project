@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Typography,
   Button,
@@ -13,10 +13,14 @@ import {
   Select,
   FormControl,
   InputLabel,
+  TextField,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import DrawerMenu from '../components/DrawerMenu';
 import Footer from '../components/Footer';
+import axios from 'axios';
+import "./SalesManagerPage.css";
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 // Chart imports:
 import {
@@ -28,7 +32,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import './SalesManagerPage.css';
 
 // Static sales data
 // TODO: I'll change this to use Zeynep's backend API
@@ -39,9 +42,169 @@ const salesData = [
   { name: 'Product 4', sales: 8 },
 ];
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const SalesManagerPage = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('Sales per Product');
+
+  // for sales campaigns
+  const [salesCampaigns, setSalesCampaigns] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [filter, setFilter] = useState(""); // Default to no filter
+
+  // for creating new sales campaigns
+  const [newCampaign, setNewCampaign] = useState({
+    productId: "",
+    discountPercent: "",
+    startDate: new Date().toISOString().split("T")[0], // Default to today
+    endDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0], // Default to tomorrow
+  });
+
+  const [products, setProducts] = useState([]); // For the product dropdown
+
+  // State for manager profile
+  const [managerInfo, setManagerInfo] = useState(null);
+
+  // Fetch manager profile
+  useEffect(() => {
+    const fetchManagerProfile = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${API_URL}/user/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setManagerInfo(response.data.user);
+      } catch (err) {
+        console.error('Failed to fetch manager profile:', err);
+        setError('Failed to load manager profile. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchManagerProfile();
+  }, []);
+
+  // Fetch sales campaigns
+  useEffect(() => {
+    const fetchSalesCampaigns = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get(`${API_URL}/sales-campaigns/details`);
+        setSalesCampaigns(response.data);
+      } catch (err) {
+        console.error("Failed to fetch sales campaigns:", err);
+        setError("Failed to load sales campaigns. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSalesCampaigns();
+  }, []);
+
+  // Fetch sales campaigns with filter
+  useEffect(() => {
+    const fetchSalesCampaigns = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get(`${API_URL}/sales-campaigns/details`, {
+          params: { filter }, // Pass the filter as a query parameter
+        });
+        setSalesCampaigns(response.data);
+      } catch (err) {
+        console.error("Failed to fetch sales campaigns:", err);
+        setError("Failed to load sales campaigns. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSalesCampaigns();
+  }, [filter]); // Re-fetch campaigns when the filter changes
+
+  const deleteSalesCampaign = async (salesId) => {
+    try {
+      await axios.delete(`${API_URL}/sales-campaigns/${salesId}`);
+      // Refresh the sales campaigns list after deletion
+      const response = await axios.get(`${API_URL}/sales-campaigns/details`, {
+        params: { filter }, // Pass the current filter
+      });
+      setSalesCampaigns(response.data);
+    } catch (err) {
+      console.error("Failed to delete sales campaign:", err);
+      alert("Failed to delete sales campaign. Please try again.");
+    }
+  };
+
+  // Fetch products for the dropdown
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/products`); // Fetch products from the new endpoint
+        setProducts(response.data); // Set the products in state
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Handle form submission
+  const handleCreateCampaign = async () => {
+    try {
+      const { productId, discountPercent, startDate, endDate } = newCampaign;
+
+      // Validate inputs
+      if (!productId || !discountPercent || !startDate || !endDate) {
+        alert("Please fill in all fields.");
+        return;
+      }
+      if (discountPercent < 1 || discountPercent > 99) {
+        alert("Discount percent must be between 1 and 99.");
+        return;
+      }
+      if (new Date(endDate) < new Date(startDate)) {
+        alert("End date cannot be before start date.");
+        return;
+      }
+
+      await axios.post(`${API_URL}/sales-campaigns`, {
+        productId,
+        discountPercent,
+        startDate,
+        endDate,
+      });
+
+      // Refresh the sales campaigns list
+      const response = await axios.get(`${API_URL}/sales-campaigns/details`, {
+        params: { filter },
+      });
+      setSalesCampaigns(response.data);
+
+      // Reset the form
+      setNewCampaign({
+        productId: "",
+        discountPercent: "",
+        startDate: new Date().toISOString().split("T")[0],
+        endDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0],
+      });
+
+      alert("Sales campaign created successfully!");
+    } catch (err) {
+      console.error("Failed to create sales campaign:", err);
+      alert(err.response?.data?.message || "Failed to create sales campaign. Please try again.");
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -51,11 +214,11 @@ const SalesManagerPage = () => {
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'Sales per Product':
+      case 'Product Sales':
         return (
           <Card variant="outlined" style={{ marginBottom: '20px', padding: '20px' }}>
             <Typography variant="h6" gutterBottom>
-              Sales per Product
+              Product Sales
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={salesData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
@@ -68,11 +231,187 @@ const SalesManagerPage = () => {
             </ResponsiveContainer>
           </Card>
         );
-      case 'Price & Discount Management':
+      case 'Sales Campaigns':
+        return (
+          <Card variant="outlined" style={{ marginBottom: '20px', padding: '20px' }}>
+            <CardContent>
+              <Typography variant="h5">Sales Campaigns</Typography>
+
+              {/* Create Campaign */}
+              <Card variant="outlined" style={{ marginBottom: "20px", padding: "20px" }}>
+                <Typography variant="h6" gutterBottom>
+                  Create New Sales Campaign
+                </Typography>
+
+                {/* Inputs Row 1: Product & Discount */}
+                <div style={{ display: "flex", gap: "20px", marginBottom: "15px" }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="product-label">Select Product</InputLabel>
+                    <Select
+                      labelId="product-label"
+                      value={newCampaign.productId}
+                      onChange={(event) => setNewCampaign({ ...newCampaign, productId: event.target.value })}
+                    >
+                      {products.map((product) => (
+                        <MenuItem key={product.product_id} value={product.product_id}>
+                          {product.product_id} - {product.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <TextField
+                    fullWidth
+                    label="Discount Percent"
+                    type="number"
+                    value={newCampaign.discountPercent}
+                    onChange={(event) => setNewCampaign({ ...newCampaign, discountPercent: event.target.value })}
+                    inputProps={{ min: 1, max: 99 }}
+                  />
+                </div>
+
+                {/* Inputs Row 2: Start & End Date */}
+                <div style={{ display: "flex", gap: "40px", marginBottom: "20px" }}>
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <Typography><strong>Start Date:</strong></Typography>
+                    {["Year", "Month", "Day"].map((label, index) => (
+                      <TextField
+                        key={label}
+                        label={label}
+                        type="number"
+                        value={newCampaign.startDate.split("-")[index]}
+                        onChange={(e) => {
+                          const [y, m, d] = newCampaign.startDate.split("-");
+                          const values = [y, m, d];
+                          values[index] = e.target.value.padStart(2, "0");
+                          setNewCampaign({ ...newCampaign, startDate: values.join("-") });
+                        }}
+                        style={{ width: "120px", height: "40px" }}
+                        inputProps={{ min: 1 }}
+                      />
+                    ))}
+                  </div>
+
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <Typography><strong>End Date:</strong></Typography>
+                    {["Year", "Month", "Day"].map((label, index) => (
+                      <TextField
+                        key={label}
+                        label={label}
+                        type="number"
+                        value={newCampaign.endDate.split("-")[index]}
+                        onChange={(e) => {
+                          const [y, m, d] = newCampaign.endDate.split("-");
+                          const values = [y, m, d];
+                          values[index] = e.target.value.padStart(2, "0");
+                          setNewCampaign({ ...newCampaign, endDate: values.join("-") });
+                        }}
+                        style={{ width: "120px", height: "40px" }}
+                        inputProps={{ min: 1 }}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Button */}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="medium"
+                    style={{ 
+                      alignSelf: "flex-start", 
+                      width: "fit-content", 
+                      padding: "5px 19px",
+                      fontSize: "16px",
+                      height: "45px",
+                    }}
+                    onClick={handleCreateCampaign}
+                  >
+                    Create Campaign
+                  </Button>
+                </div>
+
+              </Card>
+
+              {/* Filter Section */}
+              <div style={{ display: "flex", alignItems: "center", marginBottom: "20px", gap: "10px" }}>
+                <FilterListIcon />
+                <FormControl style={{ minWidth: 200 }}>
+                  <InputLabel id="filter-label">Filter Campaigns</InputLabel>
+                  <Select
+                    labelId="filter-label"
+                    value={filter}
+                    onChange={(event) => setFilter(event.target.value)}
+                  >
+                    <MenuItem value="">All Campaigns</MenuItem>
+                    <MenuItem value="ongoing">Ongoing</MenuItem>
+                    <MenuItem value="not-started">Not Started</MenuItem>
+                    <MenuItem value="ended">Ended</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+
+              {/* Current Campaigns */}
+              <Typography variant="h6" gutterBottom>
+                Current Sales Campaigns
+              </Typography>
+              {loading ? (
+                <CircularProgress />
+              ) : error ? (
+                <Typography color="error">{error}</Typography>
+              ) : salesCampaigns.length === 0 ? (
+                <Typography>No sales campaigns found.</Typography>
+              ) : (
+                <List>
+                  {salesCampaigns.map((campaign) => (
+                    <Card
+                      key={campaign.sales_id}
+                      variant="outlined"
+                      style={{
+                        marginBottom: "12px",
+                        padding: "12px 16px",
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        backgroundColor: "#fafafa",
+                      }}
+                    >
+                      <CardContent style={{ padding: 0 }}>
+                        <Typography variant="subtitle1" style={{ fontWeight: 600 }}>
+                          Campaign ID: {campaign.sales_id}
+                        </Typography>
+                        <Typography variant="body2">
+                          <strong>Product:</strong> {campaign.product_name} (ID: {campaign.product_id})
+                        </Typography>
+                        <Typography variant="body2">
+                          <strong>Original Price:</strong> ${campaign.original_price.toFixed(2)}, <strong>Discounted Price:</strong> ${campaign.discounted_price.toFixed(2)}, <strong>Discount Percent:</strong> {campaign.discount_percent}%
+                        </Typography>
+                        <Typography variant="body2">
+                          <strong>Start Date:</strong> {new Date(campaign.start_date).toLocaleDateString()},
+                          <strong> End Date:</strong> {new Date(campaign.end_date).toLocaleDateString()},
+                          <strong> Status:</strong> {campaign.campaign_status}
+                        </Typography>
+                        <div style={{ marginTop: "10px" }}>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            onClick={() => deleteSalesCampaign(campaign.sales_id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </List>
+              )}
+            </CardContent>
+          </Card>
+          );
+      case 'Price & Discounts':
         return (
           <Card variant="outlined" style={{ marginBottom: '20px' }}>
             <CardContent>
-              <Typography variant="h6">Price & Discount Management</Typography>
+              <Typography variant="h6">Price & Discounts</Typography>
               <List>
                 <ListItem>- Set product prices</ListItem>
                 <ListItem>- Apply discounts to selected items</ListItem>
@@ -125,42 +464,59 @@ const SalesManagerPage = () => {
             style={{
               cursor: 'pointer',
               marginBottom: '10px',
-              color: activeSection === 'Sales per Product' ? '#1976d2' : 'inherit',
-              fontWeight: activeSection === 'Sales per Product' ? 'bold' : 'normal',
+              color: activeSection === 'Product Sales' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Product Sales' ? 'bold' : 'normal',
               fontSize: '1.3em',
             }}
-            onClick={() => setActiveSection('Sales per Product')}
+            onClick={() => setActiveSection('Product Sales')}
           >
-            Sales per Product
+            Product Sales
           </div>
 
-          <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
-            <ListItem>View sales data</ListItem>
-            <ListItem>Analyze product performance</ListItem>
+          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
+            <ListItem>View & Analyze Sales</ListItem>
           </List>
 
-          <Divider style={{ marginBottom: '20px' }} />
+          <Divider style={{ marginBottom: '10px' }} />
 
           <div
             style={{
               cursor: 'pointer',
               marginBottom: '10px',
-              color: activeSection === 'Price & Discount Management' ? '#1976d2' : 'inherit',
-              fontWeight: activeSection === 'Price & Discount Management' ? 'bold' : 'normal',
+              color: activeSection === 'Sales Campaigns' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Sales Campaigns' ? 'bold' : 'normal',
               fontSize: '1.3em',
             }}
-            onClick={() => setActiveSection('Price & Discount Management')}
+            onClick={() => setActiveSection('Sales Campaigns')}
           >
-            Price & Discount Management
+            Sales Campaigns
           </div>
 
-          <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
+          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
+            <ListItem>View & Update Campaigns</ListItem>
+          </List>
+
+          <Divider style={{ marginBottom: '10px' }} />
+
+          <div
+            style={{
+              cursor: 'pointer',
+              marginBottom: '10px',
+              color: activeSection === 'Price & Discounts' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Price & Discounts' ? 'bold' : 'normal',
+              fontSize: '1.3em',
+            }}
+            onClick={() => setActiveSection('Price & Discounts')}
+          >
+            Price & Discounts
+          </div>
+
+          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
             <ListItem>Set prices for new products</ListItem>
-            <ListItem>Apply discounts to items</ListItem>
             <ListItem>Notify users about discounts</ListItem>
           </List>
 
-          <Divider style={{ marginBottom: '20px' }} />
+          <Divider style={{ marginBottom: '10px' }} />
 
           <div
             style={{
@@ -175,12 +531,12 @@ const SalesManagerPage = () => {
             Invoice and Reports
           </div>
 
-          <List style={{ paddingLeft: '20px' }}>
+          <List style={{ paddingLeft: '10px' }}>
             <ListItem>View and manage invoices</ListItem>
             <ListItem>Analyze profit/loss charts</ListItem>
           </List>
 
-          <Divider style={{ marginBottom: '20px' }} />
+          <Divider style={{ marginBottom: '10px' }} />
           
           <Typography
             variant="body1"
@@ -213,10 +569,24 @@ const SalesManagerPage = () => {
 
         {/* Main Content Area */}
         <div className="main-content">
+          {managerInfo && (
+            <div className="manager-profile-info">
+              <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '10px' }}>
+                Hello Sales Manager {managerInfo.username}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Role:</strong> Sales Manager
+              </Typography>
+              <Typography variant="body1">
+                <strong>Email:</strong> {managerInfo.email}
+              </Typography>
+            </div>
+          )}
           {renderContent()}
         </div>
       </div>
 
+      <div style={{ marginBottom: '60px' }} />
       <Footer />
     </>
   );

@@ -357,8 +357,23 @@ const ProductPage = () => {
 
               {/* Product Details */}
               <Box sx={{ flex: 1 }}>
-                <Typography variant="h5" fontWeight="bold">{product.name}</Typography>
-                <Typography variant="h6" color="primary" sx={{ mt: 1 }}>${product.price}</Typography>
+                <Typography variant="h4" fontWeight="bold">
+                  {product.name}
+                </Typography>
+
+                {/* Product Prices with Discounts */}
+                {product.discount_percent ? (
+                  <div className="product-prices">
+                    <span className="original-price">${product.original_price}</span>
+                    <span className="discounted-price">${product.discounted_price}</span>
+                    <span className="discount-percent">{product.discount_percent}% Discount</span>
+                  </div>
+                ) : (
+                  <Typography variant="h6" color="primary" sx={{ mt: 1 }}>
+                    ${product.original_price}
+                  </Typography>
+                )}
+                {/* <Typography variant="h6" color="primary" sx={{ mt: 1 }}>${product.price}</Typography> */}
                 
                 {/* to show the popularity of product via stars */}
                 <Box sx={{ mt: 1, display: "flex", alignItems: "center", gap: 1 }}>
@@ -480,7 +495,39 @@ const ProductPage = () => {
                     {wishlistMessage}
                   </Typography>
                 )}
-              </Box>
+
+                {/* Product Additional Details */}
+                <Box 
+                  sx={{ 
+                    mt: 2, 
+                    p: 2, 
+                    border: "1px solid #ddd", 
+                    borderRadius: "8px", 
+                    backgroundColor: "white" 
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+                    Product Details
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    <strong>Warranty:</strong> {product.warranty_status || "N/A"}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    <strong>Distributor:</strong> {product.distributor_info || "N/A"}
+                  </Typography>
+                  {product.start_date && product.end_date && (
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>Sales from:</strong> {new Date(product.start_date).toLocaleDateString()} until {new Date(product.end_date).toLocaleDateString()}
+                    </Typography>
+                  )}
+
+                  {product.discount_percent ? (
+                    <Typography variant="body2">
+                      <strong>Discount:</strong> {`${product.discount_percent}%`}
+                    </Typography>
+                  ) : null}
+                </Box>
+                </Box>
             </Box>
 
             {/* Zoom Image Modal */}

@@ -40,33 +40,57 @@ const ProductManagerPage = () => {
   // for getting the manager info and displaying it
   const [managerInfo, setManagerInfo] = useState(null); // State to store manager info
 
-  const fetchManagerProfile = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/user/profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setManagerInfo(response.data.user); // Set manager info from the response
-    } catch (err) {
-      console.error('Failed to fetch manager profile:', err);
-      setError('Failed to load manager profile. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const fetchManagerProfile = async () => {
+  //   setLoading(true);
+  //   setError(null);
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     const response = await axios.get(`${API_URL}/user/profile`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     setManagerInfo(response.data.user); // Set manager info from the response
+  //   } catch (err) {
+  //     console.error('Failed to fetch manager profile:', err);
+  //     setError('Failed to load manager profile. Please try again.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // Fetch manager profile only once when the component mounts
+  useEffect(() => {
+    const fetchManagerProfile = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${API_URL}/user/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setManagerInfo(response.data.user); // Store manager info in state
+      } catch (err) {
+        console.error('Failed to fetch manager profile:', err);
+        setError('Failed to load manager profile. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchManagerProfile();
+  }, []); // Empty dependency array ensures this runs only once
 
   const handleLogout = () => {
     localStorage.removeItem("token"); // removethe token
     navigate("/"); // go to landing page
   };
 
-  useEffect(() => {
-    fetchManagerProfile(); // Fetch manager profile only once
-  }, []); // Runs only on component mount
+  // useEffect(() => {
+  //   fetchManagerProfile(); // Fetch manager profile only once
+  // }, []); // Runs only on component mount
 
   // for fetching the info of the items
   useEffect(() => {
@@ -480,42 +504,23 @@ const ProductManagerPage = () => {
         </div>
 
         {/* Main Content Area */}
-        <div style={{padding: '20px', width: '80%', textAlign: 'center'}}>
-          {/* Manager Info Moved Here */}
-          {loading ? (
-            <CircularProgress />
-          ) : error ? (
-            <Typography color="error">{error}</Typography>
-          ) : managerInfo ? (
-            <div 
-              className="manager-profile-info" 
-              style={{ 
-                marginBottom: '30px', 
-                padding: '15px', 
-                border: '1px solid #eee', 
-                borderRadius: '8px', 
-                backgroundColor: '#f9f9f9',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                textAlign: 'left',
-              }}>
+        <div className="main-content">
+          {managerInfo && (
+            <div className="manager-profile-info">
               <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '10px' }}>
-                Hello Manager {managerInfo.username}
+                Hello Product Manager {managerInfo.username}
               </Typography>
               <Typography variant="body1">
-                <strong>Role:</strong> Product Manager
+                <strong>Role:</strong> Sales Manager
               </Typography>
               <Typography variant="body1">
                 <strong>Email:</strong> {managerInfo.email}
               </Typography>
             </div>
-          ) : null}
-          <Typography variant="h4" gutterBottom>
-            {activeSection}
-          </Typography>
+          )}
           {renderContent()}
         </div>
       </div>
-
       <Footer />
     </>
   );
