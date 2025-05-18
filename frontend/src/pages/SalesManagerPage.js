@@ -119,6 +119,20 @@ const SalesManagerPage = () => {
     fetchSalesCampaigns();
   }, [filter]); // Re-fetch campaigns when the filter changes
 
+  const deleteSalesCampaign = async (salesId) => {
+    try {
+      await axios.delete(`${API_URL}/sales-campaigns/${salesId}`);
+      // Refresh the sales campaigns list after deletion
+      const response = await axios.get(`${API_URL}/sales-campaigns/details`, {
+        params: { filter }, // Pass the current filter
+      });
+      setSalesCampaigns(response.data);
+    } catch (err) {
+      console.error("Failed to delete sales campaign:", err);
+      alert("Failed to delete sales campaign. Please try again.");
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
@@ -174,12 +188,6 @@ const SalesManagerPage = () => {
                   </Select>
                 </FormControl>
               </div>              
-
-              <Typography variant="h6" gutterBottom>
-                Set Product Prices
-              </Typography>
-
-              <Divider style={{ marginBottom: '20px' }} />
               
               <Typography variant="h6" gutterBottom>
                 Current Sales Campaigns
@@ -220,6 +228,18 @@ const SalesManagerPage = () => {
                           <strong>, End Date: </strong> {new Date(campaign.end_date).toLocaleDateString()}
                           <strong>, Status: </strong> {campaign.campaign_status}
                         </ListItem>
+                        
+                        <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                        {/* Delete Button */}
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={() => deleteSalesCampaign(campaign.sales_id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                      
                       </CardContent>
                     </Card>
                   ))}
