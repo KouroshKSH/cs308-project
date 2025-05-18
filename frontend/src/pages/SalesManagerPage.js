@@ -51,6 +51,33 @@ const SalesManagerPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // State for manager profile
+  const [managerInfo, setManagerInfo] = useState(null);
+
+  // Fetch manager profile
+  useEffect(() => {
+    const fetchManagerProfile = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${API_URL}/user/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setManagerInfo(response.data.user);
+      } catch (err) {
+        console.error('Failed to fetch manager profile:', err);
+        setError('Failed to load manager profile. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchManagerProfile();
+  }, []);
+
   useEffect(() => {
     const fetchSalesCampaigns = async () => {
       setLoading(true);
@@ -77,11 +104,11 @@ const SalesManagerPage = () => {
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'Sales per Product':
+      case 'Product Sales':
         return (
           <Card variant="outlined" style={{ marginBottom: '20px', padding: '20px' }}>
             <Typography variant="h6" gutterBottom>
-              Sales per Product
+              Product Sales
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={salesData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
@@ -94,7 +121,7 @@ const SalesManagerPage = () => {
             </ResponsiveContainer>
           </Card>
         );
-      case 'Price & Discount Management':
+      case 'Sales Campaigns':
         return (
           <Card 
             variant="outlined" 
@@ -104,16 +131,16 @@ const SalesManagerPage = () => {
             }}
           >
             <CardContent>
-              <Typography variant="h6">
-                Price & Discount Management
+              <Typography variant="h5">
+                Sales Campaigns
               </Typography>
-              <List>
-                <ListItem>- Set product prices</ListItem>
-                <ListItem>- Apply discounts to selected items</ListItem>
-                <ListItem>- Notify users with items in their wishlist</ListItem>
-              </List>
+
+              <Typography variant="h6" gutterBottom>
+                Set Product Prices
+              </Typography>
 
               <Divider style={{ marginBottom: '20px' }} />
+              
               <Typography variant="h6" gutterBottom>
                 Current Sales Campaigns
               </Typography>
@@ -149,8 +176,8 @@ const SalesManagerPage = () => {
                           <strong>, Discount Percent: </strong> {campaign.discount_percent}%
                         </ListItem>
                         <ListItem>
-                          <strong>Start Date: </strong> {campaign.start_date}
-                          <strong>, End Date: </strong> {campaign.end_date}
+                          <strong>Start Date: </strong> {new Date(campaign.start_date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                          <strong>, End Date: </strong> {new Date(campaign.end_date).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })}
                           <strong>, Status: </strong> {campaign.campaign_status}
                         </ListItem>
                       </CardContent>
@@ -158,6 +185,25 @@ const SalesManagerPage = () => {
                   ))}
                 </List>
               )}
+
+              <Divider style={{ marginBottom: '20px' }} />
+
+              <Typography variant="h6" gutterBottom>
+                Notify Users
+              </Typography>
+            </CardContent>
+          </Card>
+        );
+      case 'Price & Discounts':
+        return (
+          <Card variant="outlined" style={{ marginBottom: '20px' }}>
+            <CardContent>
+              <Typography variant="h6">Price & Discounts</Typography>
+              <List>
+                <ListItem>- Set product prices</ListItem>
+                <ListItem>- Apply discounts to selected items</ListItem>
+                <ListItem>- Notify users with items in their wishlist</ListItem>
+              </List>
             </CardContent>
           </Card>
         );
@@ -205,42 +251,59 @@ const SalesManagerPage = () => {
             style={{
               cursor: 'pointer',
               marginBottom: '10px',
-              color: activeSection === 'Sales per Product' ? '#1976d2' : 'inherit',
-              fontWeight: activeSection === 'Sales per Product' ? 'bold' : 'normal',
+              color: activeSection === 'Product Sales' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Product Sales' ? 'bold' : 'normal',
               fontSize: '1.3em',
             }}
-            onClick={() => setActiveSection('Sales per Product')}
+            onClick={() => setActiveSection('Product Sales')}
           >
-            Sales per Product
+            Product Sales
           </div>
 
-          <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
-            <ListItem>View sales data</ListItem>
-            <ListItem>Analyze product performance</ListItem>
+          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
+            <ListItem>View & Analyze Sales</ListItem>
           </List>
 
-          <Divider style={{ marginBottom: '20px' }} />
+          <Divider style={{ marginBottom: '10px' }} />
 
           <div
             style={{
               cursor: 'pointer',
               marginBottom: '10px',
-              color: activeSection === 'Price & Discount Management' ? '#1976d2' : 'inherit',
-              fontWeight: activeSection === 'Price & Discount Management' ? 'bold' : 'normal',
+              color: activeSection === 'Sales Campaigns' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Sales Campaigns' ? 'bold' : 'normal',
               fontSize: '1.3em',
             }}
-            onClick={() => setActiveSection('Price & Discount Management')}
+            onClick={() => setActiveSection('Sales Campaigns')}
           >
-            Price & Discount Management
+            Sales Campaigns
           </div>
 
-          <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
+          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
+            <ListItem>View & Update Campaigns</ListItem>
+          </List>
+
+          <Divider style={{ marginBottom: '10px' }} />
+
+          <div
+            style={{
+              cursor: 'pointer',
+              marginBottom: '10px',
+              color: activeSection === 'Price & Discounts' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Price & Discounts' ? 'bold' : 'normal',
+              fontSize: '1.3em',
+            }}
+            onClick={() => setActiveSection('Price & Discounts')}
+          >
+            Price & Discounts
+          </div>
+
+          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
             <ListItem>Set prices for new products</ListItem>
-            <ListItem>Apply discounts to items</ListItem>
             <ListItem>Notify users about discounts</ListItem>
           </List>
 
-          <Divider style={{ marginBottom: '20px' }} />
+          <Divider style={{ marginBottom: '10px' }} />
 
           <div
             style={{
@@ -255,12 +318,12 @@ const SalesManagerPage = () => {
             Invoice and Reports
           </div>
 
-          <List style={{ paddingLeft: '20px' }}>
+          <List style={{ paddingLeft: '10px' }}>
             <ListItem>View and manage invoices</ListItem>
             <ListItem>Analyze profit/loss charts</ListItem>
           </List>
 
-          <Divider style={{ marginBottom: '20px' }} />
+          <Divider style={{ marginBottom: '10px' }} />
           
           <Typography
             variant="body1"
@@ -293,10 +356,24 @@ const SalesManagerPage = () => {
 
         {/* Main Content Area */}
         <div className="main-content">
+          {managerInfo && (
+            <div className="manager-profile-info">
+              <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '10px' }}>
+                Hello Sales Manager {managerInfo.username}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Role:</strong> Sales Manager
+              </Typography>
+              <Typography variant="body1">
+                <strong>Email:</strong> {managerInfo.email}
+              </Typography>
+            </div>
+          )}
           {renderContent()}
         </div>
       </div>
 
+      <div style={{ marginBottom: '60px' }} />
       <Footer />
     </>
   );
