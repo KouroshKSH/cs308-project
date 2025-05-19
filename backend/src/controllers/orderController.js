@@ -223,3 +223,108 @@ exports.getVariationSalesStatsByProduct = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch variation stats for product" });
   }
 };
+
+exports.getDailyRevenueAndProfit  = async (req, res) => {
+  try {
+    if (req.user.role !== 'salesManager') {
+      return res.status(403).json({ error: 'Access denied. Sales manager role required.' });
+    }
+
+    const data = await Order.getDailyRevenueAndProfit();
+
+    const formattedData = data.map(item => ({
+      ...item,
+      date: new Date(item.date).toISOString().split('T')[0],
+    }));
+
+    res.status(200).json(formattedData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch revenue and profit over time' });
+  }
+};
+
+exports.getCumulativeRevenueAndProfit = async (req, res) => {
+  try {
+    if (req.user.role !== 'salesManager') {
+      return res.status(403).json({ error: 'Access denied. Sales manager role required.' });
+    }
+
+    const dailyData = await Order.getDailyRevenueAndProfit();
+
+    let cumulativeRevenue = 0;
+    let cumulativeProfit = 0;
+
+    const cumulativeData = dailyData.map(day => {
+      cumulativeRevenue += parseFloat(day.total_revenue);
+      cumulativeProfit += parseFloat(day.total_profit);
+      return {
+        date: new Date(day.date).toISOString().split('T')[0],
+        cumulative_revenue: cumulativeRevenue,
+        cumulative_profit: cumulativeProfit,
+      };
+    });
+
+    res.status(200).json(cumulativeData);
+  } catch (error) {
+    console.error('Error fetching cumulative revenue and profit:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.getCumulativeRevenueAndProfitBetweenDates = async (req, res) => {
+  try {
+    if (req.user.role !== 'salesManager') {
+      return res.status(403).json({ error: 'Access denied. Sales manager role required.' });
+    }
+
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const dailyData = await Order.getDailyRevenueAndProfitBetweenDates(startDate, endDate);
+
+    let cumulativeRevenue = 0;
+    let cumulativeProfit = 0;
+
+    const cumulativeData = dailyData.map(day => {
+      cumulativeRevenue += parseFloat(day.total_revenue);
+      cumulativeProfit += parseFloat(day.total_profit);
+      return {
+        date: new Date(day.date).toISOString().split('T')[0],
+        cumulative_revenue: cumulativeRevenue,
+        cumulative_profit: cumulativeProfit,
+      };
+    });
+
+    res.status(200).json(cumulativeData);
+  } catch (error) {
+    console.error('Error fetching cumulative stats for date range:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.getDailyRevenueAndProfitBetweenDates = async (req, res) => {
+  if (!req.user || req.user.role !== 'salesManager') {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+  const { startDate, endDate } = req.query;
+  if (!startDate || !endDate) {
+    return res.status(400).json({ error: 'startDate and endDate query parameters are required' });
+  }
+  try {
+    const stats = await Order.getDailyRevenueAndProfitBetweenDates(startDate, endDate);
+
+    const formattedStats = stats.map(item => ({
+      ...item,
+      date: new Date(item.date).toISOString().split('T')[0],
+    }));
+
+    res.json(formattedStats);
+  } catch (error) {
+    console.error('Error getting daily revenue and profit between dates:', error);
+    res.status(500).json({ error: 'Failed to get daily revenue and profit between dates' });
+  }
+};
