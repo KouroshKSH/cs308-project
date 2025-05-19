@@ -23,6 +23,7 @@ import axios from 'axios';
 import DrawerMenu from '../components/DrawerMenu';
 import Footer from '../components/Footer';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import "./ProfilePage.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -267,56 +268,73 @@ const ProfilePage = () => {
 
         {/* Cart */}
         <Collapse in={openCart}>
-          <Typography variant="h5" mt={4} mb={2}>Your Cart</Typography>
-          {cart.items.length === 0 ? (
-            <Typography>Your cart is empty.</Typography>
-          ) : (
-            <List>
-              {cart.items.map((item, idx) => (
-                <Card key={idx} sx={{ mb: 2 }}>
-                  <CardContent 
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                      }}
+         <div className="profile-cart-container">
+            <Typography variant="h5" mt={4} mb={2}>Your Cart</Typography>
+            {cart.items.length === 0 ? (
+              <Typography>Your cart is empty.</Typography>
+            ) : (
+              <List>
+                {cart.items.map((item, idx) => (
+                  <Card key={idx} sx={{ mb: 2 }}>
+                    <CardContent 
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                        }}
+                      >
+                      <Box>
+                        <Typography fontWeight="bold">{item.name}</Typography>
+                        <Typography>Size: {item.size_name} | Color: {item.color_name}</Typography>
+                        {/* <Typography>Quantity: {item.quantity} | ${item.price}</Typography> */}
+
+                        <Typography>
+                        {item.discount_percent ? (
+                          <>
+                            <span className="original-price">${item.original_price}</span>
+                            <span className="discounted-price">${item.discounted_price}</span>
+                            <span className="discount-percent">{item.discount_percent}%</span>
+                            &nbsp;(x{item.quantity})
+                          </>
+                        ) : (
+                          <>${item.original_price} (x{item.quantity})</>
+                        )}
+                      </Typography>
+
+                      </Box>
+                      <img
+                        src={`${process.env.PUBLIC_URL}/assets/images/${item.image_url}.jpg`}
+                        alt={item.name}
+                        onError={e => e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`}
+                        style={{ width: 80, height: 100, objectFit: "cover", borderRadius: 4 }}
+                      />
+                    </CardContent>
+                  </Card>
+                ))}
+                <Divider sx={{ my: 2 }} />
+                <ListItem
+                  secondaryAction={
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      onClick={() => navigate("/checkout")}
+                      sx={{ borderRadius: 1, minWidth: 120, minHeight: 40 }}
                     >
-                    <Box>
-                      <Typography fontWeight="bold">{item.name}</Typography>
-                      <Typography>Size: {item.size_name} | Color: {item.color_name}</Typography>
-                      <Typography>Quantity: {item.quantity} | ${item.price}</Typography>
-                    </Box>
-                    <img
-                      src={`${process.env.PUBLIC_URL}/assets/images/${item.image_url}.jpg`}
-                      alt={item.name}
-                      onError={e => e.target.src = `${process.env.PUBLIC_URL}/assets/images/placeholder.jpg`}
-                      style={{ width: 80, height: 100, objectFit: "cover", borderRadius: 4 }}
-                    />
-                  </CardContent>
-                </Card>
-              ))}
-              <Divider sx={{ my: 2 }} />
-              <ListItem
-                secondaryAction={
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    onClick={() => navigate("/checkout")}
-                    sx={{ borderRadius: 10 }}
-                  >
-                    Check Out
-                  </Button>
-                }
-              >
-                <ListItemText primary={<strong>Total: ${cart.total_price}</strong>} />
-              </ListItem>
-            </List>
-          )}
+                      Check Out
+                    </Button>
+                  }
+                >
+                  <ListItemText primary={<strong>Total: ${cart.total_price}</strong>} />
+                </ListItem>
+              </List>
+            )}
+          </div>
         </Collapse>
 
         {/* Wishlist */}
         <Collapse in={openWishlist}>
+          <div className="profile-wishlist-container">
           <Typography variant="h5" mt={4} mb={2}>
             Your Wishlist
           </Typography>
@@ -336,7 +354,19 @@ const ProfilePage = () => {
                     {/* left section for product info in the wishlist */}
                     <Box>
                       <Typography fontWeight="bold">{item.name}</Typography>
-                      <Typography>Price: ${item.price}</Typography>
+                      {/* <Typography>Price: ${item.price}</Typography> */}
+
+                      <Typography>
+                      {item.discount_percent ? (
+                        <>
+                          <span className="original-price">${item.original_price}</span>
+                          <span className="discounted-price">${item.discounted_price}</span>
+                          <span className="discount-percent">{item.discount_percent}%</span>
+                        </>
+                      ) : (
+                        <>${item.original_price}</>
+                      )}
+                    </Typography>
                     </Box>
 
                     {/* Right Section: Product Image and Remove Button */}
@@ -383,6 +413,7 @@ const ProfilePage = () => {
               ))}
             </List>
           )}
+          </div>
         </Collapse>
 
         <Box mt={5} textAlign="center">
@@ -392,7 +423,8 @@ const ProfilePage = () => {
             onClick={handleLogout} 
             sx={{
               borderRadius: 1,
-              minWidth: 180
+              minWidth: 180,
+              minHeight: 50,
               }}
             >
             Logout
