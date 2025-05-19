@@ -137,7 +137,7 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
                     </Typography>
                     {/* we can also show the color as `{item.color_name}` but not needed */}
                   <Typography variant="body2">
-                    ${item.price} (x{item.quantity})
+                    ${item.discounted_price || item.original_price} (x{item.quantity})
                   </Typography>
                   <Typography variant="body2">
                     Size: {item.size_name}
