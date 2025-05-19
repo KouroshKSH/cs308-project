@@ -31,9 +31,10 @@ exports.createOrder = async (req, res) => {
 
     // Going through order items to create them and to update stock
     await Promise.all(items.map(async item => {
-      const { product_id, variation_id, quantity, price_at_purchase } = item;
+      // never trust the client with price data, always double check with DB
+      const { product_id, variation_id, quantity } = item;
 
-      if (!product_id || !quantity || price_at_purchase == null) {
+      if (!product_id || !quantity) {
         throw new Error("Each order item must have product_id, quantity, and price_at_purchase");
       }
 
@@ -52,6 +53,11 @@ exports.createOrder = async (req, res) => {
       if (variation.stock_quantity < quantity) {
         throw new Error(`Not enough stock for variation ${variation_id}`);
       }
+
+      // AFTER making the sales campaigns stuff for discounts
+      // Fetch product info to get current price and discount
+      const product = await Product.getProductById(product_id);
+      let price_at_purchase = product.discounted_price || product.original_price;
 
       // Creating the order item
       await OrderItem.create({ order_id: orderId, product_id, variation_id, quantity, price_at_purchase });
