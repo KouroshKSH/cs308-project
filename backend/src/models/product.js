@@ -84,10 +84,24 @@ const Product = {
   async searchProducts(query, departmentId) {
     const searchTerm = `%${query}%`;
     const sql = `
-      SELECT product_id, name, description, price, material, image_url, stock_quantity, warranty_status, popularity_score
-      FROM products
-      WHERE department_id = ?
-        AND (name LIKE ? OR description LIKE ? OR material LIKE ?)
+      SELECT 
+        p.product_id, 
+        p.name, 
+        p.description, 
+        p.price AS original_price, 
+        p.material, 
+        p.image_url, 
+        p.stock_quantity, 
+        p.warranty_status, 
+        p.popularity_score,
+        s.discount_percent,
+        CAST((p.price * (100 - s.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price
+      FROM products p
+      LEFT JOIN sales_campaigns s 
+        ON p.product_id = s.product_id
+        AND CURDATE() BETWEEN s.start_date AND s.end_date
+      WHERE p.department_id = ?
+        AND (p.name LIKE ? OR p.description LIKE ? OR p.material LIKE ?)
       LIMIT 5;
     `;
     const [rows] = await pool.query(sql, [
@@ -178,18 +192,29 @@ const Product = {
   async getProductsByDepartmentAndCategory(departmentId, categoryId) {
     const query = `
       WITH RECURSIVE category_hierarchy AS (
-        -- Start with the given category_id
         SELECT category_id
         FROM categories
         WHERE category_id = ?
         UNION ALL
-        -- Recursively find all subcategories
         SELECT c.category_id
         FROM categories c
         INNER JOIN category_hierarchy ch ON c.parent_category_id = ch.category_id
       )
-      SELECT p.product_id, p.name, p.description, p.price, p.image_url, p.stock_quantity, p.warranty_status, p.popularity_score
+      SELECT 
+        p.product_id, 
+        p.name, 
+        p.description, 
+        p.price AS original_price, 
+        p.image_url, 
+        p.stock_quantity, 
+        p.warranty_status, 
+        p.popularity_score,
+        s.discount_percent,
+        CAST((p.price * (100 - s.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price
       FROM products p
+      LEFT JOIN sales_campaigns s 
+        ON p.product_id = s.product_id
+        AND CURDATE() BETWEEN s.start_date AND s.end_date
       WHERE p.department_id = ?
         AND p.category_id IN (SELECT category_id FROM category_hierarchy);
     `;
