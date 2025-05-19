@@ -47,6 +47,13 @@ router.post(
   authMiddleware,
   productController.createProductReview
 );
+ 
+// Route to create a new product (requires authentication)
+router.post('/add-product-with-variation', authMiddleware, productController.createProductWithVariations);
+
+// Route to delete a product (requires authentication)
+router.delete(
+  "/delete-product/:productId", authMiddleware, productController.deleteProduct);
 
 // ROUTE: Filter products by department and category
 // Example: GET /api/products/filter/2/4

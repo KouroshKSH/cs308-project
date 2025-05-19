@@ -271,6 +271,46 @@ const productController = {
       res.status(500).json({ message: "Failed to fetch products with discounts" });
     }
   },
+
+  createProductWithVariations: async (req, res) => {
+    try {
+
+      if (req.user.role !== 'productManager') {
+        return res.status(403).json({ message: "Only product managers can add products." });
+      }
+
+      const { productData, variations } = req.body;
+  
+      if (!productData || !variations || !Array.isArray(variations)) {
+        return res.status(400).json({ error: "Invalid payload structure" });
+      }
+  
+      const result = await Product.createProductWithVariations(productData, variations);
+      res.status(201).json({ message: result.message });
+    } catch (error) {
+      console.error("Controller - Error adding product:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+
+  deleteProduct: async (req, res) => {
+    try {
+
+      if (req.user.role !== 'productManager') {
+        return res.status(403).json({ message: "Only product managers can delete products." });
+      }
+      
+      const { productId } = req.params;
+  
+      const result = await Product.deleteProductById(productId);
+      res.status(200).json({ message: result.message });
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      res.status(500).json({ message: "Failed to delete product" });
+    }
+  }
+  
+  
 };
 
 module.exports = productController;

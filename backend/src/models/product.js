@@ -182,6 +182,89 @@ const Product = {
     const [rows] = await pool.query(query);
     return rows;
   },
+
+  // Add new product with its variations
+  async createProductWithVariations(productData, variations) {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      // Insert product with default price -1 and popularity_score 0
+      const [productResult] = await connection.query(
+        `INSERT INTO products 
+          (serial_number, name, description, price, cost, department_id, category_id, material, image_url, stock_quantity, warranty_status, distributor_info, popularity_score)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          productData.serial_number,
+          productData.name,
+          productData.description,
+          -1, // default price
+          productData.cost,
+          productData.department_id,
+          productData.category_id,
+          productData.material,
+          productData.image_url,
+          productData.stock_quantity,
+          productData.warranty_status,
+          productData.distributor_info,
+          0 // popularity_score
+        ]
+      );
+
+      const productId = productResult.insertId;
+
+      // Insert variations
+      const variationIds = [];
+      for (const variation of variations) {
+        const [variationResult] = await connection.query(
+          `INSERT INTO product_variations 
+            (product_id, serial_number, size_id, color_id, stock_quantity)
+          VALUES (?, ?, ?, ?, ?)`,
+          [
+            productId,
+            variation.serial_number,
+            variation.size_id,
+            variation.color_id,
+            variation.stock_quantity
+          ]
+        );
+        variationIds.push(variationResult.insertId);
+      }
+
+      await connection.commit();
+      return {
+        success: true,
+        message: `Successfully added new product ${productId} with variations [${variationIds.join(", ")}].`,
+      };
+    } catch (err) {
+      await connection.rollback();
+      console.error("Model - Failed to add product:", err);
+      throw err;
+    } finally {
+      connection.release();
+    }
+  },
+
+  async deleteProductById(productId) {
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+  
+      // Product variations will be deleted automatically due to ON DELETE CASCADE
+      await connection.query(`DELETE FROM products WHERE product_id = ?`, [productId]);
+  
+      await connection.commit();
+      return { message: `Product ${productId} and its variations deleted.` };
+    } catch (error) {
+      await connection.rollback();
+      console.error("Model - Failed to delete product:", error);
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }  
+
 };
 
 module.exports = Product;
