@@ -13,7 +13,7 @@ import {
   CircularProgress,
   Grid,
 } from "@mui/material";
-
+import './CheckoutPage.css';
 import axios from "axios";
 import { getOrCreateSessionId } from "../utils/sessionStorage";
 
@@ -72,7 +72,7 @@ const CheckoutPage = () => {
         product_id: item.product_id,
         variation_id: item.variation_id,
         quantity: item.quantity,
-        price_at_purchase: item.price
+        price_at_purchase: Number(item.discounted_price || item.original_price)
       }));
       const orderData = {
         delivery_address: formData.address,
@@ -95,144 +95,146 @@ const CheckoutPage = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 4 }}>
-      <Grid container spacing={4}>
-        {/* Left Side: Form */}
-        <Grid item xs={12} md={7}>
-          <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-            <Typography variant="h5" gutterBottom>
-              Checkout
-            </Typography>
-            <form onSubmit={handleSubmit}>
-              <TextField
-                label="Full Name"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-              />
-              <TextField
-                label="Email Address"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-              />
-              <TextField
-                label="Delivery Address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                multiline
-                rows={3}
-                required
-              />
-              <TextField
-                label="Card Number"
-                name="cardNumber"
-                value={formData.cardNumber}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-              />
-              <TextField
-                label="Card Password"
-                name="cardPassword"
-                type="password"
-                value={formData.cardPassword}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-              />
-              <TextField
-                label="Expiration Date"
-                name="expirationDate"
-                type="month"
-                value={formData.expirationDate}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-                InputLabelProps={{ shrink: true }}
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                sx={{ mt: 3 }}
-              >
-                Complete Order
-              </Button>
-            </form>
-          </Paper>
-        </Grid>
+    <div className="checkout-page-container">
+      <Box sx={{ maxWidth: 1200, mx: "auto", p: 4 }}>
+        <Grid container spacing={4}>
+          {/* Left Side: Form */}
+          <Grid item xs={12} md={7}>
+            <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+              <Typography variant="h5" gutterBottom>
+                Checkout
+              </Typography>
+              <form onSubmit={handleSubmit}>
+                <TextField
+                  label="Full Name"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                  required
+                />
+                <TextField
+                  label="Email Address"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                  required
+                />
+                <TextField
+                  label="Delivery Address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                  multiline
+                  rows={3}
+                  required
+                />
+                <TextField
+                  label="Tax ID"
+                  name="taxId"
+                  value={formData.taxId || ""}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Card Number"
+                  name="cardNumber"
+                  value={formData.cardNumber}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                  required
+                />
+                <TextField
+                  label="Card Password"
+                  name="cardPassword"
+                  type="password"
+                  value={formData.cardPassword}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                  required
+                />
+                <TextField
+                  label="Expiration Date"
+                  name="expirationDate"
+                  type="month"
+                  value={formData.expirationDate}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                  required
+                  InputLabelProps={{ shrink: true }}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{ mt: 3 }}
+                >
+                  Complete Order
+                </Button>
+              </form>
+            </Paper>
+          </Grid>
 
-        {/* Right Side: Basket */}
-        <Grid item xs={12} md={5}>
-          <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-            <Typography variant="h5" gutterBottom>
-              Your Cart
-            </Typography>
-            <Divider sx={{ my: 2 }} />
+          {/* Right Side: Basket */}
+          <Grid item xs={12} md={5}>
+            <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+              <Typography variant="h5" gutterBottom>
+                Your Cart
+              </Typography>
+              <Divider sx={{ my: 2 }} />
 
-            {loading ? (
-              <CircularProgress />
-            ) : (
-              <List>
-                {cart.items.map((item, i) => (
-                  <ListItem key={i} divider>
-                    <ListItemText
-                      primary={item.name}
-                      secondary={`Quantity: ${item.quantity}`}
-                    />
-                    <Typography>${(item.price * item.quantity).toFixed(2)}</Typography>
+              {loading ? (
+                <CircularProgress />
+              ) : (
+                <List>
+                  {cart.items.map((item, i) => (
+                    <ListItem key={i} divider>
+                      <ListItemText
+                        primary={item.name}
+                        secondary={`Quantity: ${item.quantity}`}
+                      />
+                      {/* <Typography>${(item.price * item.quantity).toFixed(2)}</Typography> */}
+
+                      <Typography variant="body2">
+                        {item.discount_percent ? (
+                          <>
+                            <span className="original-price">${item.original_price}</span>
+                            {/* <span className="discount-percent">{item.discount_percent}%</span> */}
+                            <span className="discounted-price">${item.discounted_price}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="discounted-price">${item.original_price}</span>
+                          </>
+                        )}
+                      </Typography>
+                    </ListItem>
+                  ))}
+                  <Divider sx={{ my: 2 }} />
+                  <ListItem>
+                    <ListItemText primary="Total" />
+                    <Typography fontWeight="bold">
+                      ${cart.total_price}
+                    </Typography>
                   </ListItem>
-                ))}
-                <Divider sx={{ my: 2 }} />
-                <ListItem>
-                  <ListItemText primary="Total" />
-                  <Typography fontWeight="bold">
-                    ${cart.total_price}
-                  </Typography>
-                </ListItem>
-              </List>
-            )}
+                </List>
+              )}
 
-            {/* {loading ? (
-              <CircularProgress />
-            ) : (
-              <List>
-                {basket.map((item, i) => (
-                  <ListItem key={i} divider>
-                    <ListItemText
-                      primary={item.name}
-                      secondary={`Quantity: ${item.quantity}`}
-                    />
-                    <Typography>${(item.price * item.quantity).toFixed(2)}</Typography>
-                  </ListItem>
-                ))}
-                <Divider sx={{ my: 2 }} />
-                <ListItem>
-                  <ListItemText primary="Total" />
-                  <Typography fontWeight="bold">
-                    ${total.toFixed(2)}
-                  </Typography>
-                </ListItem>
-              </List>
-            )} */}
-          </Paper>
+            </Paper>
+          </Grid>
         </Grid>
-      </Grid>
-    </Box>
+      </Box>
+    </div>
   );
 };
 
