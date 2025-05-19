@@ -29,12 +29,28 @@ const Product = {
   // Fetch and sort products by price for a given department
   async getProductsByDepartmentSortedByPrice(departmentId) {
     const query = `
-      SELECT product_id, name, description, price, image_url, stock_quantity, warranty_status, popularity_score
-      FROM products
-      WHERE department_id = ?
-      ORDER BY price ASC;
+      SELECT 
+        p.product_id,
+        p.name,
+        p.description,
+        p.price AS original_price,
+        p.image_url,
+        p.stock_quantity,
+        p.warranty_status,
+        p.popularity_score,
+        s.discount_percent,
+        CAST((p.price * (100 - s.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price
+      FROM products p
+      LEFT JOIN sales_campaigns s 
+        ON p.product_id = s.product_id
+        AND CURDATE() BETWEEN s.start_date AND s.end_date
+      WHERE p.department_id = ?
+      ORDER BY 
+        CASE 
+          WHEN s.discount_percent IS NOT NULL THEN (p.price * (100 - s.discount_percent) / 100)
+          ELSE p.price
+        END ASC;
     `;
-
     const [rows] = await pool.query(query, [departmentId]);
     return rows;
   },
@@ -42,10 +58,23 @@ const Product = {
   // Fetch and sort products by popularity for a given department
   async getProductsByDepartmentSortedByPopularity(departmentId) {
     const query = `
-      SELECT product_id, name, description, price, image_url, stock_quantity, warranty_status, popularity_score
-      FROM products
-      WHERE department_id = ?
-      ORDER BY popularity_score DESC;
+      SELECT 
+        p.product_id,
+        p.name,
+        p.description,
+        p.price AS original_price,
+        p.image_url,
+        p.stock_quantity,
+        p.warranty_status,
+        p.popularity_score,
+        s.discount_percent,
+        CAST((p.price * (100 - s.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price
+      FROM products p
+      LEFT JOIN sales_campaigns s 
+        ON p.product_id = s.product_id
+        AND CURDATE() BETWEEN s.start_date AND s.end_date
+      WHERE p.department_id = ?
+      ORDER BY p.popularity_score DESC;
     `;
     const [rows] = await pool.query(query, [departmentId]);
     return rows;
@@ -81,11 +110,6 @@ const Product = {
 
   // Get product info given its ID
   async getProductById(productId) {
-    // const sql = `
-    //   SELECT *
-    //   FROM products
-    //   WHERE product_id = ?;
-    // `;
       const sql = `
         SELECT 
           p.product_id,
