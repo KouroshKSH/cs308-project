@@ -10,7 +10,7 @@ const Cart = {
       [rows] = await db.query(
         `SELECT 
             c.product_id, c.variation_id, c.quantity,
-            p.name, p.price, p.image_url,
+            p.name, p.price AS original_price, p.image_url,
             pv.size_id, s.name AS size_name,
             pv.color_id, co.name AS color_name,
             sc.discount_percent,
@@ -35,7 +35,7 @@ const Cart = {
       [rows] = await db.query(
         `SELECT 
             c.product_id, c.variation_id, c.quantity,
-            p.name, p.price, p.image_url,
+            p.name, p.price AS original_price, p.image_url,
             pv.size_id, s.name AS size_name,
             pv.color_id, co.name AS color_name,
             sc.discount_percent,

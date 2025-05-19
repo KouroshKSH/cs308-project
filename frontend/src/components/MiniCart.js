@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import "./MiniCart.css";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
@@ -106,104 +107,125 @@ const MiniCart = ({ anchorEl, open, onClose }) => {
         },
       }}
     >
-      {loading ? (
-        <Box sx={{ p: 2, display: "flex", alignItems: "center" }}>
-          <CircularProgress size={24} />
-        </Box>
-      ) : cart.items.length === 0 ? (
-        <MenuItem>Your cart is empty</MenuItem>
-      ) : (
-        <>
-          {cart.items.map((item, idx) => (
-            <MenuItem
-              key={idx}
-              sx={{
-                whiteSpace: "normal",
-                alignItems: "flex-start",
-                py: 1,
-                px: 1.5,
-                minHeight: 70,
-              }}
-            >
-              <Box sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  width: "100%"
+      <div className="mini-cart-container">
+        {loading ? (
+          <Box sx={{ p: 2, display: "flex", alignItems: "center" }}>
+            <CircularProgress size={24} />
+          </Box>
+        ) : cart.items.length === 0 ? (
+          <MenuItem>Your cart is empty</MenuItem>
+        ) : (
+          <>
+            {cart.items.map((item, idx) => (
+              <MenuItem
+                key={idx}
+                sx={{
+                  whiteSpace: "normal",
+                  alignItems: "flex-start",
+                  py: 1,
+                  px: 1.5,
+                  minHeight: 70,
                 }}
               >
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="body1" fontWeight="bold">
-                    {item.name}
-                    </Typography>
-                    {/* we can also show the color as `{item.color_name}` but not needed */}
-                  <Typography variant="body2">
-                    ${item.discounted_price || item.original_price} (x{item.quantity})
-                  </Typography>
-                  <Typography variant="body2">
-                    Size: {item.size_name}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
+                <Box sx={{
                     display: "flex",
                     alignItems: "center",
-                    ml: 2,
-                    gap: 0.5,
+                    width: "100%"
                   }}
                 >
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleUpdateQuantity(item, item.quantity - 1, idx)}
-                    disabled={actionLoading === idx || item.quantity <= 1}
-                    title="Decrease"
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body1" fontWeight="bold">
+                      {item.name}
+                      </Typography>
+                      {/* we can also show the color as `{item.color_name}` but not needed */}
+                    
+                    
+                    {/* <Typography variant="body2">
+                      ${item.discounted_price || item.original_price} (x{item.quantity})
+                    </Typography> */}
+
+                    <Typography variant="body2">
+                      {item.discount_percent ? (
+                        <>
+                          <span className="original-price">${item.original_price}</span>
+                          <span className="discounted-price">${item.discounted_price}</span>
+                          &nbsp;(x{item.quantity})
+                          <span className="discount-percent">{item.discount_percent}%</span>
+                        </>
+                      ) : (
+                        <>
+                          ${item.original_price} (x{item.quantity})
+                        </>
+                      )}
+                    </Typography>
+                    
+                    
+                    <Typography variant="body2">
+                      Size: {item.size_name}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      ml: 2,
+                      gap: 0.5,
+                    }}
                   >
-                    <RemoveIcon sx={{ color: "#222" }} />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleUpdateQuantity(item, item.quantity + 1, idx)}
-                    disabled={actionLoading === idx}
-                    title="Increase"
-                  >
-                    <AddIcon sx={{ color: "#222" }} />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleRemove(item, idx)}
-                    disabled={actionLoading === idx}
-                    title="Remove"
-                  >
-                    <DeleteIcon sx={{ color: "#222" }} />
-                  </IconButton>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleUpdateQuantity(item, item.quantity - 1, idx)}
+                      disabled={actionLoading === idx || item.quantity <= 1}
+                      title="Decrease"
+                    >
+                      <RemoveIcon sx={{ color: "#222" }} />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleUpdateQuantity(item, item.quantity + 1, idx)}
+                      disabled={actionLoading === idx}
+                      title="Increase"
+                    >
+                      <AddIcon sx={{ color: "#222" }} />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleRemove(item, idx)}
+                      disabled={actionLoading === idx}
+                      title="Remove"
+                    >
+                      <DeleteIcon sx={{ color: "#222" }} />
+                    </IconButton>
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
+              </MenuItem>
+            ))}
+            <MenuItem divider>
+              <Typography variant="subtitle2" sx={{ flex: 1 }}>
+                Total: ${cart.total_price}
+              </Typography>
             </MenuItem>
-          ))}
-          <MenuItem divider>
-            <Typography variant="subtitle2" sx={{ flex: 1 }}>
-              Total: ${cart.total_price}
-            </Typography>
-          </MenuItem>
-          <MenuItem>
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              onClick={() => {
-                onClose();
-                navigate(
-                  "/checkout",
-                  { state: { role: "customer" } }
-                );
-              }}
-            >
-              Check Out
-            </Button>
-          </MenuItem>
-        </>
-      )}
+            <MenuItem>
+              <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                onClick={() => {
+                  onClose();
+                  navigate(
+                    "/checkout",
+                    { state: { role: "customer" } }
+                  );
+                }}
+              >
+                Check Out
+              </Button>
+            </MenuItem>
+          </>
+        )}
+      </div>
     </Menu>
   );
 };
