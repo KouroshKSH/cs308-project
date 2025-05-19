@@ -264,7 +264,6 @@ const Product = {
       connection.release();
     }
   }  
-
 };
 
 module.exports = Product;
