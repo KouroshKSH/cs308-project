@@ -1,0 +1,18 @@
+.mini-cart-container .original-price {
+  text-decoration: line-through;
+  color: rgb(79, 79, 79);
+  font-size: 15px;
+  margin-right: 6px;
+}
+
+.mini-cart-container .discounted-price {
+  font-weight: bold;
+  color: #2c2c2c;
+  font-size: 15px;
+}
+
+.mini-cart-container .discount-percent {
+  color: green;
+  font-size: 12px;
+  margin-left: 7px;
+}

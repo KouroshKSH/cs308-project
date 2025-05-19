@@ -8,30 +8,50 @@ const Cart = {
     if (user_id) {
       // so person is authenticated (logged in or signed up)
       [rows] = await db.query(
-        `SELECT c.product_id, c.variation_id, c.quantity,
-            p.name, p.price, p.image_url,
+        `SELECT 
+            c.product_id, c.variation_id, c.quantity,
+            p.name, p.price AS original_price, p.image_url,
             pv.size_id, s.name AS size_name,
-            pv.color_id, co.name AS color_name
+            pv.color_id, co.name AS color_name,
+            sc.discount_percent,
+            CAST((p.price * (100 - sc.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price,
+            CASE
+              WHEN CURDATE() BETWEEN sc.start_date AND sc.end_date THEN 'On-going'
+              ELSE NULL
+            END AS campaign_status
           FROM carts c
           JOIN products p ON c.product_id = p.product_id
           JOIN product_variations pv ON c.variation_id = pv.variation_id
           JOIN sizes s ON pv.size_id = s.size_id
           JOIN colors co ON pv.color_id = co.color_id
+          LEFT JOIN sales_campaigns sc 
+            ON p.product_id = sc.product_id
+            AND CURDATE() BETWEEN sc.start_date AND sc.end_date
           WHERE c.user_id = ?`,
         [user_id]
       );
     } else {
       // anon visitor, so use their session ID
       [rows] = await db.query(
-        `SELECT c.product_id, c.variation_id, c.quantity,
-            p.name, p.price, p.image_url,
+        `SELECT 
+            c.product_id, c.variation_id, c.quantity,
+            p.name, p.price AS original_price, p.image_url,
             pv.size_id, s.name AS size_name,
-            pv.color_id, co.name AS color_name
+            pv.color_id, co.name AS color_name,
+            sc.discount_percent,
+            CAST((p.price * (100 - sc.discount_percent) / 100) AS DECIMAL(10, 2)) AS discounted_price,
+            CASE
+              WHEN CURDATE() BETWEEN sc.start_date AND sc.end_date THEN 'On-going'
+              ELSE NULL
+            END AS campaign_status
           FROM carts c
           JOIN products p ON c.product_id = p.product_id
           JOIN product_variations pv ON c.variation_id = pv.variation_id
           JOIN sizes s ON pv.size_id = s.size_id
           JOIN colors co ON pv.color_id = co.color_id
+          LEFT JOIN sales_campaigns sc 
+            ON p.product_id = sc.product_id
+            AND CURDATE() BETWEEN sc.start_date AND sc.end_date
           WHERE c.session_id = ?`,
         [session_id]
       );
@@ -39,7 +59,8 @@ const Cart = {
 
     // Calculate total price
     const total_price = rows.reduce((sum, item) => {
-      return sum + parseFloat(item.price) * item.quantity;
+      const price = item.discounted_price || item.original_price;
+      return sum + parseFloat(price) * item.quantity;
     }, 0);
 
     // this endpoint works for both authenticated users and anonymous visitors
