@@ -437,15 +437,15 @@ const SalesManagerPage = () => {
             </CardContent>
           </Card>
           );
-      case 'Price & Discounts':
+      case 'Price Management':
         return (
           <Card variant="outlined" style={{ marginBottom: '20px' }}>
             <CardContent>
-              <Typography variant="h6">Price & Discounts</Typography>
+              <Typography variant="h6">Price Management</Typography>
               <List>
                 <ListItem>- Set product prices</ListItem>
-                <ListItem>- Apply discounts to selected items</ListItem>
-                <ListItem>- Notify users with items in their wishlist</ListItem>
+                {/* <ListItem>- Apply discounts to selected items</ListItem> */}
+                {/* <ListItem>- Notify users with items in their wishlist</ListItem> */}
               </List>
             </CardContent>
           </Card>
@@ -598,18 +598,18 @@ const SalesManagerPage = () => {
             style={{
               cursor: 'pointer',
               marginBottom: '10px',
-              color: activeSection === 'Price & Discounts' ? '#1976d2' : 'inherit',
-              fontWeight: activeSection === 'Price & Discounts' ? 'bold' : 'normal',
+              color: activeSection === 'Price Management' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Price Management' ? 'bold' : 'normal',
               fontSize: '1.3em',
             }}
-            onClick={() => setActiveSection('Price & Discounts')}
+            onClick={() => setActiveSection('Price Management')}
           >
-            Price & Discounts
+            Price Management
           </div>
 
           <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
             <ListItem>Set prices for new products</ListItem>
-            <ListItem>Notify users about discounts</ListItem>
+            {/* <ListItem>Notify users about discounts</ListItem> */}
           </List>
 
           <Divider style={{ marginBottom: '10px' }} />
