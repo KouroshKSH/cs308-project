@@ -54,6 +54,13 @@ const SalesManagerPage = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState(""); // Default to no filter
 
+  const [returns, setReturns] = useState([]);
+  const [returnsLoading, setReturnsLoading] = useState(false);
+  const [returnsError, setReturnsError] = useState(null);
+  // "", "pending", "approved", "rejected"
+  const [returnsFilter, setReturnsFilter] = useState("");
+
+
   // for creating new sales campaigns
   const [newCampaign, setNewCampaign] = useState({
     productId: "",
@@ -205,6 +212,29 @@ const SalesManagerPage = () => {
       alert(err.response?.data?.message || "Failed to create sales campaign. Please try again.");
     }
   };
+
+  // Fetch returns when section or filter changes
+  useEffect(() => {
+    if (activeSection === 'Return Requests') {
+      const fetchReturns = async () => {
+        setReturnsLoading(true);
+        setReturnsError(null);
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(`${API_URL}/returns`, {
+            headers: { Authorization: `Bearer ${token}` },
+            params: returnsFilter ? { status: returnsFilter } : {},
+          });
+          setReturns(response.data);
+        } catch (err) {
+          setReturnsError('Failed to load returns. Please try again.');
+        } finally {
+          setReturnsLoading(false);
+        }
+      };
+      fetchReturns();
+    }
+  }, [activeSection, returnsFilter]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -433,6 +463,72 @@ const SalesManagerPage = () => {
             </CardContent>
           </Card>
         );
+        case 'Return Requests':
+          return (
+            <Card variant="outlined" style={{ marginBottom: '20px', padding: '20px' }}>
+              <CardContent>
+                <Typography variant="h5" gutterBottom>
+                  Return Requests
+                </Typography>
+                {/* Filter Dropdown */}
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', gap: '10px' }}>
+                  <FilterListIcon />
+                  <FormControl style={{ minWidth: 200 }}>
+                    <InputLabel id="returns-filter-label">Filter by Status</InputLabel>
+                    <Select
+                      labelId="returns-filter-label"
+                      value={returnsFilter}
+                      onChange={(event) => setReturnsFilter(event.target.value)}
+                    >
+                      <MenuItem value="">All</MenuItem>
+                      <MenuItem value="pending">Pending</MenuItem>
+                      <MenuItem value="approved">Approved</MenuItem>
+                      <MenuItem value="rejected">Rejected</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+                {returnsLoading ? (
+                  <CircularProgress />
+                ) : returnsError ? (
+                  <Typography color="error">{returnsError}</Typography>
+                ) : returns.length === 0 ? (
+                  <Typography>No return requests found.</Typography>
+                ) : (
+                  <List>
+                    {returns.map((ret) => (
+                      <ListItem
+                        key={ret.return_id}
+                        style={{
+                          padding: '15px',
+                          border: '1px solid #ddd',
+                          marginBottom: '10px',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'flex-start',
+                        }}
+                      >
+                        <ListItemText
+                          primary={`Return ID: ${ret.return_id} | Order ID: ${ret.order_id}`}
+                          secondary={
+                            <>
+                              <div><strong>Status:</strong> {ret.status}</div>
+                              <div><strong>Order Item ID:</strong> {ret.order_item_id}</div>
+                              <div><strong>User ID:</strong> {ret.user_id}</div>
+                              <div><strong>Quantity:</strong> {ret.quantity}</div>
+                              <div><strong>Refund Amount:</strong> {ret.refund_amount ?? 'N/A'}</div>
+                              <div><strong>Requested At:</strong> {new Date(ret.request_date).toLocaleString()}</div>
+                            </>
+                          }
+                        />
+                        {/* Approve/Reject buttons will be added later */}
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </CardContent>
+            </Card>
+          );
       default:
         return null;
     }
