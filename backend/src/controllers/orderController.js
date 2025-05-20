@@ -334,3 +334,29 @@ exports.getDailyRevenueAndProfitBetweenDates = async (req, res) => {
     res.status(500).json({ error: 'Failed to get daily revenue and profit between dates' });
   }
 };
+
+// endpoint for product managers to fetch order + items
+exports.getOrderWithItemsPublic = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const order = await Order.getById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    const items = await OrderItem.getByOrderId(orderId);
+
+    const itemDetails = await Promise.all(items.map(async (item) => {
+      const product = await Product.getProductById(item.product_id);
+      return {
+        ...item,
+        product_name: product?.name || "Unknown Product",
+      };
+    }));
+
+    res.json({ order, items: itemDetails });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
