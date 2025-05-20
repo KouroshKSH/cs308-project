@@ -42,7 +42,8 @@ const Review = {
         user_id, 
         rating, 
         comment, 
-        comment_approval 
+        comment_approval,
+        created_at
       FROM product_reviews
     `;
     const params = [];

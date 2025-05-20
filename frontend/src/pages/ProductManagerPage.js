@@ -20,6 +20,7 @@ import DrawerMenu from '../components/DrawerMenu';
 import './ProductManagerPage.css';
 import FilterListIcon from "@mui/icons-material/FilterList";
 import Footer from '../components/Footer';
+import { jsPDF } from "jspdf";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -40,24 +41,52 @@ const ProductManagerPage = () => {
   // for getting the manager info and displaying it
   const [managerInfo, setManagerInfo] = useState(null); // State to store manager info
 
-  // const fetchManagerProfile = async () => {
-  //   setLoading(true);
-  //   setError(null);
-  //   try {
-  //     const token = localStorage.getItem('token');
-  //     const response = await axios.get(`${API_URL}/user/profile`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  //     setManagerInfo(response.data.user); // Set manager info from the response
-  //   } catch (err) {
-  //     console.error('Failed to fetch manager profile:', err);
-  //     setError('Failed to load manager profile. Please try again.');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const handleDownloadPDF = async (orderId) => {
+    try {
+      const API_URL = process.env.REACT_APP_API_URL;
+      const response = await axios.get(`${API_URL}/orders/with-items-public/${orderId}`);
+      const { order, items } = response.data;
+
+      const doc = new jsPDF();
+      doc.setFontSize(22);
+      doc.text('Invoice', 14, 20);
+
+      doc.setFontSize(14);
+      doc.text(`Invoice No: ${String(order.order_id).padStart(5, '0')}`, 14, 30);
+      doc.text(`Billing Address: ${order.delivery_address}`, 14, 40);
+      doc.text(`Issue Date: ${formatDate(order.order_date)}`, 14, 50);
+
+      doc.text('Items', 14, 60);
+      doc.text('Product Name', 14, 70);
+      doc.text('Quantity', 100, 70);
+      doc.text('Unit Price', 140, 70);
+      doc.text('Amount', 180, 70);
+
+      let y = 80;
+      items.forEach((item) => {
+        const price = parseFloat(item.price_at_purchase) || 0;
+        const amount = price * item.quantity;
+        doc.text(item.product_name, 14, y);
+        doc.text(item.quantity.toString(), 100, y);
+        doc.text(price.toFixed(2), 140, y);
+        doc.text(amount.toFixed(2), 180, y);
+        y += 10;
+      });
+
+      doc.text(`Total Amount: ${order.total_price}`, 14, y + 10);
+      doc.save(`invoice-${String(order.order_id).padStart(5, '0')}.pdf`);
+    } catch (err) {
+      alert("Failed to generate PDF");
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   // Fetch manager profile only once when the component mounts
   useEffect(() => {
@@ -280,6 +309,24 @@ const ProductManagerPage = () => {
                             style={{ fontSize: '1.2em' }}
                           />
                           <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                            {/* download PDF button */}
+                            <Button
+                              variant="outlined"
+                              onClick={() => handleDownloadPDF(delivery.order_id)}
+                              sx={{
+                                color: 'red',
+                                borderColor: 'red',
+                                backgroundColor: 'white',
+                                '&:hover': {
+                                  backgroundColor: '#ffe6e6',
+                                  borderColor: 'darkred',
+                                },
+                                marginRight: '10px', // spacing between buttons
+                              }}
+                            >
+                              PDF
+                            </Button>
+
                             {/* Ship Button */}
                             <Button
                               variant="contained"
@@ -289,6 +336,7 @@ const ProductManagerPage = () => {
                             >
                               Ship
                             </Button>
+
                             {/* Deliver Button */}
                             <Button
                               variant="contained"
@@ -355,13 +403,19 @@ const ProductManagerPage = () => {
                         }}
                       >
                         <ListItemText
-                          primary={`Product ID: ${comment.product_id}`}
+                          primary={`Review ID: ${comment.review_id}`}
                           secondary={
                             <>
+                              {/* <div><strong>Order ID:</strong> {comment.order_id || 'N/A'}</div> */}
                               <div><strong>Comment:</strong> {comment.comment || 'No comment provided'}</div>
                               <div><strong>Rating:</strong> {comment.rating}</div>
                               <div><strong>Status:</strong> {comment.comment_approval}</div>
-                              <div><strong>Created At:</strong> {new Date(comment.created_at).toLocaleString()}</div>
+                              <div>
+                                <strong>Created At:</strong>{" "}
+                                {comment.created_at && !isNaN(new Date(comment.created_at))
+                                  ? new Date(comment.created_at).toLocaleString()
+                                  : "N/A"}
+                              </div>
                             </>
                           }
                         />
