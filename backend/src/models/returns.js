@@ -33,7 +33,13 @@ const Returns = {
       "UPDATE returns SET status = ? WHERE return_id = ?",
       [status, return_id]
     );
-  }
+  },
+  
+  // Get returns by status (for filtering)
+  getByStatus: async (status) => {
+    const [rows] = await db.execute("SELECT * FROM returns WHERE status = ?", [status]);
+    return rows;
+  },
 };
 
 module.exports = Returns;

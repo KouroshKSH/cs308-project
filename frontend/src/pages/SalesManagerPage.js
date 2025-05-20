@@ -537,6 +537,23 @@ const SalesManagerPage = () => {
           </List>
 
           <Divider style={{ marginBottom: '10px' }} />
+
+          <div
+            style={{
+              cursor: 'pointer',
+              marginBottom: '10px',
+              color: activeSection === 'Return Requests' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Return Requests' ? 'bold' : 'normal',
+              fontSize: '1.3em',
+            }}
+            onClick={() => setActiveSection('Return Requests')}
+          >
+            Return Requests
+          </div>
+          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
+            <ListItem>Manage Returns</ListItem>
+          </List>
+          <Divider style={{ marginBottom: '10px' }} />
           
           <Typography
             variant="body1"

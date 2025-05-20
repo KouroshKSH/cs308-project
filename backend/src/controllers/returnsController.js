@@ -28,10 +28,15 @@ exports.getAllReturns = async (req, res) => {
   try {
     const userId = req.user.user_id;
     const role = req.user.role;
+    const { status } = req.query; // if sales manager wants to filter by status
 
     let returns;
     if (role === 'salesManager') {
-      returns = await Returns.getAll();
+      if (status) {
+        returns = await Returns.getByStatus(status); // Filtered
+      } else {
+        returns = await Returns.getAll(); // All
+      }
     } else {
       returns = await Returns.getByUserId(userId);
     }
