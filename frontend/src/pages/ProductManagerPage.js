@@ -403,9 +403,10 @@ const ProductManagerPage = () => {
                         }}
                       >
                         <ListItemText
-                          primary={`Product ID: ${comment.product_id}`}
+                          primary={`Review ID: ${comment.review_id}`}
                           secondary={
                             <>
+                              <div><strong>Order ID:</strong> {comment.order_id || 'N/A'}</div>
                               <div><strong>Comment:</strong> {comment.comment || 'No comment provided'}</div>
                               <div><strong>Rating:</strong> {comment.rating}</div>
                               <div><strong>Status:</strong> {comment.comment_approval}</div>
