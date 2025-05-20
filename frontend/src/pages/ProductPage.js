@@ -517,7 +517,7 @@ const ProductPage = () => {
                   </Typography>
                   {product.start_date && product.end_date && (
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>Sales from:</strong> {new Date(product.start_date).toLocaleDateString()} until {new Date(product.end_date).toLocaleDateString()}
+                      <strong>In Sale: </strong> from {new Date(product.start_date).toLocaleDateString()} until {new Date(product.end_date).toLocaleDateString()}
                     </Typography>
                   )}
 
