@@ -308,9 +308,58 @@ const productController = {
       console.error("Error deleting product:", error);
       res.status(500).json({ message: "Failed to delete product" });
     }
+  },
+  
+  getUnpricedProducts: async (req, res) => {
+    try {
+      if (req.user.role !== 'salesManager') {
+        return res.status(403).json({ message: "Only sales managers can view unpriced products." });
+      }
+  
+      const products = await Product.getProductsWithNoPrice();
+      res.status(200).json(products);
+    } catch (error) {
+      console.error("Error fetching unpriced products:", error);
+      res.status(500).json({ message: "Failed to fetch unpriced products" });
+    }
+  },
+  
+  setProductPrice: async (req, res) => {
+    try {
+      if (req.user.role !== 'salesManager') {
+        return res.status(403).json({ message: "Only sales managers can set prices." });
+      }
+  
+      const { productId } = req.params;
+      const { price } = req.body;
+  
+      if (typeof price !== 'number' || price <= 0) {
+        return res.status(400).json({ message: "Price must be a positive number." });
+      }
+  
+      const result = await Product.assignPriceToProduct(productId, price);
+      res.status(200).json({ message: result.message });
+    } catch (error) {
+      console.error("Error setting product price:", error);
+      res.status(500).json({ message: "Failed to set product price" });
+    }
+  },
+
+  deleteProductVariation: async (req, res) => {
+    try {
+      if (req.user.role !== 'productManager') {
+        return res.status(403).json({ message: "Only product managers can delete variations." });
+      }
+  
+      const { productId, variationId } = req.params;
+  
+      const result = await Product.deleteProductVariation(productId, variationId);
+      res.status(200).json({ message: result.message });
+    } catch (error) {
+      console.error("Controller - Error deleting variation:", error);
+      res.status(500).json({ error: "Failed to delete variation." });
+    }
   }
-  
-  
 };
 
 module.exports = productController;

@@ -35,11 +35,20 @@ router.get(
 // Route to fetch product variation stock status
 router.get("/pv-stock", productController.getPvStock);
 
+// Route to fetch unpriced products (where price is currently set as -1)
+router.get("/get-unpriced-products", authMiddleware, productController.getUnpricedProducts);
+
+// Route to set price for a product (requires authentication)
+router.put("/set-price/:productId", authMiddleware, productController.setProductPrice);
+
 // Route to get all the info of a product based on its ID
 router.get("/:productId", productController.getProductInfo);
 
 // Get the variations of a product given its ID
 router.get("/:productId/variations", productController.getProductVariations);
+
+// Route to delete a product variation
+router.delete("/:productId/variations/:variationId", authMiddleware, productController.deleteProductVariation);
 
 // Route to create a review for a product (requires authentication)
 router.post(
