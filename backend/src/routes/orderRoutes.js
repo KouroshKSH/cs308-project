@@ -17,5 +17,6 @@ router.get('/stats/daily-revenue-profit', authMiddleware, orderController.getDai
 router.get('/stats/cumulative', authMiddleware, orderController.getCumulativeRevenueAndProfit);
 router.get('/stats/cumulative/date-range', authMiddleware, orderController.getCumulativeRevenueAndProfitBetweenDates);
 router.get('/stats/daily-revenue-profit/date-range', authMiddleware, orderController.getDailyRevenueAndProfitBetweenDates);
+router.get("/with-items-public/:id", orderController.getOrderWithItemsPublic);
 
 module.exports = router;

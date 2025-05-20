@@ -259,6 +259,9 @@ const ProfilePage = () => {
                     <Typography>Status: {order.status}</Typography>
                     <Typography>Total: ${order.total_price}</Typography>
                     <Typography>Delivered to: {order.delivery_address}</Typography>
+                    <Typography>
+                      Order Date: {order.order_date ? new Date(order.order_date).toLocaleString() : 'N/A'}
+                    </Typography>
                   </CardContent>
                 </Card>
               ))}

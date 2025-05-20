@@ -43,3 +43,14 @@
   width: calc(100% - 300px);
   overflow-y: auto;
 }
+
+.pdf-download-btn {
+  color: red !important;
+  border-color: red !important;
+  background-color: white !important;
+  text-transform: none;
+}
+.pdf-download-btn:hover {
+  background-color: #ffe6e6 !important;
+  border-color: darkred !important;
+}

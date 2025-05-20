@@ -14,6 +14,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.1",
     "jspdf": "^3.0.1",
+    "jwt-decode": "^4.0.0",
     "postcss": "^8.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -30,7 +31,7 @@
   "scripts": {
     "start": "react-scripts start FAST_REFRESH=false GENERATE_SOURCEMAP=false",
     "build": "react-scripts build GENERATE_SOURCEMAP=false",
-    "test": "react-scripts test",
+    "test": "jest",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -54,5 +55,18 @@
   "devDependencies": {
     "babel-loader": "^10.0.0",
     "webpack": "^5.98.0"
-  }
+  },
+   "jest": {
+  "testEnvironment": "jsdom",
+  "transform": {
+    "^.+\\.(js|jsx)$": "babel-jest"
+  },
+  "moduleNameMapper": {
+    "\\.(css|less|scss|sass)$": "<rootDir>/tests/__mocks__/styleMock.js",
+    "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/tests/__mocks__/fileMock.js"
+  },
+  "setupFilesAfterEnv": [
+    "<rootDir>/tests/setupTests.js"
+  ]
+}
 }
