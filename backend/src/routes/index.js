@@ -13,6 +13,7 @@ const userRoutes = require("./userRoutes");
 const reviewsRoutes = require("./reviewsRoutes");
 const wishlistRoutes = require("./wishlistRoutes");
 const salesCampaignRoutes = require("./salesCampaignRoutes");
+const productVariationsRoutes = require("./productVariationsRoutes");
 
 // Mount authentication-related routes under /auth
 router.use("/auth", authRoutes);
@@ -46,5 +47,8 @@ router.use("/wishlist", wishlistRoutes);
 
 // Mount sales campaign-related routes under /sales-campaigns
 router.use("/sales-campaigns", salesCampaignRoutes);
+
+// Mount product variations-related routes under /product-variations
+router.use("/product-variations", productVariationsRoutes);
 
 module.exports = router;
