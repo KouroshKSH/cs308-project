@@ -41,6 +41,16 @@ exports.createReturn = async (req, res) => {
       return res.status(400).json({ message: "Return requests can only be made within 30 days of the order date." });
     }
 
+    const [existingReturns] = await db.execute(
+      `SELECT return_id, status FROM returns WHERE order_id = ?`,
+      [order_id]
+    );
+
+    // If any return request exists for this order, prevent a new request.
+    if (existingReturns.length > 0) {
+      return res.status(400).json({ message: `A return request for this order already exists with status: ${existingReturns[0].status}.` });
+    }
+
     // Use the total_price from the fetched order as the refund_amount
     const refund_amount = order.total_price;
 
