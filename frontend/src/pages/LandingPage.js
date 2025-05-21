@@ -271,14 +271,10 @@ const LandingPage = () => {
         <img
           src={getBannerImage()}
           alt={`${department} Banner`}
-          style={{
-            width: "100%",
-            height: "auto",
-            marginBottom: "20px",
-          }}
         />
       </div>
       
+      {/* landing page main content */}
       <main className="landing-page-content">
         <Typography 
           variant="h3"
