@@ -266,21 +266,40 @@ const LandingPage = () => {
         onSearchResults={setProducts}
       />
 
-      {/* Banner Section */}
-      <div className="banner-container">
+          {/* Banner Section */}
+    <div className="banner-container">
+      <img
+        src={getBannerImage()}
+        alt={`${department} Banner`}
+      />
+    </div>
+      
+      {/* landing page main content */}
+      <main className="landing-page-content">
+
+              {/* <div className="banner-container">
         <img
           src={getBannerImage()}
           alt={`${department} Banner`}
         />
-      </div>
-      
-      {/* landing page main content */}
-      <main className="landing-page-content">
+      </div> */}
+
+
         <Typography 
           variant="h3"
-        >{department} Collection</Typography>
+        >{department}'s Collection</Typography>
         <p>New season models reflecting the energy of spring</p>
+
+        
       </main>
+
+      {/* Banner Section */}
+      {/* <div className="banner-container">
+        <img
+          src={getBannerImage()}
+          alt={`${department} Banner`}
+        />
+      </div> */}
 
       <Box 
         sx={{
