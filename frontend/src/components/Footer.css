@@ -49,3 +49,15 @@
 .footer-text {
   color: #555; /* Dark gray text */
 }
+
+.footer-logo-container {
+  text-align: center;
+  padding: 0px 0;
+}
+
+.footer-logo {
+  max-width: 250px; /* Limit maximum width */
+  /* width: 100%; */
+  height: auto;
+  display: inline-block;
+}

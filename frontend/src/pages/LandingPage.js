@@ -69,6 +69,20 @@ const LandingPage = () => {
 
   const navigate = useNavigate();
 
+  // Determine the banner image based on the department
+  const getBannerImage = () => {
+    switch (department) {
+      case "Men":
+        return `${process.env.PUBLIC_URL}/assets/images/banner-men.png`;
+      case "Women":
+        return `${process.env.PUBLIC_URL}/assets/images/banner-women.png`;
+      case "Kids":
+        return `${process.env.PUBLIC_URL}/assets/images/banner-kids.png`;
+      default:
+        return `${process.env.PUBLIC_URL}/assets/images/banner-placeholder.png`; // Fallback banner
+    }
+  };
+
   // for assigning stars based on popularity score (numbers can change later)
   const getStarsForPopularity = (score) => {
     if (score <= 4) return <Rating name="read-only" value={1} readOnly />;
@@ -244,19 +258,48 @@ const LandingPage = () => {
 
   return (
     <div className="landing-page-container">
+
       {/* we now have a custom header that we can customize and user everywhere */}
       <Header 
         category={department} 
         setCategory={setDepartment} 
         onSearchResults={setProducts}
       />
+
+          {/* Banner Section */}
+    <div className="banner-container">
+      <img
+        src={getBannerImage()}
+        alt={`${department} Banner`}
+      />
+    </div>
       
+      {/* landing page main content */}
       <main className="landing-page-content">
+
+              {/* <div className="banner-container">
+        <img
+          src={getBannerImage()}
+          alt={`${department} Banner`}
+        />
+      </div> */}
+
+
         <Typography 
           variant="h3"
-        >{department} Collection</Typography>
+        >{department}'s Collection</Typography>
         <p>New season models reflecting the energy of spring</p>
+
+        
       </main>
+
+      {/* Banner Section */}
+      {/* <div className="banner-container">
+        <img
+          src={getBannerImage()}
+          alt={`${department} Banner`}
+        />
+      </div> */}
 
       <Box 
         sx={{

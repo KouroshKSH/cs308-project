@@ -189,3 +189,24 @@
 .price-container {
   margin-bottom: 10px; /* Add consistent spacing below the price section */
 }
+
+/* Banner container styling */
+.banner-container {
+  position: relative;
+  width: 100%;
+  height: 850px; /* Limit the height to 700px */
+  overflow: hidden; /* Ensure the image doesn't overflow */
+}
+
+/* Banner image styling */
+.banner-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensure the image covers the container proportionally */
+  object-position: center top; /* Vertically align the image to the top */
+}
+
+/* Smooth scrolling effect */
+html {
+  scroll-behavior: smooth;
+}

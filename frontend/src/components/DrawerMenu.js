@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import { 
-  Drawer, 
-  List, 
-  ListItem, 
-  ListItemText, 
-  IconButton,
+    Drawer, 
+    List, 
+    ListItem, 
+    ListItemText, 
+    ListItemIcon, 
+    IconButton 
 } from "@mui/material";
+
 import MenuIcon from "@mui/icons-material/Menu";
+import HomeIcon from '@mui/icons-material/Home';
+import InfoIcon from '@mui/icons-material/Info';
+import ContactMailIcon from '@mui/icons-material/ContactMail';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
@@ -65,6 +72,9 @@ const DrawerMenu = () => {
               setDrawerOpen(false); // Close the drawer
             }}
           >
+             <ListItemIcon>
+                <HomeIcon />
+            </ListItemIcon>
             <ListItemText primary="Home" />
           </ListItem>
           
@@ -78,6 +88,9 @@ const DrawerMenu = () => {
               setDrawerOpen(false); // Close the drawer
             }}
           >
+             <ListItemIcon>
+                <InfoIcon />
+            </ListItemIcon>
             <ListItemText primary="About" />
           </ListItem>
           
@@ -90,6 +103,9 @@ const DrawerMenu = () => {
               setDrawerOpen(false); // Close the drawer
             }}
           >
+            <ListItemIcon>
+                <ContactMailIcon />
+            </ListItemIcon>
             <ListItemText primary="Contact" />
           </ListItem>
 
@@ -99,6 +115,9 @@ const DrawerMenu = () => {
             sx={{ cursor: "pointer" }}
             onClick={handleManagerNavigation}
           >
+            <ListItemIcon>
+                <AdminPanelSettingsIcon />
+            </ListItemIcon>
             <ListItemText primary="Manager?" />
           </ListItem>
         </List>
