@@ -360,3 +360,47 @@ exports.getOrderWithItemsPublic = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.getOrdersBetweenDates = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: "startDate and endDate query parameters are required" });
+    }
+
+    if (!req.user || req.user.role !== 'salesManager') {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    // Fetch basic order data filtered by date (DATE(order_date) version)
+    const orders = await Order.getOrdersBetweenDates(startDate, endDate);
+
+    // Attach order items and product names to each order
+    const detailedOrders = await Promise.all(
+      orders.map(async (order) => {
+        const items = await OrderItem.getByOrderId(order.order_id);
+
+        const detailedItems = await Promise.all(
+          items.map(async (item) => {
+            const product = await Product.getProductById(item.product_id);
+            return {
+              ...item,
+              product_name: product?.name || "Unknown Product"
+            };
+          })
+        );
+
+        return {
+          ...order,
+          items: detailedItems
+        };
+      })
+    );
+
+    res.json(detailedOrders);
+  } catch (error) {
+    console.error("Error fetching orders between dates:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

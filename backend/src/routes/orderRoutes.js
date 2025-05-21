@@ -7,6 +7,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 router.post("/", authMiddleware, orderController.createOrder);
 router.get("/user", authMiddleware, orderController.getOrdersByUser);
 router.get("/with-items/:id", authMiddleware, orderController.getOrderWithItems);
+router.get("/orders-between-dates", authMiddleware, orderController.getOrdersBetweenDates);
 router.get("/:id", orderController.getOrderById);
 router.patch("/:id/status", orderController.updateOrderStatus);
 router.delete("/:id", orderController.deleteOrder);

@@ -143,6 +143,16 @@ const Order = {
       ORDER BY DATE(o.order_date)
     `, [startDate, endDate]);
     return rows;
+  },
+
+  getOrdersBetweenDates: async (startDate, endDate) => {
+    const [rows] = await db.execute(`
+      SELECT *
+      FROM orders
+      WHERE DATE(order_date) BETWEEN ? AND ?
+      ORDER BY order_date DESC
+    `, [startDate, endDate]);
+    return rows;
   }
 };
 
