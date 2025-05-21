@@ -64,6 +64,12 @@ router.post('/add-product-with-variation', authMiddleware, productController.cre
 router.delete(
   "/delete-product/:productId", authMiddleware, productController.deleteProduct);
 
+// Route to create a category under one or more departments
+router.post("/categories/under-department", authMiddleware, productController.createCategoryUnderDepartments);
+
+// Route to create a subcategory under one or more parent categories
+router.post("/categories/under-category", authMiddleware, productController.createSubcategoryUnderCategories);
+
 // ROUTE: Filter products by department and category
 // Example: GET /api/products/filter/2/4
 // Will return all products in department ID 2 (e.g., Women) and category ID 4 (e.g., Tops)
