@@ -267,11 +267,11 @@ const SalesManagerPage = () => {
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'Product Sales':
+      case 'Charts':
         return (
           <Card variant="outlined" style={{ marginBottom: '20px', padding: '20px' }}>
             <Typography variant="h6" gutterBottom>
-              Product Sales
+              Charts
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={salesData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
@@ -473,15 +473,14 @@ const SalesManagerPage = () => {
             </CardContent>
           </Card>
         );
-      case 'Invoice and Reports':
+      case 'Invoices':
         return (
           <Card variant="outlined" style={{ marginBottom: '20px' }}>
             <CardContent>
-              <Typography variant="h6">Invoice and Reports</Typography>
+              <Typography variant="h6">Invoices</Typography>
               <List>
                 <ListItem>- View invoices by date range</ListItem>
                 <ListItem>- Print or download invoices as PDF</ListItem>
-                <ListItem>- View profit/loss chart between dates</ListItem>
               </List>
             </CardContent>
           </Card>
@@ -602,17 +601,17 @@ const SalesManagerPage = () => {
             style={{
               cursor: 'pointer',
               marginBottom: '10px',
-              color: activeSection === 'Product Sales' ? '#1976d2' : 'inherit',
-              fontWeight: activeSection === 'Product Sales' ? 'bold' : 'normal',
+              color: activeSection === 'Charts' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Charts' ? 'bold' : 'normal',
               fontSize: '1.3em',
             }}
-            onClick={() => setActiveSection('Product Sales')}
+            onClick={() => setActiveSection('Charts')}
           >
-            Product Sales
+            Charts
           </div>
 
-          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
-            <ListItem>View & Analyze Sales</ListItem>
+          <List style={{ paddingLeft: '10px' }}>
+            <ListItem>View & Analyze Charts</ListItem>
           </List>
 
           <Divider style={{ marginBottom: '10px' }} />
@@ -630,7 +629,7 @@ const SalesManagerPage = () => {
             Sales Campaigns
           </div>
 
-          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
+          <List style={{ paddingLeft: '10px' }}>
             <ListItem>View & Update Campaigns</ListItem>
           </List>
 
@@ -649,7 +648,7 @@ const SalesManagerPage = () => {
             Price Management
           </div>
 
-          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
+          <List style={{ paddingLeft: '10px'}}>
             <ListItem>Set prices for new products</ListItem>
             {/* <ListItem>Notify users about discounts</ListItem> */}
           </List>
@@ -660,18 +659,17 @@ const SalesManagerPage = () => {
             style={{
               cursor: 'pointer',
               marginBottom: '10px',
-              color: activeSection === 'Invoice and Reports' ? '#1976d2' : 'inherit',
-              fontWeight: activeSection === 'Invoice and Reports' ? 'bold' : 'normal',
+              color: activeSection === 'Invoices' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Invoices' ? 'bold' : 'normal',
               fontSize: '1.3em',
             }}
-            onClick={() => setActiveSection('Invoice and Reports')}
+            onClick={() => setActiveSection('Invoices')}
           >
-            Invoice and Reports
+            Invoices
           </div>
 
           <List style={{ paddingLeft: '10px' }}>
-            <ListItem>View and manage invoices</ListItem>
-            <ListItem>Analyze profit/loss charts</ListItem>
+            <ListItem>View & Manage Invoices</ListItem>
           </List>
 
           <Divider style={{ marginBottom: '10px' }} />
@@ -688,7 +686,7 @@ const SalesManagerPage = () => {
           >
             Return Requests
           </div>
-          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
+          <List style={{ paddingLeft: '10px'}}>
             <ListItem>Manage Returns</ListItem>
           </List>
           <Divider style={{ marginBottom: '10px' }} />
