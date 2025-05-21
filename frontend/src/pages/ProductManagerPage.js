@@ -13,6 +13,10 @@ import {
   Select,
   FormControl,
   InputLabel,
+  TextField,
+  Checkbox,
+  FormGroup,
+  FormControlLabel,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -23,6 +27,20 @@ import Footer from '../components/Footer';
 import { jsPDF } from "jspdf";
 
 const API_URL = process.env.REACT_APP_API_URL;
+
+// used for the category management's filtering
+const CATEGORY_ROOTS = [
+  { label: "All", value: "all" },
+  { label: "Men", value: 1 },
+  { label: "Women", value: 2 },
+  { label: "Kids", value: 3 },
+];
+
+const DEPARTMENT_OPTIONS = [
+  { label: "Men", value: 1 },
+  { label: "Women", value: 2 },
+  { label: "Kids", value: 3 },
+];
 
 const ProductManagerPage = () => {
   const navigate = useNavigate();
@@ -45,6 +63,23 @@ const ProductManagerPage = () => {
   const [productVariations, setProductVariations] = useState([]);
   const [loadingVariations, setLoadingVariations] = useState(false);
   const [errorVariations, setErrorVariations] = useState(null);
+
+  // for category management
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [errorCategories, setErrorCategories] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  
+  // For add category under departments
+  const [newDeptCategoryName, setNewDeptCategoryName] = useState('');
+  const [selectedDepartments, setSelectedDepartments] = useState([]);
+  const [addingDeptCategory, setAddingDeptCategory] = useState(false);
+
+  // For add subcategory under parent categories
+  const [newSubCategoryName, setNewSubCategoryName] = useState('');
+  const [selectedParentCategories, setSelectedParentCategories] = useState([]);
+  const [addingSubCategory, setAddingSubCategory] = useState(false);
+
 
   // For product filter dropdown
   const [productFilter, setProductFilter] = useState('all');
@@ -117,6 +152,92 @@ const ProductManagerPage = () => {
   const handleProductFilterChange = (event) => {
     setProductFilter(event.target.value);
   };
+
+
+  // Helper for parent category selection (show all categories as options)
+  const parentCategoryOptions = categories.map(cat => ({
+    label: `${cat.category_name || cat.name} (ID: ${cat.category_id})`,
+    value: cat.category_id,
+  }));
+
+  // Handle department checkbox
+  const handleDepartmentChange = (deptId) => {
+    setSelectedDepartments(prev =>
+      prev.includes(deptId)
+        ? prev.filter(id => id !== deptId)
+        : [...prev, deptId]
+    );
+  };
+
+  // Handle parent category checkbox
+  const handleParentCategoryChange = (catId) => {
+    setSelectedParentCategories(prev =>
+      prev.includes(catId)
+        ? prev.filter(id => id !== catId)
+        : [...prev, catId]
+    );
+  };
+
+  // Add category under departments
+  const handleAddDeptCategory = async () => {
+    if (!newDeptCategoryName.trim() || selectedDepartments.length === 0) {
+      alert("Please enter a name and select at least one department.");
+      return;
+    }
+    setAddingDeptCategory(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${API_URL}/products/categories/under-department`,
+        {
+          name: newDeptCategoryName.trim(),
+          department_ids: selectedDepartments,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setNewDeptCategoryName('');
+      setSelectedDepartments([]);
+      // Refetch categories
+      setCategoryFilter("all");
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to add category.");
+    } finally {
+      setAddingDeptCategory(false);
+    }
+  };
+
+  // Add subcategory under parent categories
+  const handleAddSubCategory = async () => {
+    if (!newSubCategoryName.trim() || selectedParentCategories.length === 0) {
+      alert("Please enter a name and select at least one parent category.");
+      return;
+    }
+    setAddingSubCategory(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${API_URL}/products/categories/under-category`,
+        {
+          name: newSubCategoryName.trim(),
+          parent_category_ids: selectedParentCategories,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setNewSubCategoryName('');
+      setSelectedParentCategories([]);
+      // Refetch categories
+      setCategoryFilter("all");
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to add subcategory.");
+    } finally {
+      setAddingSubCategory(false);
+    }
+  };
+
 
   const handleDownloadPDF = async (orderId) => {
     try {
@@ -316,8 +437,30 @@ const ProductManagerPage = () => {
     setFilterStatusComments(event.target.value);
   };
 
+  // Fetch all categories when Category Management is active
+  // Fetch categories with filter
+  useEffect(() => {
+    if (activeSection === 'Category Management') {
+      setLoadingCategories(true);
+      setErrorCategories(null);
+      let url;
+      if (categoryFilter === "all") {
+        url = `${API_URL}/categories`;
+      } else {
+        url = `${API_URL}/categories/descendants/${categoryFilter}`;
+      }
+      axios
+        .get(url)
+        .then((res) => setCategories(res.data))
+        .catch(() => setErrorCategories('Failed to load categories.'))
+        .finally(() => setLoadingCategories(false));
+    }
+  }, [activeSection, categoryFilter]);
+
   const renderContent = () => {
     switch (activeSection) {
+      
+      // stock management
       case 'Stock Management':
         return (
           <div className="scrollable-content">
@@ -408,20 +551,195 @@ const ProductManagerPage = () => {
             </Card>
           </div>
         );
-      case 'Product & Category Management':
+
+      // ===========================================================================
+      // ===========================================================================
+
+      // product management
+      // TODO: @zeynepyaman please write frontend for product management here
+      case 'Product Management':
         return (
           <div className="scrollable-content">
             <Card variant="outlined" style={{ marginBottom: '20px' }}>
               <CardContent>
-                <Typography variant="h6">Product & Category Management</Typography>
+                <Typography variant="h6">Product Management</Typography>
                 <List>
-                  <ListItem>- Add or remove products</ListItem>
-                  <ListItem>- Manage product categories</ListItem>
+                  <ListItem>Add or remove products</ListItem>
                 </List>
               </CardContent>
             </Card>
           </div>
         );
+
+
+      // ===========================================================================
+      // ===========================================================================
+
+      // category management
+      case 'Category Management':
+        return (
+          <div className="scrollable-content">
+            <Card 
+              variant="outlined" 
+              style={{ 
+                  marginBottom: '20px', 
+                  maxWidth: 1300, 
+                  marginLeft: 'auto', 
+                  marginRight: 'auto',
+                }}
+              >
+              <CardContent>
+                <Typography variant="h6" style={{ fontWeight: 'bold', marginBottom: 16 }}>
+                  Add Category Under Departments
+                </Typography>
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 12 }}>
+                  <TextField
+                    label="Category Name"
+                    value={newDeptCategoryName}
+                    onChange={e => setNewDeptCategoryName(e.target.value)}
+                    size="small"
+                  />
+                  <FormGroup row>
+                    {DEPARTMENT_OPTIONS.map(opt => (
+                      <FormControlLabel
+                        key={opt.value}
+                        control={
+                          <Checkbox
+                            checked={selectedDepartments.includes(opt.value)}
+                            onChange={() => handleDepartmentChange(opt.value)}
+                          />
+                        }
+                        label={opt.label}
+                      />
+                    ))}
+                  </FormGroup>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleAddDeptCategory}
+                    disabled={addingDeptCategory}
+                  >
+                    {addingDeptCategory ? <CircularProgress size={18} /> : "Add"}
+                  </Button>
+                </div>
+                <Typography variant="body2" color="textSecondary" style={{ marginBottom: 16 }}>
+                  Adds a new category directly under selected departments (e.g., "Activewear" under Men & Women).
+                </Typography>
+
+                <Divider style={{ margin: '16px 0' }} />
+
+                <Typography variant="h6" style={{ fontWeight: 'bold', marginBottom: 16 }}>
+                  Add Subcategory Under Parent Categories
+                </Typography>
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
+                  <TextField
+                    label="Subcategory Name"
+                    value={newSubCategoryName}
+                    onChange={e => setNewSubCategoryName(e.target.value)}
+                    size="small"
+                  />
+                  <FormGroup row>
+                    {parentCategoryOptions.map(opt => (
+                      <FormControlLabel
+                        key={opt.value}
+                        control={
+                          <Checkbox
+                            checked={selectedParentCategories.includes(opt.value)}
+                            onChange={() => handleParentCategoryChange(opt.value)}
+                          />
+                        }
+                        label={opt.label}
+                      />
+                    ))}
+                  </FormGroup>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleAddSubCategory}
+                    disabled={addingSubCategory}
+                  >
+                    {addingSubCategory ? <CircularProgress size={18} /> : "Add"}
+                  </Button>
+                </div>
+                <Typography variant="body2" color="textSecondary" style={{ marginBottom: 16 }}>
+                  Adds a new subcategory under selected parent categories (e.g., "Running Clothes" under "Shoes" for Men, Women, Kids).
+                </Typography>
+              </CardContent>
+            </Card>
+
+            {/* Filter and list below */}
+            <Card 
+              variant="outlined" 
+              style={{ 
+                marginBottom: '30px', 
+                maxHeight: 630, 
+                overflowY: 'auto', 
+                maxWidth: 1300, 
+                marginLeft: 'auto', 
+                marginRight: 'auto'
+              }}
+            >
+              <CardContent>
+                <Typography variant="h6" style={{ fontWeight: 'bold', marginBottom: 16 }}>
+                  View Categories
+                </Typography>
+                {/* Filter Dropdown */}
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
+                  <FilterListIcon style={{ marginRight: 8, color: 'rgba(0,0,0,0.54)' }} />
+                  <FormControl style={{ minWidth: 180 }}>
+                    <InputLabel id="category-filter-label">Filter by</InputLabel>
+                    <Select
+                      labelId="category-filter-label"
+                      value={categoryFilter}
+                      label="Filter by"
+                      onChange={e => setCategoryFilter(e.target.value)}
+                    >
+                      {CATEGORY_ROOTS.map(opt => (
+                        <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
+                {loadingCategories ? (
+                  <CircularProgress />
+                ) : errorCategories ? (
+                  <Typography color="error">{errorCategories}</Typography>
+                ) : (
+                  <List>
+                    {categories.length === 0 ? (
+                      <Typography>No categories found.</Typography>
+                    ) : (
+                      categories.map((cat) => (
+                        <ListItem
+                          key={cat.category_id}
+                          style={{
+                            border: '1px solid #ddd',
+                            borderRadius: 8,
+                            marginBottom: 10,
+                            background: '#fafafa',
+                            flexDirection: 'column',
+                            alignItems: 'flex-start',
+                          }}
+                        >
+                          <Typography variant="subtitle1" style={{ fontWeight: 'bold' }}>
+                            ID: {cat.category_id}: {cat.category_name || cat.name}
+                          </Typography>
+                          {cat.parent_category_id && (
+                            <Typography variant="body2" color="textSecondary">
+                              Parent: {cat.parent_name || '-'} (ID: {cat.parent_category_id})
+                            </Typography>
+                          )}
+                        </ListItem>
+                      ))
+                    )}
+                  </List>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        );
+
+      // delivery management
       case 'Delivery Management':
         return (
           <div className="scrollable-content">
@@ -531,6 +849,8 @@ const ProductManagerPage = () => {
             </Card>
           </div>
         );
+
+      // comment moderation
       case 'Comment Moderation':
         return (
           <div className="scrollable-content">
@@ -643,6 +963,7 @@ const ProductManagerPage = () => {
             backgroundColor: '#f5f5f5',
             padding: '20px',
             borderLeft: '1px solid #ddd',
+            minHeight: '80vh',
           }}
         >
           <Typography variant="h4" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
@@ -660,10 +981,10 @@ const ProductManagerPage = () => {
             }}
             onClick={() => setActiveSection('Stock Management')}
           >
-            Product & Category Management
+            Stock Management
           </div>
-          <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
-            <ListItem>Update stock quantities</ListItem>
+          <List style={{ paddingLeft: '20px'}}>
+            <ListItem>View & Update Stock Quantities</ListItem>
           </List>
           <Divider style={{ marginBottom: '20px' }} />
 
@@ -671,19 +992,36 @@ const ProductManagerPage = () => {
             style={{
               cursor: 'pointer',
               marginBottom: '10px',
-              color: activeSection === 'Product & Category Management' ? '#1976d2' : 'inherit',
-              fontWeight: activeSection === 'Product & Category Management' ? 'bold' : 'normal',
+              color: activeSection === 'Product Management' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Product Management' ? 'bold' : 'normal',
               fontSize: '1.3em',
             }}
-            onClick={() => setActiveSection('Product & Category Management')}
+            onClick={() => setActiveSection('Product Management')}
           >
-            Product & Category Management
+            Product Management
           </div>
-          <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
-            <ListItem>Add or remove products</ListItem>
-            <ListItem>Manage product categories</ListItem>
+          <List style={{ paddingLeft: '20px'}}>
+            <ListItem>View & Update Products</ListItem>
           </List>
           <Divider style={{ marginBottom: '20px' }} />
+
+          <div
+            style={{
+              cursor: 'pointer',
+              marginBottom: '10px',
+              color: activeSection === 'Category Management' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Category Management' ? 'bold' : 'normal',
+              fontSize: '1.3em',
+            }}
+            onClick={() => setActiveSection('Category Management')}
+          >
+            Category Management
+          </div>
+          <List style={{ paddingLeft: '20px' }}>
+            <ListItem>View & Add Categories</ListItem>
+          </List>
+          <Divider style={{ marginBottom: '20px' }} />
+
           <div
             style={{
               cursor: 'pointer',
@@ -696,9 +1034,9 @@ const ProductManagerPage = () => {
           >
             Delivery Management
           </div>
-          <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
-            <ListItem>View all deliveries with status</ListItem>
-            <ListItem>Update delivery status</ListItem>
+          <List style={{ paddingLeft: '20px'}}>
+            <ListItem>View & Update Deliveries</ListItem>
+            {/* <ListItem>Update delivery status</ListItem> */}
           </List>
           <Divider style={{ marginBottom: '20px' }} />
           <div
@@ -714,7 +1052,7 @@ const ProductManagerPage = () => {
             Comment Moderation
           </div>
           <List style={{ paddingLeft: '20px' }}>
-            <ListItem>Approve or reject product comments</ListItem>
+            <ListItem>View & Update Comments</ListItem>
           </List>
 
           <Divider style={{ marginBottom: '20px' }} />
