@@ -35,18 +35,25 @@ import {
 
 // Static sales data
 // TODO: I'll change this to use Zeynep's backend API
-const salesData = [
-  { name: 'Product 1', sales: 10 },
-  { name: 'Product 2', sales: 5 },
-  { name: 'Product 3', sales: 15 },
-  { name: 'Product 4', sales: 8 },
-];
+// const salesData = [
+//   { name: 'Product 1', sales: 10 },
+//   { name: 'Product 2', sales: 5 },
+//   { name: 'Product 3', sales: 15 },
+//   { name: 'Product 4', sales: 8 },
+// ];
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const SalesManagerPage = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('Sales per Product');
+
+  const [revenueData, setRevenueData] = useState([]);
+  const [chartLoading, setChartLoading] = useState(false);
+  const [chartError, setChartError] = useState(null);
+  // For date range (optional, for future)
+  const [chartStartDate, setChartStartDate] = useState('');
+  const [chartEndDate, setChartEndDate] = useState('');
 
   // for sales campaigns
   const [salesCampaigns, setSalesCampaigns] = useState([]);
@@ -97,6 +104,29 @@ const SalesManagerPage = () => {
 
     fetchManagerProfile();
   }, []);
+
+  // Fetch sales data for charts
+  useEffect(() => {
+    if (activeSection === 'Charts') {
+      const fetchRevenueData = async () => {
+        setChartLoading(true);
+        setChartError(null);
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(
+            `${API_URL}/orders/stats/daily-revenue-profit`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          setRevenueData(response.data);
+        } catch (err) {
+          setChartError('Failed to load revenue data');
+        } finally {
+          setChartLoading(false);
+        }
+      };
+      fetchRevenueData();
+    }
+  }, [activeSection]);
 
   // Fetch sales campaigns
   useEffect(() => {
@@ -271,17 +301,24 @@ const SalesManagerPage = () => {
         return (
           <Card variant="outlined" style={{ marginBottom: '20px', padding: '20px' }}>
             <Typography variant="h6" gutterBottom>
-              Charts
+              Total Revenue Over Time
             </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={salesData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="sales" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
+            {/* Date range picker can go here in the future */}
+            {chartLoading ? (
+              <CircularProgress />
+            ) : chartError ? (
+              <Typography color="error">{chartError}</Typography>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="total_revenue" fill="#1976d2" name="Revenue" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </Card>
         );
       case 'Sales Campaigns':
