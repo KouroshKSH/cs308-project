@@ -423,6 +423,13 @@ exports.cancelOrder = async (req, res) => {
     if (order.status === 'processing') {
       await Order.updateStatus(orderId, 'cancelled');
 
+      // Delete the delivery record associated with the cancelled order.
+      // This is done because altering the 'deliveries' table schema is not ideal at this point.
+      await pool.query(
+        `DELETE FROM deliveries WHERE order_id = ?`,
+        [orderId]
+      );
+
       // Fetch order items for the cancelled order
       const items = await OrderItem.getByOrderId(orderId);
 
