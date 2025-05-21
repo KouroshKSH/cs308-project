@@ -36,14 +36,6 @@ import {
   Legend,
 } from 'recharts';
 
-// Static sales data
-// TODO: I'll change this to use Zeynep's backend API
-// const salesData = [
-//   { name: 'Product 1', sales: 10 },
-//   { name: 'Product 2', sales: 5 },
-//   { name: 'Product 3', sales: 15 },
-//   { name: 'Product 4', sales: 8 },
-// ];
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -57,6 +49,10 @@ const SalesManagerPage = () => {
   // For date range (optional, for future)
   const [chartStartDate, setChartStartDate] = useState('2025-03-01');
   const [chartEndDate, setChartEndDate] = useState('2025-06-01');
+  const [productSalesData, setProductSalesData] = useState([]);
+  const [productSalesLoading, setProductSalesLoading] = useState(false);
+  const [productSalesError, setProductSalesError] = useState(null);
+
 
   // for sales campaigns
   const [salesCampaigns, setSalesCampaigns] = useState([]);
@@ -136,6 +132,28 @@ const SalesManagerPage = () => {
       fetchRevenueData();
     }
   }, [activeSection, chartStartDate, chartEndDate]);
+
+  useEffect(() => {
+    if (activeSection === 'Charts') {
+      const fetchProductSales = async () => {
+        setProductSalesLoading(true);
+        setProductSalesError(null);
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(
+            `${API_URL}/orders/stats/products`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          setProductSalesData(response.data);
+        } catch (err) {
+          setProductSalesError('Failed to load product sales data');
+        } finally {
+          setProductSalesLoading(false);
+        }
+      };
+      fetchProductSales();
+    }
+  }, [activeSection]);
 
   // Fetch sales campaigns
   useEffect(() => {
@@ -305,6 +323,8 @@ const SalesManagerPage = () => {
 
 
   const renderContent = () => {
+    const maxRevenue = Math.max(...productSalesData.map(d => d.total_revenue || 0), 0);
+    const maxTotalRevenue = Math.max(...revenueData.map(d => d.total_revenue || 0), 0);
     switch (activeSection) {
       case 'Charts':
         return (
@@ -383,6 +403,7 @@ const SalesManagerPage = () => {
                   tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
                   tickFormatter={v => `$${v}`}
                   padding={{ top: 20 }} // Add padding to the top of Y-axis
+                  domain={[0, maxTotalRevenue]} // Set the domain to start from 0 to max revenue
                 />
                 <Tooltip formatter={v => `$${v}`} />
                 <Legend verticalAlign="top" height={36}/> {/* Legend for combined lines */}
@@ -424,6 +445,7 @@ const SalesManagerPage = () => {
                   tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
                   tickFormatter={v => `$${v}`}
                   padding={{ top: 20 }} // Add padding to the top of Y-axis
+                  domain={[0, maxTotalRevenue]} // Set the domain to start from 0 to max revenue
                 />
                 <Tooltip formatter={v => `$${v}`} />
                 <Legend verticalAlign="top" height={36}/> {/* Legend for combined bars */}
@@ -432,7 +454,50 @@ const SalesManagerPage = () => {
               </BarChart>
             </ResponsiveContainer>
           )}
+
+          <Divider className="chart-section-divider" style={{
+            margin: '32px 0 24px 0',
+            backgroundColor: '#eeeeee',
+            height: '2px',
+          }}/>
+
+          <Typography variant="subtitle1" gutterBottom>
+            Bar Chart: Sales per Product
+          </Typography>
+          {productSalesLoading ? (
+            <CircularProgress />
+          ) : productSalesError ? (
+            <Typography color="error">{productSalesError}</Typography>
+          ) : (
+            <ResponsiveContainer width="100%" height={650}>
+              <BarChart
+                data={productSalesData}
+                margin={{ top: 20, right: 30, left: 0, bottom: 60 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="product_name"
+                  angle={-45}
+                  textAnchor="end"
+                  interval={0}
+                  tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
+                  height={80}
+                />
+                <YAxis
+                  tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
+                  tickFormatter={v => `$${v}`}
+                  padding={{ top: 20 }} // Add padding to the top of Y-axis
+                  domain={[0, maxRevenue]} // Set the domain to start from 0 to max revenue
+                />
+                <Tooltip formatter={v => `$${v}`} />
+                <Legend verticalAlign="top" height={36}/>
+                <Bar dataKey="total_revenue" fill="#e57373" name="Revenue" />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </Card>
+
+        
         );
       case 'Sales Campaigns':
         return (
