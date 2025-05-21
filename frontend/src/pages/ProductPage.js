@@ -286,9 +286,12 @@ const ProductPage = () => {
       // Clear the message after 3 seconds
       setTimeout(() => setWishlistMessage(""), 3000);
     } catch (error) {
-      console.error("Error adding to wishlist:", error);
-      // toast.error("Failed to add product to wishlist.");
-      alert("Failed to add product to wishlist.");
+      if (error.response && error.response.status === 409) {
+        setWishlistMessage("You've already wishlisted this product before!");
+        setTimeout(() => setWishlistMessage(""), 3000);
+      } else {
+        alert("Failed to add product to wishlist.");
+      }
     }
   };
 

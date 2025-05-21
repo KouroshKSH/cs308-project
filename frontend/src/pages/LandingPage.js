@@ -251,8 +251,11 @@ const LandingPage = () => {
         setWishlistStatus((prev) => ({ ...prev, [productId]: false }));
       }, 2000);
     } catch (error) {
-      console.error("Error adding to wishlist:", error);
-      alert("Failed to add product to wishlist.");
+      if (error.response && error.response.status === 409) {
+        alert("You've already wishlisted this product before!");
+      } else {
+        alert("Failed to add product to wishlist.");
+      }
     }
   };
 
@@ -277,14 +280,6 @@ const LandingPage = () => {
       {/* landing page main content */}
       <main className="landing-page-content">
 
-              {/* <div className="banner-container">
-        <img
-          src={getBannerImage()}
-          alt={`${department} Banner`}
-        />
-      </div> */}
-
-
         <Typography 
           variant="h3"
         >{department}'s Collection</Typography>
@@ -292,14 +287,6 @@ const LandingPage = () => {
 
         
       </main>
-
-      {/* Banner Section */}
-      {/* <div className="banner-container">
-        <img
-          src={getBannerImage()}
-          alt={`${department} Banner`}
-        />
-      </div> */}
 
       <Box 
         sx={{
