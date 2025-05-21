@@ -384,8 +384,29 @@ const Product = {
     } finally {
       connection.release();
     }
-  }  
-  
+  },
+
+    // Add new category under one or more departments
+  async addCategoryUnderDepartments(name, departmentIds) {
+    const values = departmentIds.map(id => [name, id]);
+    const query = `
+      INSERT INTO categories (name, parent_category_id)
+      VALUES ${values.map(() => '(?, ?)').join(', ')}
+    `;
+    const [result] = await pool.query(query, values.flat());
+    return { message: `Added '${name}' under ${departmentIds.length} department(s).`, affectedRows: result.affectedRows };
+  },
+
+  // Add new subcategory under one or more existing categories
+  async addCategoryUnderParentCategories(name, parentCategoryIds) {
+    const values = parentCategoryIds.map(id => [name, id]);
+    const query = `
+      INSERT INTO categories (name, parent_category_id)
+      VALUES ${values.map(() => '(?, ?)').join(', ')}
+    `;
+    const [result] = await pool.query(query, values.flat());
+    return { message: `Added subcategory '${name}' under ${parentCategoryIds.length} parent category(ies).`, affectedRows: result.affectedRows };
+  }
 };
 
 module.exports = Product;

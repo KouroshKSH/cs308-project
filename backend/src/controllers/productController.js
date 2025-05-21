@@ -359,6 +359,56 @@ const productController = {
       console.error("Controller - Error deleting variation:", error);
       res.status(500).json({ error: "Failed to delete variation." });
     }
+  },
+
+  createCategoryUnderDepartments: async (req, res) => {
+    try {
+
+      if (req.user.role !== 'productManager') {
+        return res.status(403).json({ message: "Only product managers can add categories." });
+      }
+
+      const { name, department_ids } = req.body;
+
+      if (!name || !Array.isArray(department_ids) || department_ids.length === 0) {
+        return res.status(400).json({ message: "Name and department_ids are required" });
+      }
+
+      const result = await Product.addCategoryUnderDepartments(name, department_ids);
+      console.log("Category created under departments:", name);
+      res.status(201).json({
+        message: "Category created under departments",
+        inserted: result.affectedRows
+      });
+    } catch (error) {
+      console.error("Error creating category under departments:", error);
+      res.status(500).json({ message: "Failed to create category under departments" });
+    }
+  },
+
+  createSubcategoryUnderCategories: async (req, res) => {
+    try {
+
+      if (req.user.role !== 'productManager') {
+        return res.status(403).json({ message: "Only product managers can add categories." });
+      }
+
+      const { name, parent_category_ids } = req.body;
+
+      if (!name || !Array.isArray(parent_category_ids) || parent_category_ids.length === 0) {
+        return res.status(400).json({ message: "Name and parent_category_ids are required" });
+      }
+
+      const result = await Product.addCategoryUnderParentCategories(name, parent_category_ids);
+      console.log("Subcategory created under categories:", name);
+      res.status(201).json({
+        message: "Subcategory created",
+        inserted: result.affectedRows
+      });
+    } catch (error) {
+      console.error("Error creating subcategory:", error);
+      res.status(500).json({ message: "Failed to create subcategory" });
+    }
   }
 };
 
