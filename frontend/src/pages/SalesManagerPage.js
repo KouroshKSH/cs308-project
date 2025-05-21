@@ -31,6 +31,9 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  LineChart,
+  Line,
+  Legend,
 } from 'recharts';
 
 // Static sales data
@@ -133,27 +136,6 @@ const SalesManagerPage = () => {
       fetchRevenueData();
     }
   }, [activeSection, chartStartDate, chartEndDate]);
-  // useEffect(() => {
-  //   if (activeSection === 'Charts') {
-  //     const fetchRevenueData = async () => {
-  //       setChartLoading(true);
-  //       setChartError(null);
-  //       try {
-  //         const token = localStorage.getItem('token');
-  //         const response = await axios.get(
-  //           `${API_URL}/orders/stats/daily-revenue-profit`,
-  //           { headers: { Authorization: `Bearer ${token}` } }
-  //         );
-  //         setRevenueData(response.data);
-  //       } catch (err) {
-  //         setChartError('Failed to load revenue data');
-  //       } finally {
-  //         setChartLoading(false);
-  //       }
-  //     };
-  //     fetchRevenueData();
-  //   }
-  // }, [activeSection]);
 
   // Fetch sales campaigns
   useEffect(() => {
@@ -327,95 +309,130 @@ const SalesManagerPage = () => {
       case 'Charts':
         return (
           <Card variant="outlined" style={{ marginBottom: '20px', padding: '20px' }}>
-                <Typography variant="h6" gutterBottom>
-                  Total Revenue Over Time
-                </Typography>
+          <Typography variant="h6" gutterBottom>
+            Charts Overview
+          </Typography>
 
-                {/* Date range picker */}
-                <div style={{ display: "flex", gap: "40px", marginBottom: "20px" }}>
-                  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                    <Typography><strong>Start Date:</strong></Typography>
-                    {["Year", "Month", "Day"].map((label, index) => (
-                      <TextField
-                        key={label}
-                        label={label}
-                        type="number"
-                        value={chartStartDate.split("-")[index]}
-                        onChange={e => {
-                          const [y, m, d] = chartStartDate.split("-");
-                          const values = [y, m, d];
-                          values[index] = e.target.value.padStart(2, "0");
-                          setChartStartDate(values.join("-"));
-                        }}
-                        style={{ width: "120px", height: "40px" }}
-                        inputProps={{ min: 1 }}
-                      />
-                    ))}
-                  </div>
-                  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                    <Typography><strong>End Date:</strong></Typography>
-                    {["Year", "Month", "Day"].map((label, index) => (
-                      <TextField
-                        key={label}
-                        label={label}
-                        type="number"
-                        value={chartEndDate.split("-")[index]}
-                        onChange={e => {
-                          const [y, m, d] = chartEndDate.split("-");
-                          const values = [y, m, d];
-                          values[index] = e.target.value.padStart(2, "0");
-                          setChartEndDate(values.join("-"));
-                        }}
-                        style={{ width: "120px", height: "40px" }}
-                        inputProps={{ min: 1 }}
-                      />
-                    ))}
-                  </div>
-                </div>
-                
-                {chartLoading ? (
-                  <CircularProgress />
-                ) : chartError ? (
-                  <Typography color="error">{chartError}</Typography>
-                ) : (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="total_revenue" fill="#1976d2" name="Revenue" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                )}
+          {/* Date range picker */}
+          <div style={{ display: "flex", gap: "40px", marginBottom: "20px" }}>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <Typography><strong>Start Date:</strong></Typography>
+              {["Year", "Month", "Day"].map((label, index) => (
+                <TextField
+                  key={label}
+                  label={label}
+                  type="number"
+                  value={chartStartDate.split("-")[index]}
+                  onChange={e => {
+                    const [y, m, d] = chartStartDate.split("-");
+                    const values = [y, m, d];
+                    values[index] = e.target.value.padStart(2, "0");
+                    setChartStartDate(values.join("-"));
+                  }}
+                  style={{ width: "120px", height: "40px" }}
+                  inputProps={{ min: 1 }}
+                />
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <Typography><strong>End Date:</strong></Typography>
+              {["Year", "Month", "Day"].map((label, index) => (
+                <TextField
+                  key={label}
+                  label={label}
+                  type="number"
+                  value={chartEndDate.split("-")[index]}
+                  onChange={e => {
+                    const [y, m, d] = chartEndDate.split("-");
+                    const values = [y, m, d];
+                    values[index] = e.target.value.padStart(2, "0");
+                    setChartEndDate(values.join("-"));
+                  }}
+                  style={{ width: "120px", height: "40px" }}
+                  inputProps={{ min: 1 }}
+                />
+              ))}
+            </div>
+          </div>
 
-                {/* <Divider style={{ margin: '32px 0 24px 0' }} /> */}
-                <Divider className="chart-section-divider" style={{
-                  margin: '32px 0 24px 0',
-                  backgroundColor: '#eeeeee',
-                  height: '2px',
-                }}/>
+          <Divider className="chart-section-divider"></Divider>
 
+          {/* Combined Line Chart: Total Revenue and Profits */}
+          <Typography variant="h6" gutterBottom>
+            Line Chart for Total Revenue and Profits
+          </Typography>
+          {chartLoading ? (
+            <CircularProgress />
+          ) : chartError ? (
+            <Typography color="error">{chartError}</Typography>
+          ) : (
+            <ResponsiveContainer 
+              width="100%"
+              height={400} // Adjusted height for better spacing
+            > {/* Increased height for better spacing */}
+              <LineChart data={revenueData} margin={{ top: 40, right: 30, left: 0, bottom: 5 }}> {/* Increased top margin */}
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="date"
+                  angle={-45}
+                  textAnchor="end"
+                  tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
+                  height={60}
+                />
+                <YAxis
+                  tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
+                  tickFormatter={v => `$${v}`}
+                  padding={{ top: 20 }} // Add padding to the top of Y-axis
+                />
+                <Tooltip formatter={v => `$${v}`} />
+                <Legend verticalAlign="top" height={36}/> {/* Legend for combined lines */}
+                <Line type="monotone" dataKey="total_revenue" stroke="#1976d2" strokeWidth={3} name="Total Revenue" dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="total_profit" stroke="#43a047" strokeWidth={3} name="Total Profit" dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
 
-                <Typography variant="h6" gutterBottom>
-                  Total Profit Over Time
-                </Typography>
-                {chartLoading ? (
-                  <CircularProgress />
-                ) : chartError ? (
-                  <Typography color="error">{chartError}</Typography>
-                ) : (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="total_profit" fill="#43a047" name="Profit" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                )}
-              </Card>
+          <Divider className="chart-section-divider" style={{
+            margin: '32px 0 24px 0',
+            backgroundColor: '#eeeeee',
+            height: '2px',
+          }}/>
+
+          {/* Combined Bar Chart: Total Revenue and Profits */}
+          <Typography variant="h6" gutterBottom>
+            Bar Chart for Total Revenue and Profits
+          </Typography>
+          {chartLoading ? (
+            <CircularProgress />
+          ) : chartError ? (
+            <Typography color="error">{chartError}</Typography>
+          ) : (
+            <ResponsiveContainer 
+              width="100%" 
+              height={400}
+            > {/* Increased height for better spacing */}
+              <BarChart data={revenueData} margin={{ top: 40, right: 30, left: 0, bottom: 5 }}> {/* Increased top margin */}
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="date"
+                  angle={-45}
+                  textAnchor="end"
+                  tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
+                  height={60}
+                />
+                <YAxis
+                  tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
+                  tickFormatter={v => `$${v}`}
+                  padding={{ top: 20 }} // Add padding to the top of Y-axis
+                />
+                <Tooltip formatter={v => `$${v}`} />
+                <Legend verticalAlign="top" height={36}/> {/* Legend for combined bars */}
+                <Bar dataKey="total_revenue" fill="#1976d2" name="Total Revenue" />
+                <Bar dataKey="total_profit" fill="#43a047" name="Total Profit" />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </Card>
         );
       case 'Sales Campaigns':
         return (
