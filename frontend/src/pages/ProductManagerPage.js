@@ -408,15 +408,27 @@ const ProductManagerPage = () => {
             </Card>
           </div>
         );
-      case 'Product & Category Management':
+      case 'Product Management':
         return (
           <div className="scrollable-content">
             <Card variant="outlined" style={{ marginBottom: '20px' }}>
               <CardContent>
-                <Typography variant="h6">Product & Category Management</Typography>
+                <Typography variant="h6">Product Management</Typography>
                 <List>
-                  <ListItem>- Add or remove products</ListItem>
-                  <ListItem>- Manage product categories</ListItem>
+                  <ListItem>Add or remove products</ListItem>
+                </List>
+              </CardContent>
+            </Card>
+          </div>
+        );
+            case 'Category Management':
+        return (
+          <div className="scrollable-content">
+            <Card variant="outlined" style={{ marginBottom: '20px' }}>
+              <CardContent>
+                <Typography variant="h6">Category Management</Typography>
+                <List>
+                  <ListItem>Manage product categories</ListItem>
                 </List>
               </CardContent>
             </Card>
@@ -660,7 +672,7 @@ const ProductManagerPage = () => {
             }}
             onClick={() => setActiveSection('Stock Management')}
           >
-            Product & Category Management
+            Stock Management
           </div>
           <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
             <ListItem>Update stock quantities</ListItem>
@@ -671,19 +683,36 @@ const ProductManagerPage = () => {
             style={{
               cursor: 'pointer',
               marginBottom: '10px',
-              color: activeSection === 'Product & Category Management' ? '#1976d2' : 'inherit',
-              fontWeight: activeSection === 'Product & Category Management' ? 'bold' : 'normal',
+              color: activeSection === 'Product Management' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Product Management' ? 'bold' : 'normal',
               fontSize: '1.3em',
             }}
-            onClick={() => setActiveSection('Product & Category Management')}
+            onClick={() => setActiveSection('Product Management')}
           >
-            Product & Category Management
+            Product Management
           </div>
           <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
-            <ListItem>Add or remove products</ListItem>
-            <ListItem>Manage product categories</ListItem>
+            {/* <ListItem>Manage Products</ListItem> */}
           </List>
           <Divider style={{ marginBottom: '20px' }} />
+
+          <div
+            style={{
+              cursor: 'pointer',
+              marginBottom: '10px',
+              color: activeSection === 'Category Management' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Category Management' ? 'bold' : 'normal',
+              fontSize: '1.3em',
+            }}
+            onClick={() => setActiveSection('Category Management')}
+          >
+            Category Management
+          </div>
+          <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
+            {/* <ListItem>Manage product categories</ListItem> */}
+          </List>
+          <Divider style={{ marginBottom: '20px' }} />
+
           <div
             style={{
               cursor: 'pointer',
