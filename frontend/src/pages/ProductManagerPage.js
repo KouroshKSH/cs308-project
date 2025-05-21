@@ -41,6 +41,11 @@ const ProductManagerPage = () => {
   // for getting the manager info and displaying it
   const [managerInfo, setManagerInfo] = useState(null); // State to store manager info
 
+  // for stock management
+  const [productVariations, setProductVariations] = useState([]);
+  const [loadingVariations, setLoadingVariations] = useState(false);
+  const [errorVariations, setErrorVariations] = useState(null);
+
   const handleDownloadPDF = async (orderId) => {
     try {
       const API_URL = process.env.REACT_APP_API_URL;
@@ -116,10 +121,6 @@ const ProductManagerPage = () => {
     localStorage.removeItem("token"); // removethe token
     navigate("/"); // go to landing page
   };
-
-  // useEffect(() => {
-  //   fetchManagerProfile(); // Fetch manager profile only once
-  // }, []); // Runs only on component mount
 
   // for fetching the info of the items
   useEffect(() => {
@@ -225,6 +226,19 @@ const ProductManagerPage = () => {
     }
   };
 
+  // Fetch all product variations when Stock Management is active
+  useEffect(() => {
+    if (activeSection === 'Stock Management') {
+      setLoadingVariations(true);
+      setErrorVariations(null);
+      axios
+        .get(`${API_URL}/product-variations`)
+        .then((res) => setProductVariations(res.data))
+        .catch(() => setErrorVariations('Failed to load product variations.'))
+        .finally(() => setLoadingVariations(false));
+    }
+  }, [activeSection]);
+
   // Handle filter change
   const handleCommentFilterChange = (event) => {
     setFilterStatusComments(event.target.value);
@@ -232,6 +246,66 @@ const ProductManagerPage = () => {
 
   const renderContent = () => {
     switch (activeSection) {
+      case 'Stock Management':
+        // const [productVariations, setProductVariations] = useState([]);
+        // const [loadingVariations, setLoadingVariations] = useState(false);
+        // const [errorVariations, setErrorVariations] = useState(null);
+
+        // // Fetch all product variations when Stock Management is active
+        // useEffect(() => {
+        //   if (activeSection === 'Stock Management') {
+        //     setLoadingVariations(true);
+        //     setErrorVariations(null);
+        //     axios
+        //       .get(`${API_URL}/product-variations`)
+        //       .then((res) => setProductVariations(res.data))
+        //       .catch(() => setErrorVariations('Failed to load product variations.'))
+        //       .finally(() => setLoadingVariations(false));
+        //   }
+        // }, [activeSection]);
+        return (
+          <div className="scrollable-content">
+            <Card variant="outlined" style={{ marginBottom: '20px' }}>
+              <CardContent>
+                <Typography variant="h6" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
+                  Stock Management
+                </Typography>
+                {loadingVariations ? (
+                  <CircularProgress />
+                ) : errorVariations ? (
+                  <Typography color="error">{errorVariations}</Typography>
+                ) : (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Product ID</th>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Product Name</th>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Variation ID</th>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Size ID</th>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Color ID</th>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Stock Quantity</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {productVariations.map((row) => (
+                          <tr key={row.variation_id}>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.product_id}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.product_name}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.variation_id}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.size_id}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.color_id}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.stock_quantity}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        );
       case 'Product & Category Management':
         return (
           <div className="scrollable-content">
@@ -241,7 +315,6 @@ const ProductManagerPage = () => {
                 <List>
                   <ListItem>- Add or remove products</ListItem>
                   <ListItem>- Manage product categories</ListItem>
-                  <ListItem>- Update stock quantities</ListItem>
                 </List>
               </CardContent>
             </Card>
@@ -474,6 +547,24 @@ const ProductManagerPage = () => {
             Product Manager Dashboard
           </Typography>
           <Divider style={{ marginBottom: '20px' }} />
+
+          <div
+            style={{
+              cursor: 'pointer',
+              marginBottom: '10px',
+              color: activeSection === 'Stock Management' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Stock Management' ? 'bold' : 'normal',
+              fontSize: '1.3em',
+            }}
+            onClick={() => setActiveSection('Stock Management')}
+          >
+            Product & Category Management
+          </div>
+          <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
+            <ListItem>Update stock quantities</ListItem>
+          </List>
+          <Divider style={{ marginBottom: '20px' }} />
+
           <div
             style={{
               cursor: 'pointer',
@@ -489,7 +580,6 @@ const ProductManagerPage = () => {
           <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
             <ListItem>Add or remove products</ListItem>
             <ListItem>Manage product categories</ListItem>
-            <ListItem>Update stock quantities</ListItem>
           </List>
           <Divider style={{ marginBottom: '20px' }} />
           <div
@@ -506,7 +596,7 @@ const ProductManagerPage = () => {
           </div>
           <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
             <ListItem>View all deliveries with status</ListItem>
-            <ListItem>Update delivery status (pending, shipped, delivered)</ListItem>
+            <ListItem>Update delivery status</ListItem>
           </List>
           <Divider style={{ marginBottom: '20px' }} />
           <div
