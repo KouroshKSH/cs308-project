@@ -46,6 +46,12 @@ const ProductManagerPage = () => {
   const [loadingVariations, setLoadingVariations] = useState(false);
   const [errorVariations, setErrorVariations] = useState(null);
 
+  // for category management
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [errorCategories, setErrorCategories] = useState(null);
+
+
   // For product filter dropdown
   const [productFilter, setProductFilter] = useState('all');
   const [productIdOptions, setProductIdOptions] = useState([]);
@@ -316,6 +322,19 @@ const ProductManagerPage = () => {
     setFilterStatusComments(event.target.value);
   };
 
+    // Fetch all categories when Category Management is active
+  useEffect(() => {
+    if (activeSection === 'Category Management') {
+      setLoadingCategories(true);
+      setErrorCategories(null);
+      axios
+        .get(`${API_URL}/categories`)
+        .then((res) => setCategories(res.data))
+        .catch(() => setErrorCategories('Failed to load categories.'))
+        .finally(() => setLoadingCategories(false));
+    }
+  }, [activeSection]);
+
   const renderContent = () => {
     switch (activeSection) {
       case 'Stock Management':
@@ -421,15 +440,44 @@ const ProductManagerPage = () => {
             </Card>
           </div>
         );
-            case 'Category Management':
+      case 'Category Management':
         return (
           <div className="scrollable-content">
-            <Card variant="outlined" style={{ marginBottom: '20px' }}>
+            <Card variant="outlined" style={{ marginBottom: '20px', maxHeight: 600, overflowY: 'auto' }}>
               <CardContent>
-                <Typography variant="h6">Category Management</Typography>
-                <List>
-                  <ListItem>Manage product categories</ListItem>
-                </List>
+                <Typography variant="h6" style={{ fontWeight: 'bold', marginBottom: 16 }}>
+                  Category Management
+                </Typography>
+                {loadingCategories ? (
+                  <CircularProgress />
+                ) : errorCategories ? (
+                  <Typography color="error">{errorCategories}</Typography>
+                ) : (
+                  <List>
+                    {categories.map((cat) => (
+                      <ListItem
+                        key={cat.category_id}
+                        style={{
+                          border: '1px solid #ddd',
+                          borderRadius: 8,
+                          marginBottom: 10,
+                          background: '#fafafa',
+                          flexDirection: 'column',
+                          alignItems: 'flex-start',
+                        }}
+                      >
+                        <Typography variant="subtitle1" style={{ fontWeight: 'bold' }}>
+                          ID: {cat.category_id}: {cat.category_name}
+                        </Typography>
+                        {cat.parent_category_id && (
+                          <Typography variant="body2" color="textSecondary">
+                            Parent: {cat.parent_name} (ID: {cat.parent_category_id})
+                          </Typography>
+                        )}
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
               </CardContent>
             </Card>
           </div>
