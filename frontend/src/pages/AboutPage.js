@@ -34,10 +34,6 @@ const About = () => {
             style={{ height: "80px", marginBottom: "1.5rem" }}
           />
 
-          <Typography variant="h3" fontWeight={600} gutterBottom>
-            About
-          </Typography>
-
           <Typography
             variant="subtitle1"
             color="text.secondary"
