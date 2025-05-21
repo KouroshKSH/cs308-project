@@ -889,7 +889,7 @@ const SalesManagerPage = () => {
         </div>
       </div>
 
-      <div style={{ marginBottom: '60px' }} />
+      <div style={{ marginBottom: '10px' }} />
       <Footer />
     </>
   );
