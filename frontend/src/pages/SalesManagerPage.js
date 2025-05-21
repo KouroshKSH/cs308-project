@@ -236,6 +236,29 @@ const SalesManagerPage = () => {
     }
   }, [activeSection, returnsFilter]);
 
+  const updateReturnStatus = async (returnId, newStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        `${API_URL}/returns/${returnId}`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // Refresh the returns list after updating
+      const response = await axios.get(`${API_URL}/returns`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: returnsFilter ? { status: returnsFilter } : {},
+      });
+      setReturns(response.data);
+    } catch (err) {
+      alert('Failed to update return status. Please try again.');
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
@@ -515,13 +538,32 @@ const SalesManagerPage = () => {
                               <div><strong>Status:</strong> {ret.status}</div>
                               <div><strong>Order ID:</strong> {ret.order_id}</div>
                               <div><strong>User ID:</strong> {ret.user_id}</div>
-                              {/* <div><strong>Quantity:</strong> {ret.quantity}</div> */}
                               <div><strong>Refund Amount:</strong> {ret.refund_amount ?? 'N/A'}</div>
                               <div><strong>Requested At:</strong> {new Date(ret.request_date).toLocaleString()}</div>
                             </>
                           }
                         />
-                        {/* Approve/Reject buttons will be added later */}
+                        {/* Approve/Reject buttons */}
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                          {/* Approve Button */}
+                          <Button
+                            variant="contained"
+                            color="success"
+                            disabled={ret.status === 'approved'}
+                            onClick={() => updateReturnStatus(ret.return_id, 'approved')}
+                          >
+                            Approve
+                          </Button>
+                          {/* Reject Button */}
+                          <Button
+                            variant="contained"
+                            color="error"
+                            disabled={ret.status === 'approved' || ret.status === 'rejected'}
+                            onClick={() => updateReturnStatus(ret.return_id, 'rejected')}
+                          >
+                            Reject
+                          </Button>
+                        </div>
                       </ListItem>
                     ))}
                   </List>
