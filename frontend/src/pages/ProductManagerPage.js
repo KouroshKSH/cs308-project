@@ -41,6 +41,83 @@ const ProductManagerPage = () => {
   // for getting the manager info and displaying it
   const [managerInfo, setManagerInfo] = useState(null); // State to store manager info
 
+  // for stock management
+  const [productVariations, setProductVariations] = useState([]);
+  const [loadingVariations, setLoadingVariations] = useState(false);
+  const [errorVariations, setErrorVariations] = useState(null);
+
+  // For product filter dropdown
+  const [productFilter, setProductFilter] = useState('all');
+  const [productIdOptions, setProductIdOptions] = useState([]);
+
+  const [stockInputs, setStockInputs] = useState({}); // { [variation_id]: value }
+  const [updatingStock, setUpdatingStock] = useState({}); // { [variation_id]: true/false }
+
+  const handleStockInputChange = (variation_id, value) => {
+    // Only allow positive integers
+    if (value === '' || /^\d+$/.test(value)) {
+      setStockInputs((prev) => ({ ...prev, [variation_id]: value }));
+    }
+  };
+
+  const handleUpdateStock = async (variation_id) => {
+    const value = stockInputs[variation_id];
+    if (!value || isNaN(value) || parseInt(value) < 0) {
+      alert('Please enter a positive integer greater or equal to zero.');
+      return;
+    }
+    setUpdatingStock((prev) => ({ ...prev, [variation_id]: true }));
+    try {
+      await axios.put(
+        `${API_URL}/product-variations/${variation_id}/stock`,
+        { stock_quantity: parseInt(value) }
+      );
+      // Refresh the table after update
+      const url =
+        productFilter === 'all'
+          ? `${API_URL}/product-variations`
+          : `${API_URL}/product-variations?product_id=${productFilter}`;
+      const res = await axios.get(url);
+      setProductVariations(res.data);
+      setStockInputs((prev) => ({ ...prev, [variation_id]: '' }));
+    } catch (err) {
+      alert('Failed to update stock. Please try again.');
+    } finally {
+      setUpdatingStock((prev) => ({ ...prev, [variation_id]: false }));
+    }
+  };
+
+  // Fetch product IDs for dropdown
+  useEffect(() => {
+    if (activeSection === 'Stock Management') {
+      axios
+        .get(`${API_URL}/product-variations/product-ids`)
+        .then((res) => setProductIdOptions(res.data))
+        .catch(() => setProductIdOptions([]));
+    }
+  }, [activeSection]);
+
+  // Fetch product variations (filtered)
+  useEffect(() => {
+    if (activeSection === 'Stock Management') {
+      setLoadingVariations(true);
+      setErrorVariations(null);
+      const url =
+        productFilter === 'all'
+          ? `${API_URL}/product-variations`
+          : `${API_URL}/product-variations?product_id=${productFilter}`;
+      axios
+        .get(url)
+        .then((res) => setProductVariations(res.data))
+        .catch(() => setErrorVariations('Failed to load product variations.'))
+        .finally(() => setLoadingVariations(false));
+    }
+  }, [activeSection, productFilter]);
+
+  const handleProductFilterChange = (event) => {
+    setProductFilter(event.target.value);
+  };
+
   const handleDownloadPDF = async (orderId) => {
     try {
       const API_URL = process.env.REACT_APP_API_URL;
@@ -116,10 +193,6 @@ const ProductManagerPage = () => {
     localStorage.removeItem("token"); // removethe token
     navigate("/"); // go to landing page
   };
-
-  // useEffect(() => {
-  //   fetchManagerProfile(); // Fetch manager profile only once
-  // }, []); // Runs only on component mount
 
   // for fetching the info of the items
   useEffect(() => {
@@ -225,6 +298,19 @@ const ProductManagerPage = () => {
     }
   };
 
+  // Fetch all product variations when Stock Management is active
+  useEffect(() => {
+    if (activeSection === 'Stock Management') {
+      setLoadingVariations(true);
+      setErrorVariations(null);
+      axios
+        .get(`${API_URL}/product-variations`)
+        .then((res) => setProductVariations(res.data))
+        .catch(() => setErrorVariations('Failed to load product variations.'))
+        .finally(() => setLoadingVariations(false));
+    }
+  }, [activeSection]);
+
   // Handle filter change
   const handleCommentFilterChange = (event) => {
     setFilterStatusComments(event.target.value);
@@ -232,6 +318,96 @@ const ProductManagerPage = () => {
 
   const renderContent = () => {
     switch (activeSection) {
+      case 'Stock Management':
+        return (
+          <div className="scrollable-content">
+            <Card variant="outlined" style={{ marginBottom: '20px' }}>
+              <CardContent>
+                <Typography variant="h6" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
+                  Stock Management
+                </Typography>
+
+                {/* Filter Dropdown */}
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                  <FilterListIcon style={{ marginRight: '8px', color: 'rgba(0, 0, 0, 0.54)' }} />
+                  <FormControl style={{ minWidth: 250 }}>
+                    <InputLabel id="product-filter-label">Filter by Product</InputLabel>
+                    <Select
+                      labelId="product-filter-label"
+                      value={productFilter}
+                      label="Filter by Product"
+                      onChange={handleProductFilterChange}
+                    >
+                      <MenuItem value="all">All</MenuItem>
+                      {productIdOptions.map((opt) => (
+                        <MenuItem key={opt.product_id} value={opt.product_id}>
+                          {opt.product_id} - {opt.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
+
+                {loadingVariations ? (
+                  <CircularProgress />
+                ) : errorVariations ? (
+                  <Typography color="error">{errorVariations}</Typography>
+                ) : (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Product ID</th>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Product Name</th>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Variation ID</th>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Size ID</th>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Color ID</th>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Stock Quantity</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          {productVariations.map((row) => (
+                          <tr key={row.variation_id}>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.product_id}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.product_name}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.variation_id}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.size_id}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.color_id}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.stock_quantity}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px', minWidth: 180 }}>
+                              <input
+                                type="number"
+                                min="0"
+                                step="1"
+                                style={{ width: 70, marginRight: 8, padding: 4 }}
+                                value={stockInputs[row.variation_id] || ''}
+                                onChange={(e) => handleStockInputChange(row.variation_id, e.target.value)}
+                              />
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                disabled={
+                                  updatingStock[row.variation_id] ||
+                                  !stockInputs[row.variation_id] ||
+                                  isNaN(stockInputs[row.variation_id]) ||
+                                  parseInt(stockInputs[row.variation_id]) < 0
+                                }
+                                onClick={() => handleUpdateStock(row.variation_id)}
+                              >
+                                {updatingStock[row.variation_id] ? <CircularProgress size={18} /> : 'Update'}
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        );
       case 'Product & Category Management':
         return (
           <div className="scrollable-content">
@@ -241,7 +417,6 @@ const ProductManagerPage = () => {
                 <List>
                   <ListItem>- Add or remove products</ListItem>
                   <ListItem>- Manage product categories</ListItem>
-                  <ListItem>- Update stock quantities</ListItem>
                 </List>
               </CardContent>
             </Card>
@@ -474,6 +649,24 @@ const ProductManagerPage = () => {
             Product Manager Dashboard
           </Typography>
           <Divider style={{ marginBottom: '20px' }} />
+
+          <div
+            style={{
+              cursor: 'pointer',
+              marginBottom: '10px',
+              color: activeSection === 'Stock Management' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Stock Management' ? 'bold' : 'normal',
+              fontSize: '1.3em',
+            }}
+            onClick={() => setActiveSection('Stock Management')}
+          >
+            Product & Category Management
+          </div>
+          <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
+            <ListItem>Update stock quantities</ListItem>
+          </List>
+          <Divider style={{ marginBottom: '20px' }} />
+
           <div
             style={{
               cursor: 'pointer',
@@ -489,7 +682,6 @@ const ProductManagerPage = () => {
           <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
             <ListItem>Add or remove products</ListItem>
             <ListItem>Manage product categories</ListItem>
-            <ListItem>Update stock quantities</ListItem>
           </List>
           <Divider style={{ marginBottom: '20px' }} />
           <div
@@ -506,7 +698,7 @@ const ProductManagerPage = () => {
           </div>
           <List style={{ paddingLeft: '20px', marginBottom: '20px' }}>
             <ListItem>View all deliveries with status</ListItem>
-            <ListItem>Update delivery status (pending, shipped, delivered)</ListItem>
+            <ListItem>Update delivery status</ListItem>
           </List>
           <Divider style={{ marginBottom: '20px' }} />
           <div
