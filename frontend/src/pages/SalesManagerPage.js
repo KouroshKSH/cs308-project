@@ -509,13 +509,13 @@ const SalesManagerPage = () => {
                         }}
                       >
                         <ListItemText
-                          primary={`Return ID: ${ret.return_id} | Order ID: ${ret.order_id}`}
+                          primary={`Return ID: ${ret.return_id}`}
                           secondary={
                             <>
                               <div><strong>Status:</strong> {ret.status}</div>
-                              <div><strong>Order Item ID:</strong> {ret.order_item_id}</div>
+                              <div><strong>Order ID:</strong> {ret.order_id}</div>
                               <div><strong>User ID:</strong> {ret.user_id}</div>
-                              <div><strong>Quantity:</strong> {ret.quantity}</div>
+                              {/* <div><strong>Quantity:</strong> {ret.quantity}</div> */}
                               <div><strong>Refund Amount:</strong> {ret.refund_amount ?? 'N/A'}</div>
                               <div><strong>Requested At:</strong> {new Date(ret.request_date).toLocaleString()}</div>
                             </>
