@@ -24,6 +24,14 @@ import { jsPDF } from "jspdf";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
+// used for the category management's filtering
+const CATEGORY_ROOTS = [
+  { label: "All", value: "all" },
+  { label: "Men", value: 1 },
+  { label: "Women", value: 2 },
+  { label: "Kids", value: 3 },
+];
+
 const ProductManagerPage = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('Product & Category Management');
@@ -50,7 +58,7 @@ const ProductManagerPage = () => {
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [errorCategories, setErrorCategories] = useState(null);
-
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   // For product filter dropdown
   const [productFilter, setProductFilter] = useState('all');
@@ -322,21 +330,41 @@ const ProductManagerPage = () => {
     setFilterStatusComments(event.target.value);
   };
 
-    // Fetch all categories when Category Management is active
+  // Fetch all categories when Category Management is active
+  // Fetch categories with filter
   useEffect(() => {
     if (activeSection === 'Category Management') {
       setLoadingCategories(true);
       setErrorCategories(null);
+      let url;
+      if (categoryFilter === "all") {
+        url = `${API_URL}/categories`;
+      } else {
+        url = `${API_URL}/categories/descendants/${categoryFilter}`;
+      }
       axios
-        .get(`${API_URL}/categories`)
+        .get(url)
         .then((res) => setCategories(res.data))
         .catch(() => setErrorCategories('Failed to load categories.'))
         .finally(() => setLoadingCategories(false));
     }
-  }, [activeSection]);
+  }, [activeSection, categoryFilter]);
+  // useEffect(() => {
+  //   if (activeSection === 'Category Management') {
+  //     setLoadingCategories(true);
+  //     setErrorCategories(null);
+  //     axios
+  //       .get(`${API_URL}/categories`)
+  //       .then((res) => setCategories(res.data))
+  //       .catch(() => setErrorCategories('Failed to load categories.'))
+  //       .finally(() => setLoadingCategories(false));
+  //   }
+  // }, [activeSection]);
 
   const renderContent = () => {
     switch (activeSection) {
+      
+      // stock management
       case 'Stock Management':
         return (
           <div className="scrollable-content">
@@ -427,6 +455,8 @@ const ProductManagerPage = () => {
             </Card>
           </div>
         );
+
+      // product management
       case 'Product Management':
         return (
           <div className="scrollable-content">
@@ -440,6 +470,8 @@ const ProductManagerPage = () => {
             </Card>
           </div>
         );
+
+      // category management
       case 'Category Management':
         return (
           <div className="scrollable-content">
@@ -448,40 +480,63 @@ const ProductManagerPage = () => {
                 <Typography variant="h6" style={{ fontWeight: 'bold', marginBottom: 16 }}>
                   Category Management
                 </Typography>
+                {/* Filter Dropdown */}
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
+                  <FilterListIcon style={{ marginRight: 8, color: 'rgba(0,0,0,0.54)' }} />
+                  <FormControl style={{ minWidth: 180 }}>
+                    <InputLabel id="category-filter-label">Filter by</InputLabel>
+                    <Select
+                      labelId="category-filter-label"
+                      value={categoryFilter}
+                      label="Filter by"
+                      onChange={e => setCategoryFilter(e.target.value)}
+                    >
+                      {CATEGORY_ROOTS.map(opt => (
+                        <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
                 {loadingCategories ? (
                   <CircularProgress />
                 ) : errorCategories ? (
                   <Typography color="error">{errorCategories}</Typography>
                 ) : (
                   <List>
-                    {categories.map((cat) => (
-                      <ListItem
-                        key={cat.category_id}
-                        style={{
-                          border: '1px solid #ddd',
-                          borderRadius: 8,
-                          marginBottom: 10,
-                          background: '#fafafa',
-                          flexDirection: 'column',
-                          alignItems: 'flex-start',
-                        }}
-                      >
-                        <Typography variant="subtitle1" style={{ fontWeight: 'bold' }}>
-                          ID: {cat.category_id}: {cat.category_name}
-                        </Typography>
-                        {cat.parent_category_id && (
-                          <Typography variant="body2" color="textSecondary">
-                            Parent: {cat.parent_name} (ID: {cat.parent_category_id})
+                    {categories.length === 0 ? (
+                      <Typography>No categories found.</Typography>
+                    ) : (
+                      categories.map((cat) => (
+                        <ListItem
+                          key={cat.category_id}
+                          style={{
+                            border: '1px solid #ddd',
+                            borderRadius: 8,
+                            marginBottom: 10,
+                            background: '#fafafa',
+                            flexDirection: 'column',
+                            alignItems: 'flex-start',
+                          }}
+                        >
+                          <Typography variant="subtitle1" style={{ fontWeight: 'bold' }}>
+                            ID: {cat.category_id}: {cat.category_name || cat.name}
                           </Typography>
-                        )}
-                      </ListItem>
-                    ))}
+                          {cat.parent_category_id && (
+                            <Typography variant="body2" color="textSecondary">
+                              Parent: {cat.parent_name || '-'} (ID: {cat.parent_category_id})
+                            </Typography>
+                          )}
+                        </ListItem>
+                      ))
+                    )}
                   </List>
                 )}
               </CardContent>
             </Card>
           </div>
         );
+
+      // delivery management
       case 'Delivery Management':
         return (
           <div className="scrollable-content">
@@ -591,6 +646,8 @@ const ProductManagerPage = () => {
             </Card>
           </div>
         );
+
+      // comment moderation
       case 'Comment Moderation':
         return (
           <div className="scrollable-content">
