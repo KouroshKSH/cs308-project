@@ -11,7 +11,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import InfoIcon from '@mui/icons-material/Info';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import './Footer.css'; // Import the new CSS file
+import './Footer.css';
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -79,12 +79,22 @@ const Footer = () => {
           <AdminPanelSettingsIcon className="footer-icon" /> Manager?
         </Link>
       </Box>
+
+      {/* Logo Section */}
+      <Box className="footer-logo-container">
+        <img
+          src={`${process.env.PUBLIC_URL}/assets/images/noire-vogue-logo.png`}
+          alt="Noire Vogue Logo"
+          className="footer-logo"
+        />
+      </Box>
+
       <Typography 
         variant="body2" 
         className='footer-text' 
         color="inherit"
       >
-        © {new Date().getFullYear()} CS308 Project — All rights reserved.
+        © {new Date().getFullYear()} CS308 Team 9 Project — All rights reserved.
       </Typography>
     </Box>
     </>
