@@ -103,6 +103,7 @@ const OrderStatusPage = () => {
           <Typography>Order Number: {order.order_id}</Typography>
           <Typography>Order Date: {formatDate(order.order_date)}</Typography>
           <Typography>Total Price: ${order.total_price}</Typography>
+          <Typography>Order Status: {order.status}</Typography>
 
           <Box sx={{ my: 4 }}>
             <Stepper activeStep={currentStep} alternativeLabel>

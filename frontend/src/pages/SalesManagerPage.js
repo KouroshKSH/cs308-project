@@ -54,6 +54,13 @@ const SalesManagerPage = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState(""); // Default to no filter
 
+  const [returns, setReturns] = useState([]);
+  const [returnsLoading, setReturnsLoading] = useState(false);
+  const [returnsError, setReturnsError] = useState(null);
+  // "", "pending", "approved", "rejected"
+  const [returnsFilter, setReturnsFilter] = useState("");
+
+
   // for creating new sales campaigns
   const [newCampaign, setNewCampaign] = useState({
     productId: "",
@@ -203,6 +210,52 @@ const SalesManagerPage = () => {
     } catch (err) {
       console.error("Failed to create sales campaign:", err);
       alert(err.response?.data?.message || "Failed to create sales campaign. Please try again.");
+    }
+  };
+
+  // Fetch returns when section or filter changes
+  useEffect(() => {
+    if (activeSection === 'Return Requests') {
+      const fetchReturns = async () => {
+        setReturnsLoading(true);
+        setReturnsError(null);
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(`${API_URL}/returns`, {
+            headers: { Authorization: `Bearer ${token}` },
+            params: returnsFilter ? { status: returnsFilter } : {},
+          });
+          setReturns(response.data);
+        } catch (err) {
+          setReturnsError('Failed to load returns. Please try again.');
+        } finally {
+          setReturnsLoading(false);
+        }
+      };
+      fetchReturns();
+    }
+  }, [activeSection, returnsFilter]);
+
+  const updateReturnStatus = async (returnId, newStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        `${API_URL}/returns/${returnId}`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // Refresh the returns list after updating
+      const response = await axios.get(`${API_URL}/returns`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: returnsFilter ? { status: returnsFilter } : {},
+      });
+      setReturns(response.data);
+    } catch (err) {
+      alert('Failed to update return status. Please try again.');
     }
   };
 
@@ -407,15 +460,15 @@ const SalesManagerPage = () => {
             </CardContent>
           </Card>
           );
-      case 'Price & Discounts':
+      case 'Price Management':
         return (
           <Card variant="outlined" style={{ marginBottom: '20px' }}>
             <CardContent>
-              <Typography variant="h6">Price & Discounts</Typography>
+              <Typography variant="h6">Price Management</Typography>
               <List>
                 <ListItem>- Set product prices</ListItem>
-                <ListItem>- Apply discounts to selected items</ListItem>
-                <ListItem>- Notify users with items in their wishlist</ListItem>
+                {/* <ListItem>- Apply discounts to selected items</ListItem> */}
+                {/* <ListItem>- Notify users with items in their wishlist</ListItem> */}
               </List>
             </CardContent>
           </Card>
@@ -433,6 +486,91 @@ const SalesManagerPage = () => {
             </CardContent>
           </Card>
         );
+        case 'Return Requests':
+          return (
+            <Card variant="outlined" style={{ marginBottom: '20px', padding: '20px' }}>
+              <CardContent>
+                <Typography variant="h5" gutterBottom>
+                  Return Requests
+                </Typography>
+                {/* Filter Dropdown */}
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', gap: '10px' }}>
+                  <FilterListIcon />
+                  <FormControl style={{ minWidth: 200 }}>
+                    <InputLabel id="returns-filter-label">Filter by Status</InputLabel>
+                    <Select
+                      labelId="returns-filter-label"
+                      value={returnsFilter}
+                      onChange={(event) => setReturnsFilter(event.target.value)}
+                    >
+                      <MenuItem value="">All</MenuItem>
+                      <MenuItem value="pending">Pending</MenuItem>
+                      <MenuItem value="approved">Approved</MenuItem>
+                      <MenuItem value="rejected">Rejected</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+                {returnsLoading ? (
+                  <CircularProgress />
+                ) : returnsError ? (
+                  <Typography color="error">{returnsError}</Typography>
+                ) : returns.length === 0 ? (
+                  <Typography>No return requests found.</Typography>
+                ) : (
+                  <List>
+                    {returns.map((ret) => (
+                      <ListItem
+                        key={ret.return_id}
+                        style={{
+                          padding: '15px',
+                          border: '1px solid #ddd',
+                          marginBottom: '10px',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'flex-start',
+                        }}
+                      >
+                        <ListItemText
+                          primary={`Return ID: ${ret.return_id}`}
+                          secondary={
+                            <>
+                              <div><strong>Status:</strong> {ret.status}</div>
+                              <div><strong>Order ID:</strong> {ret.order_id}</div>
+                              <div><strong>User ID:</strong> {ret.user_id}</div>
+                              <div><strong>Refund Amount:</strong> {ret.refund_amount ?? 'N/A'}</div>
+                              <div><strong>Requested At:</strong> {new Date(ret.request_date).toLocaleString()}</div>
+                            </>
+                          }
+                        />
+                        {/* Approve/Reject buttons */}
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                          {/* Approve Button */}
+                          <Button
+                            variant="contained"
+                            color="success"
+                            disabled={ret.status === 'approved'}
+                            onClick={() => updateReturnStatus(ret.return_id, 'approved')}
+                          >
+                            Approve
+                          </Button>
+                          {/* Reject Button */}
+                          <Button
+                            variant="contained"
+                            color="error"
+                            disabled={ret.status === 'approved' || ret.status === 'rejected'}
+                            onClick={() => updateReturnStatus(ret.return_id, 'rejected')}
+                          >
+                            Reject
+                          </Button>
+                        </div>
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </CardContent>
+            </Card>
+          );
       default:
         return null;
     }
@@ -502,18 +640,18 @@ const SalesManagerPage = () => {
             style={{
               cursor: 'pointer',
               marginBottom: '10px',
-              color: activeSection === 'Price & Discounts' ? '#1976d2' : 'inherit',
-              fontWeight: activeSection === 'Price & Discounts' ? 'bold' : 'normal',
+              color: activeSection === 'Price Management' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Price Management' ? 'bold' : 'normal',
               fontSize: '1.3em',
             }}
-            onClick={() => setActiveSection('Price & Discounts')}
+            onClick={() => setActiveSection('Price Management')}
           >
-            Price & Discounts
+            Price Management
           </div>
 
           <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
             <ListItem>Set prices for new products</ListItem>
-            <ListItem>Notify users about discounts</ListItem>
+            {/* <ListItem>Notify users about discounts</ListItem> */}
           </List>
 
           <Divider style={{ marginBottom: '10px' }} />
@@ -536,6 +674,23 @@ const SalesManagerPage = () => {
             <ListItem>Analyze profit/loss charts</ListItem>
           </List>
 
+          <Divider style={{ marginBottom: '10px' }} />
+
+          <div
+            style={{
+              cursor: 'pointer',
+              marginBottom: '10px',
+              color: activeSection === 'Return Requests' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Return Requests' ? 'bold' : 'normal',
+              fontSize: '1.3em',
+            }}
+            onClick={() => setActiveSection('Return Requests')}
+          >
+            Return Requests
+          </div>
+          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
+            <ListItem>Manage Returns</ListItem>
+          </List>
           <Divider style={{ marginBottom: '10px' }} />
           
           <Typography

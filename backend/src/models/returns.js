@@ -2,13 +2,12 @@ const db = require('../config/database');
 
 const Returns = {
   // Create a return and return the new return_id
-  create: async ({ order_item_id, order_id, quantity, refund_amount, user_id }) => {
+  create: async ({ order_id, refund_amount, user_id }) => {
+    // no more order_item_id and quantity in the returns table
     const [result] = await db.execute(
-      "INSERT INTO returns (order_item_id, order_id, quantity, refund_amount, user_id) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO returns (order_id, refund_amount, user_id) VALUES (?, ?, ?)",
       [
-        order_item_id,
         order_id,
-        quantity ?? 1,
         refund_amount ?? null,
         user_id
       ]
@@ -33,7 +32,13 @@ const Returns = {
       "UPDATE returns SET status = ? WHERE return_id = ?",
       [status, return_id]
     );
-  }
+  },
+  
+  // Get returns by status (for filtering)
+  getByStatus: async (status) => {
+    const [rows] = await db.execute("SELECT * FROM returns WHERE status = ?", [status]);
+    return rows;
+  },
 };
 
 module.exports = Returns;
