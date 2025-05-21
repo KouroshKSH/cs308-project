@@ -21,6 +21,7 @@ import Footer from '../components/Footer';
 import axios from 'axios';
 import "./SalesManagerPage.css";
 import FilterListIcon from '@mui/icons-material/FilterList';
+import { jsPDF } from "jspdf"; // for invoices
 
 // Chart imports:
 import {
@@ -60,6 +61,15 @@ const SalesManagerPage = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState(""); // Default to no filter
 
+  // for invoices
+  const [invoices, setInvoices] = useState([]);
+  const [invoicesLoading, setInvoicesLoading] = useState(false);
+  const [invoicesError, setInvoicesError] = useState(null);
+  const [invoiceStartDate, setInvoiceStartDate] = useState('2025-05-01');
+  const [invoiceEndDate, setInvoiceEndDate] = useState('2025-06-01');
+
+
+  // for returns
   const [returns, setReturns] = useState([]);
   const [returnsLoading, setReturnsLoading] = useState(false);
   const [returnsError, setReturnsError] = useState(null);
@@ -268,6 +278,81 @@ const SalesManagerPage = () => {
       console.error("Failed to create sales campaign:", err);
       alert(err.response?.data?.message || "Failed to create sales campaign. Please try again.");
     }
+  };
+
+  // Fetch invoices when section or date range changes
+  useEffect(() => {
+    if (activeSection === 'Invoices') {
+      const fetchInvoices = async () => {
+        setInvoicesLoading(true);
+        setInvoicesError(null);
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(
+            `${API_URL}/orders/orders-between-dates`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              params: {
+                startDate: invoiceStartDate,
+                endDate: invoiceEndDate,
+              },
+            }
+          );
+          setInvoices(response.data);
+        } catch (err) {
+          setInvoicesError('Failed to load invoices.');
+        } finally {
+          setInvoicesLoading(false);
+        }
+      };
+      fetchInvoices();
+    }
+  }, [activeSection, invoiceStartDate, invoiceEndDate]);
+
+  const handleDownloadInvoicePDF = async (orderId) => {
+    try {
+      const response = await axios.get(`${API_URL}/orders/with-items-public/${orderId}`);
+      const { order, items } = response.data;
+
+      const doc = new jsPDF();
+      doc.setFontSize(22);
+      doc.text('Invoice', 14, 20);
+
+      doc.setFontSize(14);
+      doc.text(`Invoice No: ${String(order.order_id).padStart(5, '0')}`, 14, 30);
+      doc.text(`Billing Address: ${order.delivery_address}`, 14, 40);
+      doc.text(`Issue Date: ${formatDate(order.order_date)}`, 14, 50);
+
+      doc.text('Items', 14, 60);
+      doc.text('Product Name', 14, 70);
+      doc.text('Quantity', 100, 70);
+      doc.text('Unit Price', 140, 70);
+      doc.text('Amount', 180, 70);
+
+      let y = 80;
+      items.forEach((item) => {
+        const price = parseFloat(item.price_at_purchase) || 0;
+        const amount = price * item.quantity;
+        doc.text(item.product_name, 14, y);
+        doc.text(item.quantity.toString(), 100, y);
+        doc.text(price.toFixed(2), 140, y);
+        doc.text(amount.toFixed(2), 180, y);
+        y += 10;
+      });
+
+      doc.text(`Total Amount: ${order.total_price}`, 14, y + 10);
+      doc.save(`invoice-${String(order.order_id).padStart(5, '0')}.pdf`);
+    } catch (err) {
+      alert("Failed to generate PDF");
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   // Fetch returns when section or filter changes
@@ -681,7 +766,7 @@ const SalesManagerPage = () => {
             <CardContent>
               <Typography variant="h6">Price Management</Typography>
               <List>
-                <ListItem>- Set product prices</ListItem>
+                <ListItem>Set product prices</ListItem>
                 {/* <ListItem>- Apply discounts to selected items</ListItem> */}
                 {/* <ListItem>- Notify users with items in their wishlist</ListItem> */}
               </List>
@@ -690,15 +775,113 @@ const SalesManagerPage = () => {
         );
       case 'Invoices':
         return (
-          <Card variant="outlined" style={{ marginBottom: '20px' }}>
-            <CardContent>
-              <Typography variant="h6">Invoices</Typography>
+        <Card variant="outlined" style={{ marginBottom: '20px', padding: '20px' }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Invoices
+            </Typography>
+            {/* Date Range Picker */}
+            <div style={{ display: "flex", gap: "40px", marginBottom: "20px" }}>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <Typography><strong>Start Date:</strong></Typography>
+                {["Year", "Month", "Day"].map((label, index) => (
+                  <TextField
+                    key={label}
+                    label={label}
+                    type="number"
+                    value={invoiceStartDate.split("-")[index]}
+                    onChange={e => {
+                      const [y, m, d] = invoiceStartDate.split("-");
+                      const values = [y, m, d];
+                      values[index] = e.target.value.padStart(2, "0");
+                      setInvoiceStartDate(values.join("-"));
+                    }}
+                    style={{ width: "120px", height: "40px" }}
+                    inputProps={{ min: 1 }}
+                  />
+                ))}
+              </div>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <Typography><strong>End Date:</strong></Typography>
+                {["Year", "Month", "Day"].map((label, index) => (
+                  <TextField
+                    key={label}
+                    label={label}
+                    type="number"
+                    value={invoiceEndDate.split("-")[index]}
+                    onChange={e => {
+                      const [y, m, d] = invoiceEndDate.split("-");
+                      const values = [y, m, d];
+                      values[index] = e.target.value.padStart(2, "0");
+                      setInvoiceEndDate(values.join("-"));
+                    }}
+                    style={{ width: "120px", height: "40px" }}
+                    inputProps={{ min: 1 }}
+                  />
+                ))}
+              </div>
+            </div>
+            <Divider style={{ marginBottom: '20px' }} />
+            {invoicesLoading ? (
+              <CircularProgress />
+            ) : invoicesError ? (
+              <Typography color="error">{invoicesError}</Typography>
+            ) : invoices.length === 0 ? (
+              <Typography>No invoices found for this date range.</Typography>
+            ) : (
               <List>
-                <ListItem>- View invoices by date range</ListItem>
-                <ListItem>- Print or download invoices as PDF</ListItem>
+                {invoices.map((invoice) => (
+                  <ListItem
+                    key={invoice.order_id}
+                    style={{
+                      padding: '15px',
+                      border: '1px solid #ddd',
+                      marginBottom: '10px',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-start',
+                      background: '#fafafa',
+                    }}
+                  >
+                    <ListItemText
+                      primary={`Order ID: ${invoice.order_id}`}
+                      secondary={
+                        <>
+                          <div><strong>Status:</strong> {invoice.status}</div>
+                          <div><strong>Address:</strong> {invoice.delivery_address}</div>
+                          <div><strong>Tracking Number:</strong> {invoice.tracking_number || 'N/A'}</div>
+                          <div><strong>Issued Date:</strong> {invoice.order_date ? new Date(invoice.order_date).toLocaleString() : 'N/A'}</div>
+                          {/* Only show invoice URL if not null */}
+                          {invoice.invoice_pdf_url && (
+                            <div><strong>Invoice URL:</strong> <a href={invoice.invoice_pdf_url} target="_blank" rel="noopener noreferrer">{invoice.invoice_pdf_url}</a></div>
+                          )}
+                        </>
+                      }
+                    />
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleDownloadInvoicePDF(invoice.order_id)}
+                        sx={{
+                          color: 'red',
+                          borderColor: 'red',
+                          backgroundColor: 'white',
+                          '&:hover': {
+                            backgroundColor: '#ffe6e6',
+                            borderColor: 'darkred',
+                          },
+                        }}
+                      >
+                        PDF
+                      </Button>
+                    </div>
+                  </ListItem>
+                ))}
               </List>
-            </CardContent>
-          </Card>
+            )}
+          </CardContent>
+        </Card>
         );
         case 'Return Requests':
           return (
