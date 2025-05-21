@@ -404,3 +404,54 @@ exports.getOrdersBetweenDates = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+exports.cancelOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const userId = req.user.user_id;
+
+    const order = await Order.getById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.user_id !== userId) {
+      return res.status(403).json({ message: "You are not authorized to cancel this order" });
+    }
+
+    if (order.status === 'processing') {
+      await Order.updateStatus(orderId, 'cancelled');
+
+      // Fetch order items for the cancelled order
+      const items = await OrderItem.getByOrderId(orderId);
+
+      // Restock items in product_variations table
+      for (const item of items) {
+        // Fetch current stock quantity for the variation
+        const [variationRows] = await pool.query(
+          `SELECT stock_quantity FROM product_variations WHERE variation_id = ?`,
+          [item.variation_id]
+        );
+
+        if (variationRows.length > 0) {
+          const currentStock = variationRows[0].stock_quantity;
+          const newStock = currentStock + item.quantity;
+
+          // Update stock quantity
+          await pool.query(
+            `UPDATE product_variations SET stock_quantity = ? WHERE variation_id = ?`,
+            [newStock, item.variation_id]
+          );
+        }
+      }
+
+      res.json({ message: "Order cancelled successfully and items restocked." });
+    } else {
+      res.status(400).json({ message: "Order cannot be cancelled. Only processing orders are eligible for cancellation." });
+    }
+  } catch (err) {
+    console.error("Error cancelling order:", err);
+    res.status(500).json({ error: "Failed to cancel order", details: err.message });
+  }
+};
