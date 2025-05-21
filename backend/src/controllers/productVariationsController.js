@@ -33,7 +33,7 @@ const productVariationsController = {
     try {
       const { variation_id } = req.params;
       const { stock_quantity } = req.body;
-      if (!Number.isInteger(stock_quantity) || stock_quantity <= 0) {
+      if (!Number.isInteger(stock_quantity) || stock_quantity < 0) {
         return res.status(400).json({ message: "Stock quantity must be a positive integer" });
       }
       const ok = await ProductVariations.updateStock(variation_id, stock_quantity);

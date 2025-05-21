@@ -50,6 +50,43 @@ const ProductManagerPage = () => {
   const [productFilter, setProductFilter] = useState('all');
   const [productIdOptions, setProductIdOptions] = useState([]);
 
+  const [stockInputs, setStockInputs] = useState({}); // { [variation_id]: value }
+  const [updatingStock, setUpdatingStock] = useState({}); // { [variation_id]: true/false }
+
+  const handleStockInputChange = (variation_id, value) => {
+    // Only allow positive integers
+    if (value === '' || /^\d+$/.test(value)) {
+      setStockInputs((prev) => ({ ...prev, [variation_id]: value }));
+    }
+  };
+
+  const handleUpdateStock = async (variation_id) => {
+    const value = stockInputs[variation_id];
+    if (!value || isNaN(value) || parseInt(value) < 0) {
+      alert('Please enter a positive integer greater or equal to zero.');
+      return;
+    }
+    setUpdatingStock((prev) => ({ ...prev, [variation_id]: true }));
+    try {
+      await axios.put(
+        `${API_URL}/product-variations/${variation_id}/stock`,
+        { stock_quantity: parseInt(value) }
+      );
+      // Refresh the table after update
+      const url =
+        productFilter === 'all'
+          ? `${API_URL}/product-variations`
+          : `${API_URL}/product-variations?product_id=${productFilter}`;
+      const res = await axios.get(url);
+      setProductVariations(res.data);
+      setStockInputs((prev) => ({ ...prev, [variation_id]: '' }));
+    } catch (err) {
+      alert('Failed to update stock. Please try again.');
+    } finally {
+      setUpdatingStock((prev) => ({ ...prev, [variation_id]: false }));
+    }
+  };
+
   // Fetch product IDs for dropdown
   useEffect(() => {
     if (activeSection === 'Stock Management') {
@@ -329,7 +366,7 @@ const ProductManagerPage = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {productVariations.map((row) => (
+                          {productVariations.map((row) => (
                           <tr key={row.variation_id}>
                             <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.product_id}</td>
                             <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.product_name}</td>
@@ -337,6 +374,30 @@ const ProductManagerPage = () => {
                             <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.size_id}</td>
                             <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.color_id}</td>
                             <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.stock_quantity}</td>
+                            <td style={{ border: '1px solid #ddd', padding: '8px', minWidth: 180 }}>
+                              <input
+                                type="number"
+                                min="0"
+                                step="1"
+                                style={{ width: 70, marginRight: 8, padding: 4 }}
+                                value={stockInputs[row.variation_id] || ''}
+                                onChange={(e) => handleStockInputChange(row.variation_id, e.target.value)}
+                              />
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                disabled={
+                                  updatingStock[row.variation_id] ||
+                                  !stockInputs[row.variation_id] ||
+                                  isNaN(stockInputs[row.variation_id]) ||
+                                  parseInt(stockInputs[row.variation_id]) < 0
+                                }
+                                onClick={() => handleUpdateStock(row.variation_id)}
+                              >
+                                {updatingStock[row.variation_id] ? <CircularProgress size={18} /> : 'Update'}
+                              </Button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
