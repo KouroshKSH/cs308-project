@@ -31,22 +31,28 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  LineChart,
+  Line,
+  Legend,
 } from 'recharts';
 
-// Static sales data
-// TODO: I'll change this to use Zeynep's backend API
-const salesData = [
-  { name: 'Product 1', sales: 10 },
-  { name: 'Product 2', sales: 5 },
-  { name: 'Product 3', sales: 15 },
-  { name: 'Product 4', sales: 8 },
-];
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const SalesManagerPage = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('Sales per Product');
+
+  const [revenueData, setRevenueData] = useState([]);
+  const [chartLoading, setChartLoading] = useState(false);
+  const [chartError, setChartError] = useState(null);
+  // For date range (optional, for future)
+  const [chartStartDate, setChartStartDate] = useState('2025-03-01');
+  const [chartEndDate, setChartEndDate] = useState('2025-06-01');
+  const [productSalesData, setProductSalesData] = useState([]);
+  const [productSalesLoading, setProductSalesLoading] = useState(false);
+  const [productSalesError, setProductSalesError] = useState(null);
+
 
   // for sales campaigns
   const [salesCampaigns, setSalesCampaigns] = useState([]);
@@ -97,6 +103,57 @@ const SalesManagerPage = () => {
 
     fetchManagerProfile();
   }, []);
+
+  // Fetch sales data for charts
+  useEffect(() => {
+    if (activeSection === 'Charts') {
+      const fetchRevenueData = async () => {
+        setChartLoading(true);
+        setChartError(null);
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(
+            `${API_URL}/orders/stats/daily-revenue-profit/date-range`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              params: {
+                startDate: chartStartDate,
+                endDate: chartEndDate,
+              },
+            }
+          );
+          setRevenueData(response.data);
+        } catch (err) {
+          setChartError('Failed to load revenue data');
+        } finally {
+          setChartLoading(false);
+        }
+      };
+      fetchRevenueData();
+    }
+  }, [activeSection, chartStartDate, chartEndDate]);
+
+  useEffect(() => {
+    if (activeSection === 'Charts') {
+      const fetchProductSales = async () => {
+        setProductSalesLoading(true);
+        setProductSalesError(null);
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(
+            `${API_URL}/orders/stats/products`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          setProductSalesData(response.data);
+        } catch (err) {
+          setProductSalesError('Failed to load product sales data');
+        } finally {
+          setProductSalesLoading(false);
+        }
+      };
+      fetchProductSales();
+    }
+  }, [activeSection]);
 
   // Fetch sales campaigns
   useEffect(() => {
@@ -266,23 +323,181 @@ const SalesManagerPage = () => {
 
 
   const renderContent = () => {
+    const maxRevenue = Math.max(...productSalesData.map(d => d.total_revenue || 0), 0);
+    const maxTotalRevenue = Math.max(...revenueData.map(d => d.total_revenue || 0), 0);
     switch (activeSection) {
-      case 'Product Sales':
+      case 'Charts':
         return (
           <Card variant="outlined" style={{ marginBottom: '20px', padding: '20px' }}>
-            <Typography variant="h6" gutterBottom>
-              Product Sales
-            </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={salesData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+          <Typography variant="h6" gutterBottom>
+            Charts Overview
+          </Typography>
+
+          {/* Date range picker */}
+          <div style={{ display: "flex", gap: "40px", marginBottom: "20px" }}>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <Typography><strong>Start Date:</strong></Typography>
+              {["Year", "Month", "Day"].map((label, index) => (
+                <TextField
+                  key={label}
+                  label={label}
+                  type="number"
+                  value={chartStartDate.split("-")[index]}
+                  onChange={e => {
+                    const [y, m, d] = chartStartDate.split("-");
+                    const values = [y, m, d];
+                    values[index] = e.target.value.padStart(2, "0");
+                    setChartStartDate(values.join("-"));
+                  }}
+                  style={{ width: "120px", height: "40px" }}
+                  inputProps={{ min: 1 }}
+                />
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <Typography><strong>End Date:</strong></Typography>
+              {["Year", "Month", "Day"].map((label, index) => (
+                <TextField
+                  key={label}
+                  label={label}
+                  type="number"
+                  value={chartEndDate.split("-")[index]}
+                  onChange={e => {
+                    const [y, m, d] = chartEndDate.split("-");
+                    const values = [y, m, d];
+                    values[index] = e.target.value.padStart(2, "0");
+                    setChartEndDate(values.join("-"));
+                  }}
+                  style={{ width: "120px", height: "40px" }}
+                  inputProps={{ min: 1 }}
+                />
+              ))}
+            </div>
+          </div>
+
+          <Divider className="chart-section-divider"></Divider>
+
+          {/* Combined Line Chart: Total Revenue and Profits */}
+          <Typography variant="h6" gutterBottom>
+            Line Chart for Total Revenue and Profits
+          </Typography>
+          {chartLoading ? (
+            <CircularProgress />
+          ) : chartError ? (
+            <Typography color="error">{chartError}</Typography>
+          ) : (
+            <ResponsiveContainer 
+              width="100%"
+              height={400} // Adjusted height for better spacing
+            > {/* Increased height for better spacing */}
+              <LineChart data={revenueData} margin={{ top: 40, right: 30, left: 0, bottom: 5 }}> {/* Increased top margin */}
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="sales" fill="#8884d8" />
+                <XAxis
+                  dataKey="date"
+                  angle={-45}
+                  textAnchor="end"
+                  tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
+                  height={60}
+                />
+                <YAxis
+                  tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
+                  tickFormatter={v => `$${v}`}
+                  padding={{ top: 20 }} // Add padding to the top of Y-axis
+                  domain={[0, maxTotalRevenue]} // Set the domain to start from 0 to max revenue
+                />
+                <Tooltip formatter={v => `$${v}`} />
+                <Legend verticalAlign="top" height={36}/> {/* Legend for combined lines */}
+                <Line type="monotone" dataKey="total_revenue" stroke="#1976d2" strokeWidth={3} name="Total Revenue" dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="total_profit" stroke="#43a047" strokeWidth={3} name="Total Profit" dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+
+          <Divider className="chart-section-divider" style={{
+            margin: '32px 0 24px 0',
+            backgroundColor: '#eeeeee',
+            height: '2px',
+          }}/>
+
+          {/* Combined Bar Chart: Total Revenue and Profits */}
+          <Typography variant="h6" gutterBottom>
+            Bar Chart for Total Revenue and Profits
+          </Typography>
+          {chartLoading ? (
+            <CircularProgress />
+          ) : chartError ? (
+            <Typography color="error">{chartError}</Typography>
+          ) : (
+            <ResponsiveContainer 
+              width="100%" 
+              height={400}
+            > {/* Increased height for better spacing */}
+              <BarChart data={revenueData} margin={{ top: 40, right: 30, left: 0, bottom: 5 }}> {/* Increased top margin */}
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="date"
+                  angle={-45}
+                  textAnchor="end"
+                  tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
+                  height={60}
+                />
+                <YAxis
+                  tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
+                  tickFormatter={v => `$${v}`}
+                  padding={{ top: 20 }} // Add padding to the top of Y-axis
+                  domain={[0, maxTotalRevenue]} // Set the domain to start from 0 to max revenue
+                />
+                <Tooltip formatter={v => `$${v}`} />
+                <Legend verticalAlign="top" height={36}/> {/* Legend for combined bars */}
+                <Bar dataKey="total_revenue" fill="#1976d2" name="Total Revenue" />
+                <Bar dataKey="total_profit" fill="#43a047" name="Total Profit" />
               </BarChart>
             </ResponsiveContainer>
-          </Card>
+          )}
+
+          <Divider className="chart-section-divider" style={{
+            margin: '32px 0 24px 0',
+            backgroundColor: '#eeeeee',
+            height: '2px',
+          }}/>
+
+          <Typography variant="subtitle1" gutterBottom>
+            Bar Chart: Sales per Product
+          </Typography>
+          {productSalesLoading ? (
+            <CircularProgress />
+          ) : productSalesError ? (
+            <Typography color="error">{productSalesError}</Typography>
+          ) : (
+            <ResponsiveContainer width="100%" height={650}>
+              <BarChart
+                data={productSalesData}
+                margin={{ top: 20, right: 30, left: 0, bottom: 60 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="product_name"
+                  angle={-45}
+                  textAnchor="end"
+                  interval={0}
+                  tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
+                  height={80}
+                />
+                <YAxis
+                  tick={{ fill: "#222", fontWeight: 600, fontSize: 13 }}
+                  tickFormatter={v => `$${v}`}
+                  padding={{ top: 20 }} // Add padding to the top of Y-axis
+                  domain={[0, maxRevenue]} // Set the domain to start from 0 to max revenue
+                />
+                <Tooltip formatter={v => `$${v}`} />
+                <Legend verticalAlign="top" height={36}/>
+                <Bar dataKey="total_revenue" fill="#e57373" name="Revenue" />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </Card>
+
+        
         );
       case 'Sales Campaigns':
         return (
@@ -473,15 +688,14 @@ const SalesManagerPage = () => {
             </CardContent>
           </Card>
         );
-      case 'Invoice and Reports':
+      case 'Invoices':
         return (
           <Card variant="outlined" style={{ marginBottom: '20px' }}>
             <CardContent>
-              <Typography variant="h6">Invoice and Reports</Typography>
+              <Typography variant="h6">Invoices</Typography>
               <List>
                 <ListItem>- View invoices by date range</ListItem>
                 <ListItem>- Print or download invoices as PDF</ListItem>
-                <ListItem>- View profit/loss chart between dates</ListItem>
               </List>
             </CardContent>
           </Card>
@@ -602,17 +816,17 @@ const SalesManagerPage = () => {
             style={{
               cursor: 'pointer',
               marginBottom: '10px',
-              color: activeSection === 'Product Sales' ? '#1976d2' : 'inherit',
-              fontWeight: activeSection === 'Product Sales' ? 'bold' : 'normal',
+              color: activeSection === 'Charts' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Charts' ? 'bold' : 'normal',
               fontSize: '1.3em',
             }}
-            onClick={() => setActiveSection('Product Sales')}
+            onClick={() => setActiveSection('Charts')}
           >
-            Product Sales
+            Charts
           </div>
 
-          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
-            <ListItem>View & Analyze Sales</ListItem>
+          <List style={{ paddingLeft: '10px' }}>
+            <ListItem>View & Analyze Charts</ListItem>
           </List>
 
           <Divider style={{ marginBottom: '10px' }} />
@@ -630,7 +844,7 @@ const SalesManagerPage = () => {
             Sales Campaigns
           </div>
 
-          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
+          <List style={{ paddingLeft: '10px' }}>
             <ListItem>View & Update Campaigns</ListItem>
           </List>
 
@@ -649,7 +863,7 @@ const SalesManagerPage = () => {
             Price Management
           </div>
 
-          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
+          <List style={{ paddingLeft: '10px'}}>
             <ListItem>Set prices for new products</ListItem>
             {/* <ListItem>Notify users about discounts</ListItem> */}
           </List>
@@ -660,18 +874,17 @@ const SalesManagerPage = () => {
             style={{
               cursor: 'pointer',
               marginBottom: '10px',
-              color: activeSection === 'Invoice and Reports' ? '#1976d2' : 'inherit',
-              fontWeight: activeSection === 'Invoice and Reports' ? 'bold' : 'normal',
+              color: activeSection === 'Invoices' ? '#1976d2' : 'inherit',
+              fontWeight: activeSection === 'Invoices' ? 'bold' : 'normal',
               fontSize: '1.3em',
             }}
-            onClick={() => setActiveSection('Invoice and Reports')}
+            onClick={() => setActiveSection('Invoices')}
           >
-            Invoice and Reports
+            Invoices
           </div>
 
           <List style={{ paddingLeft: '10px' }}>
-            <ListItem>View and manage invoices</ListItem>
-            <ListItem>Analyze profit/loss charts</ListItem>
+            <ListItem>View & Manage Invoices</ListItem>
           </List>
 
           <Divider style={{ marginBottom: '10px' }} />
@@ -688,7 +901,7 @@ const SalesManagerPage = () => {
           >
             Return Requests
           </div>
-          <List style={{ paddingLeft: '10px', marginBottom: '10px' }}>
+          <List style={{ paddingLeft: '10px'}}>
             <ListItem>Manage Returns</ListItem>
           </List>
           <Divider style={{ marginBottom: '10px' }} />
@@ -741,7 +954,7 @@ const SalesManagerPage = () => {
         </div>
       </div>
 
-      <div style={{ marginBottom: '60px' }} />
+      <div style={{ marginBottom: '10px' }} />
       <Footer />
     </>
   );
