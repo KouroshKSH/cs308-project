@@ -52,8 +52,8 @@ const SalesManagerPage = () => {
   const [chartLoading, setChartLoading] = useState(false);
   const [chartError, setChartError] = useState(null);
   // For date range (optional, for future)
-  const [chartStartDate, setChartStartDate] = useState('');
-  const [chartEndDate, setChartEndDate] = useState('');
+  const [chartStartDate, setChartStartDate] = useState('2025-03-01');
+  const [chartEndDate, setChartEndDate] = useState('2025-06-01');
 
   // for sales campaigns
   const [salesCampaigns, setSalesCampaigns] = useState([]);
@@ -114,8 +114,14 @@ const SalesManagerPage = () => {
         try {
           const token = localStorage.getItem('token');
           const response = await axios.get(
-            `${API_URL}/orders/stats/daily-revenue-profit`,
-            { headers: { Authorization: `Bearer ${token}` } }
+            `${API_URL}/orders/stats/daily-revenue-profit/date-range`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+              params: {
+                startDate: chartStartDate,
+                endDate: chartEndDate,
+              },
+            }
           );
           setRevenueData(response.data);
         } catch (err) {
@@ -126,7 +132,28 @@ const SalesManagerPage = () => {
       };
       fetchRevenueData();
     }
-  }, [activeSection]);
+  }, [activeSection, chartStartDate, chartEndDate]);
+  // useEffect(() => {
+  //   if (activeSection === 'Charts') {
+  //     const fetchRevenueData = async () => {
+  //       setChartLoading(true);
+  //       setChartError(null);
+  //       try {
+  //         const token = localStorage.getItem('token');
+  //         const response = await axios.get(
+  //           `${API_URL}/orders/stats/daily-revenue-profit`,
+  //           { headers: { Authorization: `Bearer ${token}` } }
+  //         );
+  //         setRevenueData(response.data);
+  //       } catch (err) {
+  //         setChartError('Failed to load revenue data');
+  //       } finally {
+  //         setChartLoading(false);
+  //       }
+  //     };
+  //     fetchRevenueData();
+  //   }
+  // }, [activeSection]);
 
   // Fetch sales campaigns
   useEffect(() => {
@@ -303,7 +330,49 @@ const SalesManagerPage = () => {
                 <Typography variant="h6" gutterBottom>
                   Total Revenue Over Time
                 </Typography>
-                {/* Date range picker can go here in the future */}
+
+                {/* Date range picker */}
+                <div style={{ display: "flex", gap: "40px", marginBottom: "20px" }}>
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <Typography><strong>Start Date:</strong></Typography>
+                    {["Year", "Month", "Day"].map((label, index) => (
+                      <TextField
+                        key={label}
+                        label={label}
+                        type="number"
+                        value={chartStartDate.split("-")[index]}
+                        onChange={e => {
+                          const [y, m, d] = chartStartDate.split("-");
+                          const values = [y, m, d];
+                          values[index] = e.target.value.padStart(2, "0");
+                          setChartStartDate(values.join("-"));
+                        }}
+                        style={{ width: "120px", height: "40px" }}
+                        inputProps={{ min: 1 }}
+                      />
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <Typography><strong>End Date:</strong></Typography>
+                    {["Year", "Month", "Day"].map((label, index) => (
+                      <TextField
+                        key={label}
+                        label={label}
+                        type="number"
+                        value={chartEndDate.split("-")[index]}
+                        onChange={e => {
+                          const [y, m, d] = chartEndDate.split("-");
+                          const values = [y, m, d];
+                          values[index] = e.target.value.padStart(2, "0");
+                          setChartEndDate(values.join("-"));
+                        }}
+                        style={{ width: "120px", height: "40px" }}
+                        inputProps={{ min: 1 }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                
                 {chartLoading ? (
                   <CircularProgress />
                 ) : chartError ? (
