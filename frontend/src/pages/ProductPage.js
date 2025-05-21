@@ -69,6 +69,8 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState(null);
 
+  const [cartSuccessMessage, setCartSuccessMessage] = useState("");
+
   const [editReviewData, setEditReviewData] = useState({
     rating: 0,
     comment: "",
@@ -198,7 +200,9 @@ const ProductPage = () => {
         quantity: Number(quantity),
       }, { headers });
 
-      alert('Added to cart successfully!');
+      // alert('Added to cart successfully!');
+      setCartSuccessMessage("Added to cart successfully!");
+      setTimeout(() => setCartSuccessMessage(""), 1200);
     } catch (error) {
       console.error('Error adding to cart:', error);
       alert('Failed to add to cart');
@@ -451,6 +455,23 @@ const ProductPage = () => {
                   <ShoppingCartIcon />
                   Add to Cart
                 </Button>
+
+                {/* Success message below Add to Cart */}
+                {cartSuccessMessage && (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "green",
+                      mt: 1,
+                      mb: 1,
+                      textAlign: "center",
+                      fontWeight: "bold",
+                      transition: "opacity 0.3s",
+                    }}
+                  >
+                    {cartSuccessMessage}
+                  </Typography>
+                )}
 
                 {/* add about 10px vertical space between cart and wishlist buttons */}
                 <Box sx={{ my: 1 }} />
