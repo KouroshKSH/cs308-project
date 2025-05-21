@@ -51,3 +51,7 @@
 .new-campaign-form .MuiFormControl-root {
   min-width: 200px;
 }
+
+.chart-section-divider {
+  margin: 32px 0 24px 0;
+}

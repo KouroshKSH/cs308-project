@@ -300,26 +300,53 @@ const SalesManagerPage = () => {
       case 'Charts':
         return (
           <Card variant="outlined" style={{ marginBottom: '20px', padding: '20px' }}>
-            <Typography variant="h6" gutterBottom>
-              Total Revenue Over Time
-            </Typography>
-            {/* Date range picker can go here in the future */}
-            {chartLoading ? (
-              <CircularProgress />
-            ) : chartError ? (
-              <Typography color="error">{chartError}</Typography>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="total_revenue" fill="#1976d2" name="Revenue" />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </Card>
+                <Typography variant="h6" gutterBottom>
+                  Total Revenue Over Time
+                </Typography>
+                {/* Date range picker can go here in the future */}
+                {chartLoading ? (
+                  <CircularProgress />
+                ) : chartError ? (
+                  <Typography color="error">{chartError}</Typography>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="total_revenue" fill="#1976d2" name="Revenue" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+
+                {/* <Divider style={{ margin: '32px 0 24px 0' }} /> */}
+                <Divider className="chart-section-divider" style={{
+                  margin: '32px 0 24px 0',
+                  backgroundColor: '#eeeeee',
+                  height: '2px',
+                }}/>
+
+
+                <Typography variant="h6" gutterBottom>
+                  Total Profit Over Time
+                </Typography>
+                {chartLoading ? (
+                  <CircularProgress />
+                ) : chartError ? (
+                  <Typography color="error">{chartError}</Typography>
+                ) : (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="total_profit" fill="#43a047" name="Profit" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </Card>
         );
       case 'Sales Campaigns':
         return (
