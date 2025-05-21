@@ -46,6 +46,41 @@ const ProductManagerPage = () => {
   const [loadingVariations, setLoadingVariations] = useState(false);
   const [errorVariations, setErrorVariations] = useState(null);
 
+  // For product filter dropdown
+  const [productFilter, setProductFilter] = useState('all');
+  const [productIdOptions, setProductIdOptions] = useState([]);
+
+  // Fetch product IDs for dropdown
+  useEffect(() => {
+    if (activeSection === 'Stock Management') {
+      axios
+        .get(`${API_URL}/product-variations/product-ids`)
+        .then((res) => setProductIdOptions(res.data))
+        .catch(() => setProductIdOptions([]));
+    }
+  }, [activeSection]);
+
+  // Fetch product variations (filtered)
+  useEffect(() => {
+    if (activeSection === 'Stock Management') {
+      setLoadingVariations(true);
+      setErrorVariations(null);
+      const url =
+        productFilter === 'all'
+          ? `${API_URL}/product-variations`
+          : `${API_URL}/product-variations?product_id=${productFilter}`;
+      axios
+        .get(url)
+        .then((res) => setProductVariations(res.data))
+        .catch(() => setErrorVariations('Failed to load product variations.'))
+        .finally(() => setLoadingVariations(false));
+    }
+  }, [activeSection, productFilter]);
+
+  const handleProductFilterChange = (event) => {
+    setProductFilter(event.target.value);
+  };
+
   const handleDownloadPDF = async (orderId) => {
     try {
       const API_URL = process.env.REACT_APP_API_URL;
@@ -247,22 +282,6 @@ const ProductManagerPage = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'Stock Management':
-        // const [productVariations, setProductVariations] = useState([]);
-        // const [loadingVariations, setLoadingVariations] = useState(false);
-        // const [errorVariations, setErrorVariations] = useState(null);
-
-        // // Fetch all product variations when Stock Management is active
-        // useEffect(() => {
-        //   if (activeSection === 'Stock Management') {
-        //     setLoadingVariations(true);
-        //     setErrorVariations(null);
-        //     axios
-        //       .get(`${API_URL}/product-variations`)
-        //       .then((res) => setProductVariations(res.data))
-        //       .catch(() => setErrorVariations('Failed to load product variations.'))
-        //       .finally(() => setLoadingVariations(false));
-        //   }
-        // }, [activeSection]);
         return (
           <div className="scrollable-content">
             <Card variant="outlined" style={{ marginBottom: '20px' }}>
@@ -270,6 +289,28 @@ const ProductManagerPage = () => {
                 <Typography variant="h6" style={{ marginBottom: '20px', fontWeight: 'bold' }}>
                   Stock Management
                 </Typography>
+
+                {/* Filter Dropdown */}
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                  <FilterListIcon style={{ marginRight: '8px', color: 'rgba(0, 0, 0, 0.54)' }} />
+                  <FormControl style={{ minWidth: 250 }}>
+                    <InputLabel id="product-filter-label">Filter by Product</InputLabel>
+                    <Select
+                      labelId="product-filter-label"
+                      value={productFilter}
+                      label="Filter by Product"
+                      onChange={handleProductFilterChange}
+                    >
+                      <MenuItem value="all">All</MenuItem>
+                      {productIdOptions.map((opt) => (
+                        <MenuItem key={opt.product_id} value={opt.product_id}>
+                          {opt.product_id} - {opt.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
+
                 {loadingVariations ? (
                   <CircularProgress />
                 ) : errorVariations ? (
