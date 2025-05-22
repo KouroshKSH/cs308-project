@@ -17,12 +17,24 @@ import {
   Checkbox,
   FormGroup,
   FormControlLabel,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Collapse,
+  Paper,
+  Box,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import DrawerMenu from '../components/DrawerMenu';
 import './ProductManagerPage.css';
 import FilterListIcon from "@mui/icons-material/FilterList";
+import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import Footer from '../components/Footer';
 import { jsPDF } from "jspdf";
 
@@ -40,6 +52,53 @@ const DEPARTMENT_OPTIONS = [
   { label: "Men", value: 1 },
   { label: "Women", value: 2 },
   { label: "Kids", value: 3 },
+];
+
+// Hardcoded sizes for dropdown based on user-provided data
+const mockSizes = [
+  { id: 7, name: '25-27' },
+  { id: 8, name: '28-30' },
+  { id: 9, name: '31-34' },
+  { id: 10, name: '35-37' },
+  { id: 11, name: '38' },
+  { id: 12, name: '39' },
+  { id: 13, name: '40' },
+  { id: 14, name: '41' },
+  { id: 15, name: '42' },
+  { id: 16, name: '43' },
+  { id: 17, name: '44' },
+  { id: 18, name: '45' },
+  { id: 5, name: 'Extra Large' },
+  { id: 1, name: 'Extra Small' },
+  { id: 4, name: 'Large' },
+  { id: 3, name: 'Medium' },
+  { id: 2, name: 'Small' },
+  { id: 6, name: 'Standart' },
+];
+
+// Hardcoded colors for dropdown based on user-provided data
+const mockColors = [
+  { id: 8, name: 'Black' },
+  { id: 5, name: 'Blue' },
+  { id: 10, name: 'Brown' },
+  { id: 9, name: 'Gray' },
+  { id: 4, name: 'Green' },
+  { id: 12, name: 'Multiple Colors' },
+  { id: 2, name: 'Orange' },
+  { id: 6, name: 'Pink' },
+  { id: 7, name: 'Purple' },
+  { id: 1, name: 'Red' },
+  { id: 11, name: 'White' },
+  { id: 3, name: 'Yellow' },
+];
+
+// Warranty status options from the SQL ENUM
+const WARRANTY_OPTIONS = [
+  { label: 'No Warranty', value: 'No Warranty' },
+  { label: '6 Months', value: '6 Months' },
+  { label: '1 Year', value: '1 Year' },
+  { label: '2 Years', value: '2 Years' },
+  { label: 'Lifetime', value: 'Lifetime' },
 ];
 
 const ProductManagerPage = () => {
@@ -62,14 +121,14 @@ const ProductManagerPage = () => {
   // for stock management
   const [productVariations, setProductVariations] = useState([]);
   const [loadingVariations, setLoadingVariations] = useState(false);
-  const [errorVariations, setErrorVariations] = useState(null);
+  const [errorVariations, setErrorVariations] = useState(null); // Corrected typo
 
   // for category management
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [errorCategories, setErrorCategories] = useState(null);
   const [categoryFilter, setCategoryFilter] = useState("all");
-  
+
   // For add category under departments
   const [newDeptCategoryName, setNewDeptCategoryName] = useState('');
   const [selectedDepartments, setSelectedDepartments] = useState([]);
@@ -81,9 +140,66 @@ const ProductManagerPage = () => {
   const [addingSubCategory, setAddingSubCategory] = useState(false);
 
 
-  // For product filter dropdown
+  // For product filter dropdown (Stock Management)
   const [productFilter, setProductFilter] = useState('all');
   const [productIdOptions, setProductIdOptions] = useState([]);
+
+  // For product management
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [errorProducts, setErrorProducts] = useState(null);
+  const [newProductName, setNewProductName] = useState('');
+  const [newProductSerialNumber, setNewProductSerialNumber] = useState('');
+  const [newProductDescription, setNewProductDescription] = useState('');
+  // Removed newProductPrice state
+  const [newProductCost, setNewProductCost] = useState('');
+  const [newProductStockQuantity, setNewProductStockQuantity] = useState(''); // New state for main product stock
+  const [selectedProductDepartment, setSelectedProductDepartment] = useState('');
+  const [selectedProductCategory, setSelectedProductCategory] = useState('');
+  const [newProductMaterial, setNewProductMaterial] = useState(''); // New state for material
+  // Removed newProductImageUrl state
+  const [newProductWarrantyStatus, setNewProductWarrantyStatus] = useState('No Warranty'); // New state for warranty_status
+  const [newProductDistributorInfo, setNewProductDistributorInfo] = useState(''); // New state for distributor_info
+  // Removed newProductPopularityScore state
+
+  const [addingProduct, setAddingProduct] = useState(false);
+  const [deletingProductId, setDeletingProductId] = useState(null);
+  const [openDeleteProductDialog, setOpenDeleteProductDialog] = useState(false);
+
+  // For product variations when adding a product
+  const [newProductVariations, setNewProductVariations] = useState([
+    { serial_number: '', size_id: '', color_id: '', stock_quantity: '' },
+  ]);
+
+  // States for deleting specific variations
+  const [expandedProductId, setExpandedProductId] = useState(null); // Tracks which product's variations are expanded
+  const [productVariationsForDisplay, setProductVariationsForDisplay] = useState([]); // Variations for the expanded product
+  const [loadingProductVariationsForDisplay, setLoadingProductVariationsForDisplay] = useState(false);
+  const [errorProductVariationsForDisplay, setErrorProductVariationsForDisplay] = useState(null);
+  const [variationIdToDelete, setVariationIdToDelete] = useState(null);
+  const [productIdForVariationDeletion, setProductIdForVariationDeletion] = useState(null);
+  const [openDeleteVariationDialog, setOpenDeleteVariationDialog] = useState(false);
+  const [deletingVariation, setDeletingVariation] = useState(false);
+
+
+  const handleAddProductVariation = () => {
+    setNewProductVariations(prevVariations => [
+      ...prevVariations,
+      { serial_number: '', size_id: '', color_id: '', stock_quantity: '' },
+    ]);
+  };
+
+  const handleRemoveProductVariation = (index) => {
+    setNewProductVariations(prevVariations => prevVariations.filter((_, i) => i !== index));
+  };
+
+  const handleNewProductVariationChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedVariations = [...newProductVariations];
+    updatedVariations[index][name] = value;
+    setNewProductVariations(updatedVariations);
+  };
+
 
   const [stockInputs, setStockInputs] = useState({}); // { [variation_id]: value }
   const [updatingStock, setUpdatingStock] = useState({}); // { [variation_id]: true/false }
@@ -423,11 +539,11 @@ const ProductManagerPage = () => {
   useEffect(() => {
     if (activeSection === 'Stock Management') {
       setLoadingVariations(true);
-      setErrorVariations(null);
+      setErrorVariations(null); // Corrected typo
       axios
         .get(`${API_URL}/product-variations`)
         .then((res) => setProductVariations(res.data))
-        .catch(() => setErrorVariations('Failed to load product variations.'))
+        .catch(() => setErrorVariations('Failed to load product variations.')) // Corrected typo
         .finally(() => setLoadingVariations(false));
     }
   }, [activeSection]);
@@ -440,26 +556,604 @@ const ProductManagerPage = () => {
   // Fetch all categories when Category Management is active
   // Fetch categories with filter
   useEffect(() => {
-    if (activeSection === 'Category Management') {
-      setLoadingCategories(true);
-      setErrorCategories(null);
-      let url;
-      if (categoryFilter === "all") {
-        url = `${API_URL}/categories`;
-      } else {
-        url = `${API_URL}/categories/descendants/${categoryFilter}`;
-      }
-      axios
-        .get(url)
-        .then((res) => setCategories(res.data))
-        .catch(() => setErrorCategories('Failed to load categories.'))
-        .finally(() => setLoadingCategories(false));
+    setLoadingCategories(true);
+    setErrorCategories(null);
+    let url;
+    if (categoryFilter === "all") {
+      url = `${API_URL}/categories`;
+    } else {
+      url = `${API_URL}/categories/descendants/${categoryFilter}`;
     }
-  }, [activeSection, categoryFilter]);
+    axios
+      .get(url)
+      .then((res) => setCategories(res.data))
+      .catch((err) => {
+        console.error("Error fetching categories:", err);
+        setErrorCategories('Failed to load categories.');
+      })
+      .finally(() => setLoadingCategories(false));
+  }, [categoryFilter]); // Removed activeSection from dependencies
+
+  // Fetch products when Product Management is active
+  useEffect(() => {
+    if (activeSection === 'Product Management') {
+      fetchProducts();
+    }
+  }, [activeSection]);
+
+  const fetchProducts = async () => {
+    setLoadingProducts(true);
+    setErrorProducts(null);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/products`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProducts(response.data);
+    } catch (err) {
+      setErrorProducts('Failed to load products.');
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  const handleAddProduct = async () => {
+    // Basic validation for required fields
+    if (!newProductName.trim() || !newProductSerialNumber.trim() ||
+        !newProductDescription.trim() ||
+        !selectedProductDepartment ||
+        !selectedProductCategory || !newProductWarrantyStatus ||
+        newProductVariations.length === 0) {
+      alert("Please fill in all required product fields and add at least one variation.");
+      return;
+    }
+
+    // Cost can be null, so only validate if it's not an empty string
+    if (newProductCost !== '' && (isNaN(parseFloat(newProductCost)) || parseFloat(newProductCost) < 0)) {
+      alert("Product cost must be a non-negative number if provided.");
+      return;
+    }
+    if (selectedProductCategory === '' || isNaN(parseInt(selectedProductCategory)) || parseInt(selectedProductCategory) < 1) {
+        alert("Category ID must be a positive integer.");
+        return;
+    }
+
+    // Validate main product stock quantity
+    if (newProductStockQuantity === '' || isNaN(parseInt(newProductStockQuantity)) || parseInt(newProductStockQuantity) < 0) {
+      alert("Product stock quantity must be a non-negative number.");
+      return;
+    }
+
+    // Validate variations
+    for (const variation of newProductVariations) {
+      if (!variation.serial_number || !variation.size_id || !variation.color_id || variation.stock_quantity === '') {
+        alert("Please fill in all variation fields for all variations.");
+        return;
+      }
+      if (isNaN(variation.stock_quantity) || parseInt(variation.stock_quantity) < 0) {
+        alert("Stock quantity for variations must be a non-negative number.");
+        return;
+      }
+    }
+
+
+    setAddingProduct(true);
+    try {
+      const token = localStorage.getItem('token');
+      const productData = {
+        serial_number: newProductSerialNumber.trim(),
+        name: newProductName.trim(),
+        description: newProductDescription.trim(),
+        price: null, // Price is now set to null as it's determined by sales manager
+        cost: newProductCost !== '' ? parseFloat(newProductCost) : null, // Set to null if empty
+        department_id: selectedProductDepartment,
+        category_id: parseInt(selectedProductCategory),
+        material: newProductMaterial.trim() || null, // Allow null if empty
+        image_url: null, // Removed image_url input, set to null
+        warranty_status: newProductWarrantyStatus,
+        distributor_info: newProductDistributorInfo.trim() || null, // Allow null if empty
+        popularity_score: null, // Removed popularity_score input, set to null
+        stock_quantity: parseInt(newProductStockQuantity), // Main product stock quantity
+      };
+
+      await axios.post(
+        `${API_URL}/products/add-product-with-variation`,
+        { productData, variations: newProductVariations.map(v => ({...v, stock_quantity: parseInt(v.stock_quantity)})) },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // Clear all fields after successful addition
+      setNewProductName('');
+      setNewProductSerialNumber('');
+      setNewProductDescription('');
+      // Removed setNewProductPrice(''); // Removed price state setter
+      setNewProductCost('');
+      setNewProductStockQuantity(''); // Clear main product stock quantity
+      setSelectedProductDepartment('');
+      setSelectedProductCategory('');
+      setNewProductMaterial('');
+      // Removed setNewProductImageUrl('');
+      setNewProductWarrantyStatus('No Warranty');
+      setNewProductDistributorInfo('');
+      // Removed setNewProductPopularityScore('');
+      setNewProductVariations([{ serial_number: '', size_id: '', color_id: '', stock_quantity: '' }]);
+      fetchProducts(); // Refresh product list
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to add product.");
+    } finally {
+      setAddingProduct(false);
+    }
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    setDeletingProductId(productId);
+    setOpenDeleteProductDialog(true);
+  };
+
+  const handleConfirmDeleteProduct = async () => {
+    setOpenDeleteProductDialog(false);
+    if (!deletingProductId) return;
+
+    setLoadingProducts(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/products/delete-product/${deletingProductId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchProducts(); // Refresh product list
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to delete product.");
+    } finally {
+      setLoadingProducts(false);
+      setDeletingProductId(null);
+    }
+  };
+
+  const handleCloseDeleteProductDialog = () => {
+    setOpenDeleteProductDialog(false);
+    setDeletingProductId(null);
+  };
+
+  // Function to fetch variations for a specific product
+  const fetchProductVariationsForDisplay = async (productId) => {
+    setLoadingProductVariationsForDisplay(true);
+    setErrorProductVariationsForDisplay(null);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/products/${productId}/variations`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProductVariationsForDisplay(response.data);
+    } catch (err) {
+      setErrorProductVariationsForDisplay('Failed to load product variations.');
+      setProductVariationsForDisplay([]); // Clear variations on error
+    } finally {
+      setLoadingProductVariationsForDisplay(false);
+    }
+  };
+
+  // Function to toggle product variations display
+  const handleToggleVariations = (productId) => {
+    if (expandedProductId === productId) {
+      setExpandedProductId(null); // Collapse if already expanded
+      setProductVariationsForDisplay([]); // Clear variations when collapsed
+    } else {
+      setExpandedProductId(productId); // Expand
+      fetchProductVariationsForDisplay(productId); // Fetch variations for the new expanded product
+    }
+  };
+
+  // Function to handle deleting a specific product variation
+  const handleDeleteProductVariation = (productId, variationId) => {
+    setProductIdForVariationDeletion(productId);
+    setVariationIdToDelete(variationId);
+    setOpenDeleteVariationDialog(true);
+  };
+
+  // Function to confirm and execute product variation deletion
+  const handleConfirmDeleteVariation = async () => {
+    setOpenDeleteVariationDialog(false);
+    if (!productIdForVariationDeletion || !variationIdToDelete) return;
+
+    setDeletingVariation(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(
+        `${API_URL}/products/${productIdForVariationDeletion}/variations/${variationIdToDelete}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert('Product variation deleted successfully.');
+      // Refresh the variations list for the currently expanded product
+      fetchProductVariationsForDisplay(productIdForVariationDeletion);
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to delete product variation.");
+    } finally {
+      setDeletingVariation(false);
+      setProductIdForVariationDeletion(null);
+      setVariationIdToDelete(null);
+    }
+  };
+
+  // Function to close the variation deletion confirmation dialog
+  const handleCloseDeleteVariationDialog = () => {
+    setOpenDeleteVariationDialog(false);
+    setProductIdForVariationDeletion(null);
+    setVariationIdToDelete(null);
+  };
+
 
   const renderContent = () => {
     switch (activeSection) {
-      
+
+      // Product Management
+      case 'Product Management':
+        return (
+          <div className="scrollable-content">
+            <Card
+              variant="outlined"
+              style={{
+                marginBottom: '20px',
+                maxWidth: 1300,
+                marginLeft: 'auto',
+                marginRight: 'auto',
+              }}
+            >
+              <CardContent>
+                <Typography variant="h6" style={{ fontWeight: 'bold', marginBottom: 16 }}>
+                  Add New Product
+                </Typography>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 12 }}>
+                  <TextField
+                    label="Product Name"
+                    value={newProductName}
+                    onChange={e => setNewProductName(e.target.value)}
+                    size="small"
+                    fullWidth
+                    required
+                  />
+                  <TextField
+                    label="Serial Number"
+                    value={newProductSerialNumber}
+                    onChange={e => setNewProductSerialNumber(e.target.value)}
+                    size="small"
+                    fullWidth
+                    required
+                  />
+                  <TextField
+                    label="Description"
+                    value={newProductDescription}
+                    onChange={e => setNewProductDescription(e.target.value)}
+                    size="small"
+                    fullWidth
+                    multiline
+                    rows={2}
+                    required
+                  />
+                   {/* Removed TextField for Price */}
+                   <TextField
+                    label="Cost" // Changed label
+                    type="number"
+                    value={newProductCost}
+                    onChange={e => setNewProductCost(e.target.value)}
+                    size="small"
+                    fullWidth
+                    inputProps={{ step: "0.01", min: 0 }}
+                    // Removed 'required' as it's now optional
+                  />
+                  <TextField
+                    label="Product Stock Quantity"
+                    type="number"
+                    value={newProductStockQuantity}
+                    onChange={e => setNewProductStockQuantity(e.target.value)}
+                    size="small"
+                    fullWidth
+                    inputProps={{ min: 0 }}
+                    required
+                  />
+                  <FormControl fullWidth size="small" required>
+                    <InputLabel>Department</InputLabel>
+                    <Select
+                      value={selectedProductDepartment}
+                      label="Department"
+                      onChange={e => setSelectedProductDepartment(e.target.value)}
+                    >
+                      {DEPARTMENT_OPTIONS.map(opt => (
+                        <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    label="Category ID"
+                    type="number"
+                    value={selectedProductCategory}
+                    onChange={e => setSelectedProductCategory(e.target.value)}
+                    size="small"
+                    fullWidth
+                    disabled={!selectedProductDepartment}
+                    inputProps={{ min: 1 }}
+                    required
+                  />
+                  <TextField
+                    label="Material"
+                    value={newProductMaterial}
+                    onChange={e => setNewProductMaterial(e.target.value)}
+                    size="small"
+                    fullWidth
+                  />
+                  {/* Removed TextField for Image URL */}
+                  <FormControl fullWidth size="small" required>
+                    <InputLabel>Warranty Status</InputLabel>
+                    <Select
+                      value={newProductWarrantyStatus}
+                      label="Warranty Status"
+                      onChange={e => setNewProductWarrantyStatus(e.target.value)}
+                    >
+                      {WARRANTY_OPTIONS.map(opt => (
+                        <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    label="Distributor Info"
+                    value={newProductDistributorInfo}
+                    onChange={e => setNewProductDistributorInfo(e.target.value)}
+                    size="small"
+                    fullWidth
+                  />
+                  {/* Removed TextField for Popularity Score */}
+
+                  {/* Product Variations for Adding */}
+                  <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
+                    Product Variations:
+                  </Typography>
+                  {newProductVariations.map((variation, index) => (
+                    <div key={index} style={{ border: '1px dashed #ccc', padding: 10, borderRadius: 5, position: 'relative', marginBottom: 10 }}>
+                      <TextField
+                        label="Variation Serial Number"
+                        name="serial_number"
+                        value={variation.serial_number}
+                        onChange={(e) => handleNewProductVariationChange(index, e)}
+                        size="small"
+                        fullWidth
+                        sx={{ mb: 1 }}
+                        required
+                      />
+                      <FormControl fullWidth size="small" sx={{ mb: 1 }} required>
+                        <InputLabel>Size</InputLabel>
+                        <Select
+                          name="size_id"
+                          value={variation.size_id}
+                          label="Size"
+                          onChange={(e) => handleNewProductVariationChange(index, e)}
+                        >
+                          {mockSizes.map(size => (
+                            <MenuItem key={size.id} value={size.id}>{size.name}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                      <FormControl fullWidth size="small" sx={{ mb: 1 }} required>
+                        <InputLabel>Color</InputLabel>
+                        <Select
+                          name="color_id"
+                          value={variation.color_id}
+                          label="Color"
+                          onChange={(e) => handleNewProductVariationChange(index, e)}
+                        >
+                          {mockColors.map(color => (
+                            <MenuItem key={color.id} value={color.id}>{color.name}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                      <TextField
+                        label="Stock Quantity"
+                        name="stock_quantity"
+                        type="number"
+                        value={variation.stock_quantity}
+                        onChange={(e) => handleNewProductVariationChange(index, e)}
+                        size="small"
+                        fullWidth
+                        inputProps={{ min: 0 }}
+                        required
+                      />
+                      {newProductVariations.length > 1 && (
+                        <IconButton
+                          onClick={() => handleRemoveProductVariation(index)}
+                          size="small"
+                          color="error"
+                          sx={{ position: 'absolute', top: 5, right: 5 }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                    </div>
+                  ))}
+                  <Button
+                    variant="outlined"
+                    onClick={handleAddProductVariation}
+                    sx={{ alignSelf: 'flex-start', mb: 2 }}
+                  >
+                    Add Variation
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleAddProduct}
+                    disabled={addingProduct}
+                  >
+                    {addingProduct ? <CircularProgress size={18} /> : "Add Product"}
+                  </Button>
+                </div>
+                <Typography variant="body2" color="textSecondary" style={{ marginBottom: 16 }}>
+                  Adds a new product with its initial variations. Price will be set to -1 by default.
+                </Typography>
+              </CardContent>
+            </Card>
+
+            <Divider style={{ margin: '16px 0' }} />
+
+            <Card
+              variant="outlined"
+              style={{
+                marginBottom: '30px',
+                maxHeight: 630,
+                overflowY: 'auto',
+                maxWidth: 1300,
+                marginLeft: 'auto',
+                marginRight: 'auto'
+              }}
+            >
+              <CardContent>
+                <Typography variant="h6" style={{ fontWeight: 'bold', marginBottom: 16 }}>
+                  Manage Existing Products
+                </Typography>
+                {loadingProducts ? (
+                  <CircularProgress />
+                ) : errorProducts ? (
+                  <Typography color="error">{errorProducts}</Typography>
+                ) : (
+                  <List>
+                    {products.length === 0 ? (
+                      <Typography>No products found.</Typography>
+                    ) : (
+                      products.map((product) => (
+                        <Paper key={product.product_id} elevation={1} sx={{ mb: 2 }}>
+                          <ListItem
+                            style={{
+                              border: '1px solid #ddd',
+                              borderRadius: 8,
+                              background: '#fafafa',
+                              flexDirection: 'column',
+                              alignItems: 'flex-start',
+                              paddingRight: 10,
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                                <ListItemText
+                                    primary={
+                                        <Typography variant="subtitle1" style={{ fontWeight: 'bold' }}>
+                                            ID: {product.product_id}: {product.name}
+                                        </Typography>
+                                    }
+                                    secondary={
+                                      <>
+                                        {/* Removed Cost, Price, Department ID, Category ID */}
+                                      </>
+                                    }
+                                />
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <IconButton
+                                        edge="end"
+                                        aria-label="toggle variations"
+                                        onClick={() => handleToggleVariations(product.product_id)}
+                                        size="small"
+                                    >
+                                        {expandedProductId === product.product_id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                                    </IconButton>
+                                    <IconButton
+                                        edge="end"
+                                        aria-label="delete product"
+                                        onClick={() => handleDeleteProduct(product.product_id)}
+                                        color="error"
+                                        disabled={loadingProducts}
+                                    >
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </Box>
+                            </Box>
+                            <Collapse in={expandedProductId === product.product_id} timeout="auto" unmountOnExit sx={{ width: '100%' }}>
+                                <Box sx={{ mt: 2, pl: 2, pr: 2, pb: 1, borderTop: '1px solid #eee' }}>
+                                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                                        Variations:
+                                    </Typography>
+                                    {loadingProductVariationsForDisplay ? (
+                                        <CircularProgress size={20} />
+                                    ) : errorProductVariationsForDisplay ? (
+                                        <Typography color="error">{errorProductVariationsForDisplay}</Typography>
+                                    ) : productVariationsForDisplay.length === 0 ? (
+                                        <Typography variant="body2" color="textSecondary">No variations found for this product.</Typography>
+                                    ) : (
+                                        <List dense disablePadding>
+                                            {productVariationsForDisplay.map(variation => (
+                                                <ListItem key={variation.variation_id} sx={{ pl: 0, pr: 0 }}>
+                                                    <ListItemText
+                                                        primary={`ID: ${variation.variation_id}`}
+                                                        secondary={
+                                                          `Size: ${mockSizes.find(s => s.id === variation.size_id)?.name || 'N/A'} | Color: ${mockColors.find(c => c.id === variation.color_id)?.name || 'N/A'} | Stock: ${variation.stock_quantity}`
+                                                        }
+                                                    />
+                                                    <IconButton
+                                                        edge="end"
+                                                        aria-label="delete variation"
+                                                        onClick={() => handleDeleteProductVariation(product.product_id, variation.variation_id)}
+                                                        color="error"
+                                                        size="small"
+                                                        disabled={deletingVariation}
+                                                    >
+                                                        <DeleteIcon fontSize="small" />
+                                                    </IconButton>
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    )}
+                                </Box>
+                            </Collapse>
+                          </ListItem>
+                        </Paper>
+                      ))
+                    )}
+                  </List>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Product Deletion Confirmation Dialog */}
+            <Dialog
+              open={openDeleteProductDialog}
+              onClose={handleCloseDeleteProductDialog}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">{"Confirm Product Deletion"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Are you sure you want to delete this product (ID: {deletingProductId})? This action cannot be undone. All associated variations will also be deleted.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseDeleteProductDialog} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={handleConfirmDeleteProduct} color="error" autoFocus>
+                  Delete
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* Product Variation Deletion Confirmation Dialog */}
+            <Dialog
+              open={openDeleteVariationDialog}
+              onClose={handleCloseDeleteVariationDialog}
+              aria-labelledby="delete-variation-dialog-title"
+              aria-describedby="delete-variation-dialog-description"
+            >
+              <DialogTitle id="delete-variation-dialog-title">{"Confirm Variation Deletion"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="delete-variation-dialog-description">
+                  Are you sure you want to delete variation ID {variationIdToDelete} for product ID {productIdForVariationDeletion}? This action cannot be undone.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseDeleteVariationDialog} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={handleConfirmDeleteVariation} color="error" autoFocus disabled={deletingVariation}>
+                  {deletingVariation ? <CircularProgress size={18} /> : 'Delete Variation'}
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </div>
+        );
+
       // stock management
       case 'Stock Management':
         return (
@@ -506,6 +1200,7 @@ const ProductManagerPage = () => {
                           <th style={{ border: '1px solid #ddd', padding: '8px' }}>Size ID</th>
                           <th style={{ border: '1px solid #ddd', padding: '8px' }}>Color ID</th>
                           <th style={{ border: '1px solid #ddd', padding: '8px' }}>Stock Quantity</th>
+                          <th style={{ border: '1px solid #ddd', padding: '8px' }}>Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -551,29 +1246,6 @@ const ProductManagerPage = () => {
             </Card>
           </div>
         );
-
-      // ===========================================================================
-      // ===========================================================================
-
-      // product management
-      // TODO: @zeynepyaman please write frontend for product management here
-      case 'Product Management':
-        return (
-          <div className="scrollable-content">
-            <Card variant="outlined" style={{ marginBottom: '20px' }}>
-              <CardContent>
-                <Typography variant="h6">Product Management</Typography>
-                <List>
-                  <ListItem>Add or remove products</ListItem>
-                </List>
-              </CardContent>
-            </Card>
-          </div>
-        );
-
-
-      // ===========================================================================
-      // ===========================================================================
 
       // category management
       case 'Category Management':
@@ -745,13 +1417,13 @@ const ProductManagerPage = () => {
           <div className="scrollable-content">
             <Card variant="outlined" style={{ marginBottom: '20px' }}>
               <CardContent>
-                <Typography 
+                <Typography
                   variant="h6"
                   style={{ marginBottom: '20px', fontWeight: 'bold' }}
                 >
                     Delivery Management
                   </Typography>
-                
+
                 {/* Filter Dropdown with Icon */}
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
                   <FilterListIcon style={{ marginRight: '8px', color: 'rgba(0, 0, 0, 0.54)' }} />
@@ -1095,7 +1767,7 @@ const ProductManagerPage = () => {
                 Hello Product Manager {managerInfo.username}
               </Typography>
               <Typography variant="body1">
-                <strong>Role:</strong> Sales Manager
+                <strong>Role:</strong> Product Manager
               </Typography>
               <Typography variant="body1">
                 <strong>Email:</strong> {managerInfo.email}
