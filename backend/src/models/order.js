@@ -1,10 +1,10 @@
 const db = require('../config/database');
 
 const Order = {
-  create: async ({ user_id, delivery_address, total_price }) => {
+  create: async ({ user_id, delivery_address, total_price, invoice_pdf_url }) => {
     const [result] = await db.execute(
-      'INSERT INTO orders (user_id, delivery_address, total_price) VALUES (?, ?, ?)',
-      [user_id, delivery_address, total_price]
+      'INSERT INTO orders (user_id, delivery_address, total_price, invoice_pdf_url) VALUES (?, ?, ?, ?)',
+      [user_id, delivery_address, total_price, invoice_pdf_url]
     );
     return result.insertId;
   },

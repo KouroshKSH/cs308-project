@@ -16,7 +16,22 @@ exports.createOrder = async (req, res) => {
     }
 
     // Creating order
-    const orderId = await Order.create({ user_id, delivery_address, total_price });
+    // Generate invoice URL string
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const HH = String(now.getHours()).padStart(2, '0');
+    const MM = String(now.getMinutes()).padStart(2, '0');
+    const invoice_pdf_url = `${yyyy}-${mm}-${dd}-${HH}-${MM}`;
+
+    // for logging
+    console.log("Creating order for user_id:", user_id);
+    console.log("Delivery address:", delivery_address);
+    console.log("Total price:", total_price);
+    console.log("Invoice PDF URL:", invoice_pdf_url);
+
+    const orderId = await Order.create({ user_id, delivery_address, total_price, invoice_pdf_url });
 
     // create random tracking number that starts with "TRK" and is followed by date as yyyy-mm-dd-hh-mm-ss and 3 random digits to avoid duplicates
     const tracking_number = `TRK-${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}-${Math.floor(Math.random() * 1000)}`;
