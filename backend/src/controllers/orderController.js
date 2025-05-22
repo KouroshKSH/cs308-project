@@ -3,6 +3,7 @@ const OrderItem = require('../models/orderItem');
 const Deliveries = require('../models/deliveries');
 const Cart = require('../models/cart');
 const Product = require('../models/product');
+const { sendOrderConfirmation } = require('../mailer');
 
 const pool = require("../config/database");
 
@@ -94,6 +95,28 @@ exports.createOrder = async (req, res) => {
       }))
     );
 
+    console.log("Sending confirmation email to:", req.user.email);
+
+    const [userRows] = await pool.query(
+      `SELECT email FROM users WHERE user_id = ?`,
+      [user_id]
+    );
+    
+    if (userRows.length === 0 || !userRows[0].email) {
+      console.warn('User email not found, skipping email send');
+    } else {
+      const userEmail = userRows[0].email;
+      console.log("Sending confirmation email to:", userEmail);
+      try {
+        await sendOrderConfirmation(userEmail, {
+          orderId,
+          total_price,
+          invoice_pdf_url
+        });
+      } catch (err) {
+        console.error('Email sending failed:', err.message);
+      }
+    }
     // once the order is created, the stock is updated, and cart items are removed,
     // then we can create the order
     res.status(201).json({ message: 'Order created successfully', order_id: orderId });
