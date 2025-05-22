@@ -1,67 +1,57 @@
+// backend/src/insert_user.js
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 
-async function registerUser() {
-    try {
-        const connection = await mysql.createConnection({
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME
-        });
+async function insertTestManager() {
+  // Read DB config from .env
+  const {
+    DB_HOST,
+    DB_USER,
+    DB_PASSWORD,
+    DB_NAME,
+    DB_PORT,
+  } = process.env;
 
-        const hashedPassword = await bcrypt.hash('pas123', 10);
+  let connection;
 
-        const [result] = await connection.execute(
-            'INSERT INTO users (username, email, password_hash, role, address, phone_number) VALUES (?, ?, ?, ?, ?, ?)',
-            ['SalesMan1', 'salesmanager1@email.com', hashedPassword, 'salesManager', 'Sales Branch', '444-555-6666']
-        );
+  try {
+    connection = await mysql.createConnection({
+      host: DB_HOST,
+      user: DB_USER,
+      password: DB_PASSWORD,
+      database: DB_NAME,
+      port: DB_PORT ? Number(DB_PORT) : undefined,
+    });
 
-        console.log('User inserted:', result);
-        await connection.end();
-    } catch (error) {
-        console.error('Error inserting user:', error);
+    // Prepare test data
+    const username = 'SalesMan2';
+    const email    = 'salesmanager2@example.com';
+    const role     = 'salesManager';
+    const address  = 'Sales Branch';
+    const phone    = '444-555-6666';
+    const plainPwd = 'pas123456';
+
+    // Hash the password
+    const passwordHash = await bcrypt.hash(plainPwd, 10);
+
+    // Insert into users table
+    const [result] = await connection.execute(
+      `INSERT INTO users 
+         (username, email, password_hash, role, address, phone_number) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [username, email, passwordHash, role, address, phone]
+    );
+
+    console.log('✔️  Inserted user with ID:', result.insertId);
+  } catch (err) {
+    console.error('❌  Error inserting user:', err.message);
+  } finally {
+    if (connection) {
+      await connection.end();
     }
+  }
 }
 
-registerUser();
-
-// some examples for doing CURL and checking per customer
-// example 1:
-// email: `newuser@example.com`
-// password: `password123`
-// the CURL command to run:
-/*
-curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json" -d '{
-  "email": "newuser@example.com",
-  "password": "password123"
-}'
-*/
-// paste everything in between the forward slashes into the terminal
-// change the email and password to the ones you want to test
-
-// example 2:
-// email: `newuser1@example.com`
-// password: `password1234`
-// the CURL command to run:
-/*
-curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json" -d '{
-  "email": "newuser1@example.com",
-  "password": "password1234"
-}'
-*/
-
-// example 3:
-// email: `john.doe@email.com`
-// password: `=R7Py@Dh?K#Cqd&`
-// the CURL command to run:
-/*
-curl -X POST http://localhost:5000/api/login -H "Content-Type: application/json" -d '{
-  "email": "john.doe@example.com",
-  "password": "=R7Py@Dh?K#Cqd&"
-}'
-*/
-
-// for more examples, check out `backend/src/database/testing_login.txt`
+insertTestManager();
