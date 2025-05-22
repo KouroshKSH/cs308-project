@@ -225,10 +225,17 @@ const Product = {
     return rows;
   },
 
-  // fetching for the sales campaigns basically (very niche i know)
+  // fetching for the sales campaigns and price management
   async getAllProducts() {
     const query = `
-      SELECT product_id, name
+      SELECT 
+        product_id, 
+        name, 
+        serial_number,
+        price,
+        cost,
+        department_id,
+        stock_quantity
       FROM products;
     `;
     const [rows] = await pool.query(query);
@@ -319,7 +326,7 @@ const Product = {
   
   async getProductsWithNoPrice() {
     const [rows] = await pool.query(
-      "SELECT * FROM products WHERE price = -1"
+      "SELECT * FROM products WHERE price < 0"
     );
     return rows;
   },
