@@ -1,24 +1,67 @@
 const Returns = require('../models/returns');
 const ProductVariations = require('../models/productVariations');
+const Order = require('../models/order');
 const db = require('../config/database');
 
 exports.createReturn = async (req, res) => {
   try {
     const userId = req.user.user_id;
-    const { order_id, refund_amount } = req.body;
+    // Removed refund_amount from req.body as it will be pulled from the order
+    const { order_id } = req.body;
     // no more order_item_id and quantity in the returns table
 
     if (!order_id) {
       return res.status(400).json({ message: "order_id is required" });
     }
 
+    // 1. Fetch the order details
+    const order = await Order.getById(order_id);
+
+    // Check if the order exists
+    if (!order) {
+      return res.status(404).json({ message: "Order not found." });
+    }
+
+    // Ensure the user owns the order (security check)
+    if (order.user_id !== userId) {
+      return res.status(403).json({ message: "You are not authorized to create a return for this order." });
+    }
+
+    // 2. Check order status: Must be 'delivered'
+    if (order.status.toLowerCase() !== 'delivered') {
+      return res.status(400).json({ message: `Return requests can only be made for 'delivered' orders. Current status: ${order.status}.` });
+    }
+
+    // 3. Check time limit: Less than 30 days since order_date
+    const orderDate = new Date(order.order_date);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    if (orderDate < thirtyDaysAgo) {
+      return res.status(400).json({ message: "Return requests can only be made within 30 days of the order date." });
+    }
+
+    const [existingReturns] = await db.execute(
+      `SELECT return_id, status FROM returns WHERE order_id = ?`,
+      [order_id]
+    );
+
+    // If any return request exists for this order, prevent a new request.
+    if (existingReturns.length > 0) {
+      return res.status(400).json({ message: `A return request for this order already exists with status: ${existingReturns[0].status}.` });
+    }
+
+    // Use the total_price from the fetched order as the refund_amount
+    const refund_amount = order.total_price;
+
+    // If all checks pass, proceed with creating the return request
     const returnId = await Returns.create({
       order_id,
-      refund_amount,
+      refund_amount, // Now using the total_price from the order
       user_id: userId
     });
 
-    res.status(201).json({ message: "Return request created", return_id: returnId });
+    res.status(201).json({ message: "Return request created successfully", return_id: returnId });
   } catch (err) {
     console.error("Create return failed:", err);
     res.status(500).json({ error: err.message });
