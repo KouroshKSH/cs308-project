@@ -793,6 +793,7 @@ const ProductManagerPage = () => {
                             primary={`Order ID: ${delivery.order_id}`}
                             secondary={
                               <>
+                                <div><strong>Customer ID:</strong> {delivery.user_id ?? 'N/A'}</div>
                                 <div><strong>Status:</strong> {delivery.delivery_status}</div>
                                 <div><strong>Address:</strong> {delivery.delivery_address}</div>
                                 <div><strong>Tracking Number:</strong> {delivery.tracking_number || 'N/A'}</div>

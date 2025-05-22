@@ -11,7 +11,11 @@ const Deliveries = {
     return result.insertId;
   },
   getAll: async () => {
-    const [rows] = await db.execute('SELECT * FROM deliveries');
+    const [rows] = await db.execute(`
+      SELECT d.*, o.user_id
+      FROM deliveries d
+      JOIN orders o ON d.order_id = o.order_id
+    `);
     return rows;
   },
   getByOrderId: async (orderId) => {
@@ -19,7 +23,12 @@ const Deliveries = {
     return rows[0];
   },
   getByStatus: async (status) => {
-    const [rows] = await db.execute('SELECT * FROM deliveries WHERE delivery_status = ?', [status]);
+    const [rows] = await db.execute(`
+      SELECT d.*, o.user_id
+      FROM deliveries d
+      JOIN orders o ON d.order_id = o.order_id
+      WHERE d.delivery_status = ?
+    `, [status]);
     return rows;
   },
   updateStatus: async (id, delivery_status) => {
