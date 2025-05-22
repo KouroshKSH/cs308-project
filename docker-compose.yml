@@ -10,7 +10,7 @@ services:
       MYSQL_USER: cs308project
       MYSQL_PASSWORD: CS308_team9
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
 
