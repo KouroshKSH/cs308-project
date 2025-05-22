@@ -61,6 +61,15 @@ const SalesManagerPage = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState(""); // Default to no filter
 
+  // for Price Management
+  const [priceProducts, setPriceProducts] = useState([]);
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [priceError, setPriceError] = useState(null);
+  const [priceFilter, setPriceFilter] = useState("all"); // "all" or "unpriced"
+  const [priceInputs, setPriceInputs] = useState({});
+  const [updatingPrice, setUpdatingPrice] = useState({});
+
+
   // for invoices
   const [invoices, setInvoices] = useState([]);
   const [invoicesLoading, setInvoicesLoading] = useState(false);
@@ -277,6 +286,70 @@ const SalesManagerPage = () => {
     } catch (err) {
       console.error("Failed to create sales campaign:", err);
       alert(err.response?.data?.message || "Failed to create sales campaign. Please try again.");
+    }
+  };
+
+  // Fetch products for price management
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setPriceLoading(true);
+      setPriceError(null);
+      try {
+        let url = `${API_URL}/products`;
+        let config = {};
+        if (priceFilter === "unpriced") {
+          url = `${API_URL}/products/get-unpriced-products`;
+          const token = localStorage.getItem("token");
+          config.headers = { Authorization: `Bearer ${token}` };
+        }
+        const res = await axios.get(url, config);
+        setPriceProducts(res.data);
+      } catch (err) {
+        setPriceError("Failed to fetch products.");
+      } finally {
+        setPriceLoading(false);
+      }
+    };
+    fetchProducts();
+  }, [priceFilter]);
+
+  // Handle price input change
+  const handlePriceInputChange = (productId, value) => {
+    // Only allow numbers and empty string
+    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+      setPriceInputs((prev) => ({ ...prev, [productId]: value }));
+    }
+  };
+
+  // Handle price update
+  const handleUpdatePrice = async (productId) => {
+    const value = priceInputs[productId];
+    if (value === "" || isNaN(value) || Number(value) < 0) {
+      alert("Please enter a non-negative price.");
+      return;
+    }
+    setUpdatingPrice((prev) => ({ ...prev, [productId]: true }));
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `${API_URL}/products/set-price/${productId}`,
+        { price: Number(value) },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // Refetch products after update
+      let url = `${API_URL}/products`;
+      let config = {};
+      if (priceFilter === "unpriced") {
+        url = `${API_URL}/products/get-unpriced-products`;
+        config.headers = { Authorization: `Bearer ${token}` };
+      }
+      const res = await axios.get(url, config);
+      setPriceProducts(res.data);
+      setPriceInputs((prev) => ({ ...prev, [productId]: "" }));
+    } catch (err) {
+      alert("Failed to update price.");
+    } finally {
+      setUpdatingPrice((prev) => ({ ...prev, [productId]: false }));
     }
   };
 
@@ -762,16 +835,96 @@ const SalesManagerPage = () => {
           );
       case 'Price Management':
         return (
-          <Card variant="outlined" style={{ marginBottom: '20px' }}>
-            <CardContent>
-              <Typography variant="h6">Price Management</Typography>
-              <List>
-                <ListItem>Set product prices</ListItem>
-                {/* <ListItem>- Apply discounts to selected items</ListItem> */}
-                {/* <ListItem>- Notify users with items in their wishlist</ListItem> */}
-              </List>
-            </CardContent>
-          </Card>
+        <Card variant="outlined" style={{ marginBottom: '20px' }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Price Management
+            </Typography>
+            {/* Filter Dropdown */}
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', gap: '10px' }}>
+              <FormControl style={{ minWidth: 200 }}>
+                <InputLabel id="price-filter-label">Filter Products</InputLabel>
+                <Select
+                  labelId="price-filter-label"
+                  value={priceFilter}
+                  label="Filter Products"
+                  onChange={e => setPriceFilter(e.target.value)}
+                >
+                  <MenuItem value="all">All Products</MenuItem>
+                  <MenuItem value="unpriced">Unpriced Only</MenuItem>
+                </Select>
+              </FormControl>
+            </div>
+            {priceLoading ? (
+              <CircularProgress />
+            ) : priceError ? (
+              <Typography color="error">{priceError}</Typography>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      <th style={{ border: '1px solid #ddd', padding: '8px' }}>Product ID</th>
+                      <th style={{ border: '1px solid #ddd', padding: '8px' }}>Name</th>
+                      <th style={{ border: '1px solid #ddd', padding: '8px' }}>Serial Number</th>
+                      <th style={{ border: '1px solid #ddd', padding: '8px' }}>Price</th>
+                      <th style={{ border: '1px solid #ddd', padding: '8px' }}>Cost</th>
+                      <th style={{ border: '1px solid #ddd', padding: '8px' }}>Department ID</th>
+                      <th style={{ border: '1px solid #ddd', padding: '8px' }}>Stock Quantity</th>
+                      <th style={{ border: '1px solid #ddd', padding: '8px', minWidth: 180 }}>Set Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {priceProducts.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} style={{ textAlign: 'center', padding: '16px' }}>
+                          No products found.
+                        </td>
+                      </tr>
+                    ) : (
+                      priceProducts.map((row) => (
+                        <tr key={row.product_id}>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.product_id}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.name}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.serial_number}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.price}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.cost}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.department_id}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.stock_quantity}</td>
+                          <td style={{ border: '1px solid #ddd', padding: '8px', minWidth: 180 }}>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              style={{ width: 90, marginRight: 8, padding: 4 }}
+                              value={priceInputs[row.product_id] || ''}
+                              onChange={e => handlePriceInputChange(row.product_id, e.target.value)}
+                            />
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              size="small"
+                              disabled={
+                                updatingPrice[row.product_id] ||
+                                priceInputs[row.product_id] === undefined ||
+                                priceInputs[row.product_id] === "" ||
+                                isNaN(priceInputs[row.product_id]) ||
+                                Number(priceInputs[row.product_id]) < 0
+                              }
+                              onClick={() => handleUpdatePrice(row.product_id)}
+                            >
+                              {updatingPrice[row.product_id] ? <CircularProgress size={18} /> : 'Set'}
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
         );
       case 'Invoices':
         return (
