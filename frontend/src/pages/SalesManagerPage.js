@@ -315,8 +315,8 @@ const SalesManagerPage = () => {
 
   // Handle price input change
   const handlePriceInputChange = (productId, value) => {
-    // Only allow numbers and empty string
-    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+    // Allow negative numbers, decimals, and empty string
+    if (value === "" || /^-?\d*\.?\d*$/.test(value)) {
       setPriceInputs((prev) => ({ ...prev, [productId]: value }));
     }
   };
@@ -324,8 +324,8 @@ const SalesManagerPage = () => {
   // Handle price update
   const handleUpdatePrice = async (productId) => {
     const value = priceInputs[productId];
-    if (value === "" || isNaN(value) || Number(value) < 0) {
-      alert("Please enter a non-negative price.");
+    if (value === "" || isNaN(value)) {
+      alert("Please enter a valid price.");
       return;
     }
     setUpdatingPrice((prev) => ({ ...prev, [productId]: true }));
@@ -870,7 +870,6 @@ const SalesManagerPage = () => {
                       <th style={{ border: '1px solid #ddd', padding: '8px' }}>Price</th>
                       <th style={{ border: '1px solid #ddd', padding: '8px' }}>Cost</th>
                       <th style={{ border: '1px solid #ddd', padding: '8px' }}>Department ID</th>
-                      <th style={{ border: '1px solid #ddd', padding: '8px' }}>Stock Quantity</th>
                       <th style={{ border: '1px solid #ddd', padding: '8px', minWidth: 180 }}>Set Price</th>
                     </tr>
                   </thead>
@@ -890,31 +889,28 @@ const SalesManagerPage = () => {
                           <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.price}</td>
                           <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.cost}</td>
                           <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.department_id}</td>
-                          <td style={{ border: '1px solid #ddd', padding: '8px' }}>{row.stock_quantity}</td>
                           <td style={{ border: '1px solid #ddd', padding: '8px', minWidth: 180 }}>
-                            <input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              style={{ width: 90, marginRight: 8, padding: 4 }}
-                              value={priceInputs[row.product_id] || ''}
-                              onChange={e => handlePriceInputChange(row.product_id, e.target.value)}
-                            />
-                            <Button
-                              variant="contained"
-                              color="primary"
-                              size="small"
-                              disabled={
-                                updatingPrice[row.product_id] ||
-                                priceInputs[row.product_id] === undefined ||
-                                priceInputs[row.product_id] === "" ||
-                                isNaN(priceInputs[row.product_id]) ||
-                                Number(priceInputs[row.product_id]) < 0
-                              }
-                              onClick={() => handleUpdatePrice(row.product_id)}
-                            >
-                              {updatingPrice[row.product_id] ? <CircularProgress size={18} /> : 'Set'}
-                            </Button>
+                          <input
+                            type="number"
+                            step="0.01"
+                            style={{ width: 90, marginRight: 8, padding: 4 }}
+                            value={priceInputs[row.product_id] || ''}
+                            onChange={e => handlePriceInputChange(row.product_id, e.target.value)}
+                          />
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            disabled={
+                              updatingPrice[row.product_id] ||
+                              priceInputs[row.product_id] === undefined ||
+                              priceInputs[row.product_id] === "" ||
+                              isNaN(priceInputs[row.product_id])
+                            }
+                            onClick={() => handleUpdatePrice(row.product_id)}
+                          >
+                            {updatingPrice[row.product_id] ? <CircularProgress size={18} /> : 'Set'}
+                          </Button>
                           </td>
                         </tr>
                       ))
