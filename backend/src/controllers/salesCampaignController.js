@@ -1,4 +1,7 @@
 const SalesCampaign = require("../models/salesCampaign");
+const db = require('../config/database');
+const Product = require('../models/product');
+const { sendWishlistSaleNotification } = require('../mailer');
 
 const salesCampaignController = {
     // Get all sales campaigns
@@ -36,6 +39,46 @@ const salesCampaignController = {
 
             console.log("Created sales campaign:", { productId, discountPercent, startDate, endDate, salesId });
             res.status(201).json({ salesId });
+
+            try {
+                // 1. Get product name
+                const [productRows] = await db.execute(
+                    `SELECT name FROM products WHERE product_id = ?`,
+                    [productId]
+                );
+                const productName = productRows.length > 0 ? productRows[0].name : `Unknown Product (ID: ${productId})`;
+
+                // 2. Find all users who have this product in their wishlist
+                const [wishlistUsers] = await db.execute(
+                    `SELECT DISTINCT w.user_id, u.email
+                     FROM wishlists w
+                     JOIN users u ON w.user_id = u.user_id
+                     WHERE w.product_id = ?`,
+                    [productId]
+                );
+
+                // 3. Send email to each user
+                if (wishlistUsers.length > 0) {
+                    console.log(`Sending sale notification for Product #${productId} to ${wishlistUsers.length} users.`);
+                    for (const user of wishlistUsers) {
+                        if (user.email) {
+                            await sendWishlistSaleNotification(
+                                user.email,
+                                { productId, productName },
+                                discountPercent,
+                                endDate
+                            );
+                        } else {
+                            console.warn(`User ${user.user_id} has no email, skipping wishlist sale notification.`);
+                        }
+                    }
+                } else {
+                    console.log(`No users found with Product #${productId} in their wishlist.`);
+                }
+            } catch (notificationError) {
+                console.error("Error sending wishlist sale notifications:", notificationError);
+                // Don't re-throw, as the sales campaign was successfully created
+            }
         } catch (error) {
             console.error("Error creating sales campaign:", error);
             res.status(500).json({ message: "Failed to create sales campaign" });
