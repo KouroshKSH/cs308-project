@@ -2,6 +2,8 @@ const Returns = require('../models/returns');
 const ProductVariations = require('../models/productVariations');
 const Order = require('../models/order');
 const db = require('../config/database');
+const { sendOrderConfirmation, sendRefundConfirmation } = require('../mailer');
+const { generateInvoicePdf } = require('../invoicePdfGenerator');
 
 exports.createReturn = async (req, res) => {
   try {

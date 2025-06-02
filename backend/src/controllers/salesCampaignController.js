@@ -1,4 +1,7 @@
 const SalesCampaign = require("../models/salesCampaign");
+const db = require('../config/database');
+const Product = require('../models/product');
+const { sendWishlistSaleNotification } = require('../mailer');
 
 const salesCampaignController = {
     // Get all sales campaigns
