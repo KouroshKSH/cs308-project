@@ -2,6 +2,7 @@ const Returns = require('../models/returns');
 const ProductVariations = require('../models/productVariations');
 const Order = require('../models/order');
 const db = require('../config/database');
+const { sendRefundConfirmation } = require('../mailer');
 
 exports.createReturn = async (req, res) => {
   try {
@@ -140,6 +141,28 @@ exports.updateReturnStatus = async (req, res) => {
         "UPDATE orders SET status = 'refunded' WHERE order_id = ?",
         [ret.order_id]
       );
+
+      const [[order]] = await db.execute("SELECT * FROM orders WHERE order_id = ?", [ret.order_id]);
+      if (!order) return res.status(404).json({ message: "Associated order not found" });
+
+      const [userRows] = await db.execute(
+        `SELECT email FROM users WHERE user_id = ?`,
+        [order.user_id] // 'order' is now guaranteed to be defined here
+      );
+
+      if (userRows.length === 0 || !userRows[0].email) {
+        console.warn(`User email not found for order #${order.order_id}, skipping refund email.`);
+      } else {
+        const userEmail = userRows[0].email;
+        console.log(`Attempting to send refund confirmation email for Order #${order.order_id} to ${userEmail}`);
+        try {
+          await sendRefundConfirmation(userEmail, {
+            orderId: order.order_id
+          }, parseFloat(order.total_price)); // 'order.total_price' is also defined
+        } catch (err) {
+          console.error(`Failed to send refund email for Order #${order.order_id}:`, err.message);
+        }
+      }
     }
 
     // If rejected, do NOT change order status (remains delivered)

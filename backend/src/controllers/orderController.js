@@ -3,6 +3,8 @@ const OrderItem = require('../models/orderItem');
 const Deliveries = require('../models/deliveries');
 const Cart = require('../models/cart');
 const Product = require('../models/product');
+const { sendOrderConfirmation, sendRefundConfirmation } = require('../mailer');
+const { generateInvoicePdf } = require('../invoicePdfGenerator');
 
 const pool = require("../config/database");
 
@@ -15,23 +17,7 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Creating order
-    // Generate invoice URL string
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    const HH = String(now.getHours()).padStart(2, '0');
-    const MM = String(now.getMinutes()).padStart(2, '0');
-    const invoice_pdf_url = `${yyyy}-${mm}-${dd}-${HH}-${MM}`;
-
-    // for logging
-    console.log("Creating order for user_id:", user_id);
-    console.log("Delivery address:", delivery_address);
-    console.log("Total price:", total_price);
-    console.log("Invoice PDF URL:", invoice_pdf_url);
-
-    const orderId = await Order.create({ user_id, delivery_address, total_price, invoice_pdf_url });
+    const orderId = await Order.create({ user_id, delivery_address, total_price, invoice_pdf_url: null });
 
     // create random tracking number that starts with "TRK" and is followed by date as yyyy-mm-dd-hh-mm-ss and 3 random digits to avoid duplicates
     const tracking_number = `TRK-${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}-${Math.floor(Math.random() * 1000)}`;
@@ -94,6 +80,48 @@ exports.createOrder = async (req, res) => {
       }))
     );
 
+    console.log("Sending confirmation email to:", req.user.email);
+
+    const [userRows] = await pool.query(
+      `SELECT email FROM users WHERE user_id = ?`,
+      [user_id]
+    );
+    
+    if (userRows.length === 0 || !userRows[0].email) {
+      console.warn('User email not found, skipping email send');
+    } else {
+      const userEmail = userRows[0].email;
+      console.log("Attempting to send order confirmation email to:", userEmail);
+      try {
+        // Fetch the newly created order details to get order_date and other necessary info
+        const createdOrder = await Order.getById(orderId);
+        // Fetch order items with product names for PDF generation
+        const orderItemsForPdf = await OrderItem.getByOrderId(orderId);
+        const detailedOrderItemsForPdf = await Promise.all(orderItemsForPdf.map(async (item) => {
+          const product = await Product.getProductById(item.product_id);
+          return {
+            ...item,
+            product_name: product?.name || "Unknown Product",
+          };
+        }));
+
+        // Generate PDF
+        const invoicePdfBuffer = await generateInvoicePdf({
+          orderId: createdOrder.order_id,
+          total_price: createdOrder.total_price,
+          delivery_address: createdOrder.delivery_address,
+          order_date: createdOrder.order_date // Pass order_date here
+        }, detailedOrderItemsForPdf);
+
+        // Send email with PDF attachment
+        await sendOrderConfirmation(userEmail, {
+          orderId: createdOrder.order_id,
+          total_price: createdOrder.total_price
+        }, invoicePdfBuffer); // Pass the PDF buffer
+      } catch (err) {
+        console.error('Email sending failed:', err.message);
+      }
+    }
     // once the order is created, the stock is updated, and cart items are removed,
     // then we can create the order
     res.status(201).json({ message: 'Order created successfully', order_id: orderId });
@@ -153,6 +181,31 @@ exports.updateOrderStatus = async (req, res) => {
 
     await Order.updateStatus(orderId, status);
     res.json({ message: "Order status updated" });
+
+    if (status === 'refunded') {
+      const user_id = order.user_id;
+      const refundedAmount = order.total_price;
+
+      const [userRows] = await pool.query(
+        `SELECT email FROM users WHERE user_id = ?`,
+        [user_id]
+      );
+
+      if (userRows.length === 0 || !userRows[0].email) {
+        console.warn(`User email not found for refund, skipping email send for Order #${orderId}`);
+      } else {
+        const userEmail = userRows[0].email;
+        console.log(`Attempting to send refund confirmation email to ${userEmail} for Order #${orderId}`);
+        try {
+          // This call will assume `sendRefundConfirmation` is imported from '../mailer'
+          await sendRefundConfirmation(userEmail, {
+            orderId: order.order_id
+          }, refundedAmount);
+        } catch (err) {
+          console.error(`Refund email sending failed for Order #${orderId}:`, err.message);
+        }
+      }
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
